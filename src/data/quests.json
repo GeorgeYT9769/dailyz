@@ -1,0 +1,2198 @@
+[
+  {
+    "id": 1,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 1)",
+    "reward": 1
+  },
+  {
+    "id": 2,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 2)",
+    "reward": 2
+  },
+  {
+    "id": 3,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 3)",
+    "reward": 3
+  },
+  {
+    "id": 4,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 4)",
+    "reward": 1
+  },
+  {
+    "id": 5,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 5)",
+    "reward": 2
+  },
+  {
+    "id": 6,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 6)",
+    "reward": 3
+  },
+  {
+    "id": 7,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 7)",
+    "reward": 1
+  },
+  {
+    "id": 8,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 8)",
+    "reward": 2
+  },
+  {
+    "id": 9,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 9)",
+    "reward": 3
+  },
+  {
+    "id": 10,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 10)",
+    "reward": 1
+  },
+  {
+    "id": 11,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 11)",
+    "reward": 2
+  },
+  {
+    "id": 12,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 12)",
+    "reward": 3
+  },
+  {
+    "id": 13,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 13)",
+    "reward": 1
+  },
+  {
+    "id": 14,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 14)",
+    "reward": 2
+  },
+  {
+    "id": 15,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 15)",
+    "reward": 3
+  },
+  {
+    "id": 16,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 16)",
+    "reward": 1
+  },
+  {
+    "id": 17,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 17)",
+    "reward": 2
+  },
+  {
+    "id": 18,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 18)",
+    "reward": 3
+  },
+  {
+    "id": 19,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 19)",
+    "reward": 1
+  },
+  {
+    "id": 20,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 20)",
+    "reward": 2
+  },
+  {
+    "id": 21,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 21)",
+    "reward": 3
+  },
+  {
+    "id": 22,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 22)",
+    "reward": 1
+  },
+  {
+    "id": 23,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 23)",
+    "reward": 2
+  },
+  {
+    "id": 24,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 24)",
+    "reward": 3
+  },
+  {
+    "id": 25,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 25)",
+    "reward": 1
+  },
+  {
+    "id": 26,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 26)",
+    "reward": 2
+  },
+  {
+    "id": 27,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 27)",
+    "reward": 3
+  },
+  {
+    "id": 28,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 28)",
+    "reward": 1
+  },
+  {
+    "id": 29,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 29)",
+    "reward": 2
+  },
+  {
+    "id": 30,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 30)",
+    "reward": 3
+  },
+  {
+    "id": 31,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 31)",
+    "reward": 1
+  },
+  {
+    "id": 32,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 32)",
+    "reward": 2
+  },
+  {
+    "id": 33,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 33)",
+    "reward": 3
+  },
+  {
+    "id": 34,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 34)",
+    "reward": 1
+  },
+  {
+    "id": 35,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 35)",
+    "reward": 2
+  },
+  {
+    "id": 36,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 36)",
+    "reward": 3
+  },
+  {
+    "id": 37,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 37)",
+    "reward": 1
+  },
+  {
+    "id": 38,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 38)",
+    "reward": 2
+  },
+  {
+    "id": 39,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 39)",
+    "reward": 3
+  },
+  {
+    "id": 40,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 40)",
+    "reward": 1
+  },
+  {
+    "id": 41,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 41)",
+    "reward": 2
+  },
+  {
+    "id": 42,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 42)",
+    "reward": 3
+  },
+  {
+    "id": 43,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 43)",
+    "reward": 1
+  },
+  {
+    "id": 44,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 44)",
+    "reward": 2
+  },
+  {
+    "id": 45,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 45)",
+    "reward": 3
+  },
+  {
+    "id": 46,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 46)",
+    "reward": 1
+  },
+  {
+    "id": 47,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 47)",
+    "reward": 2
+  },
+  {
+    "id": 48,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 48)",
+    "reward": 3
+  },
+  {
+    "id": 49,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 49)",
+    "reward": 1
+  },
+  {
+    "id": 50,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 50)",
+    "reward": 2
+  },
+  {
+    "id": 51,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 51)",
+    "reward": 3
+  },
+  {
+    "id": 52,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 52)",
+    "reward": 1
+  },
+  {
+    "id": 53,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 53)",
+    "reward": 2
+  },
+  {
+    "id": 54,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 54)",
+    "reward": 3
+  },
+  {
+    "id": 55,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 55)",
+    "reward": 1
+  },
+  {
+    "id": 56,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 56)",
+    "reward": 2
+  },
+  {
+    "id": 57,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 57)",
+    "reward": 3
+  },
+  {
+    "id": 58,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 58)",
+    "reward": 1
+  },
+  {
+    "id": 59,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 59)",
+    "reward": 2
+  },
+  {
+    "id": 60,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 60)",
+    "reward": 3
+  },
+  {
+    "id": 61,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 61)",
+    "reward": 1
+  },
+  {
+    "id": 62,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 62)",
+    "reward": 2
+  },
+  {
+    "id": 63,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 63)",
+    "reward": 3
+  },
+  {
+    "id": 64,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 64)",
+    "reward": 1
+  },
+  {
+    "id": 65,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 65)",
+    "reward": 2
+  },
+  {
+    "id": 66,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 66)",
+    "reward": 3
+  },
+  {
+    "id": 67,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 67)",
+    "reward": 1
+  },
+  {
+    "id": 68,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 68)",
+    "reward": 2
+  },
+  {
+    "id": 69,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 69)",
+    "reward": 3
+  },
+  {
+    "id": 70,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 70)",
+    "reward": 1
+  },
+  {
+    "id": 71,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 71)",
+    "reward": 2
+  },
+  {
+    "id": 72,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 72)",
+    "reward": 3
+  },
+  {
+    "id": 73,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 73)",
+    "reward": 1
+  },
+  {
+    "id": 74,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 74)",
+    "reward": 2
+  },
+  {
+    "id": 75,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 75)",
+    "reward": 3
+  },
+  {
+    "id": 76,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 76)",
+    "reward": 1
+  },
+  {
+    "id": 77,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 77)",
+    "reward": 2
+  },
+  {
+    "id": 78,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 78)",
+    "reward": 3
+  },
+  {
+    "id": 79,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 79)",
+    "reward": 1
+  },
+  {
+    "id": 80,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 80)",
+    "reward": 2
+  },
+  {
+    "id": 81,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 81)",
+    "reward": 3
+  },
+  {
+    "id": 82,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 82)",
+    "reward": 1
+  },
+  {
+    "id": 83,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 83)",
+    "reward": 2
+  },
+  {
+    "id": 84,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 84)",
+    "reward": 3
+  },
+  {
+    "id": 85,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 85)",
+    "reward": 1
+  },
+  {
+    "id": 86,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 86)",
+    "reward": 2
+  },
+  {
+    "id": 87,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 87)",
+    "reward": 3
+  },
+  {
+    "id": 88,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 88)",
+    "reward": 1
+  },
+  {
+    "id": 89,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 89)",
+    "reward": 2
+  },
+  {
+    "id": 90,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 90)",
+    "reward": 3
+  },
+  {
+    "id": 91,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 91)",
+    "reward": 1
+  },
+  {
+    "id": 92,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 92)",
+    "reward": 2
+  },
+  {
+    "id": 93,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 93)",
+    "reward": 3
+  },
+  {
+    "id": 94,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 94)",
+    "reward": 1
+  },
+  {
+    "id": 95,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 95)",
+    "reward": 2
+  },
+  {
+    "id": 96,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 96)",
+    "reward": 3
+  },
+  {
+    "id": 97,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 97)",
+    "reward": 1
+  },
+  {
+    "id": 98,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 98)",
+    "reward": 2
+  },
+  {
+    "id": 99,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 99)",
+    "reward": 3
+  },
+  {
+    "id": 100,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 100)",
+    "reward": 1
+  },
+  {
+    "id": 101,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 101)",
+    "reward": 2
+  },
+  {
+    "id": 102,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 102)",
+    "reward": 3
+  },
+  {
+    "id": 103,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 103)",
+    "reward": 1
+  },
+  {
+    "id": 104,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 104)",
+    "reward": 2
+  },
+  {
+    "id": 105,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 105)",
+    "reward": 3
+  },
+  {
+    "id": 106,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 106)",
+    "reward": 1
+  },
+  {
+    "id": 107,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 107)",
+    "reward": 2
+  },
+  {
+    "id": 108,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 108)",
+    "reward": 3
+  },
+  {
+    "id": 109,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 109)",
+    "reward": 1
+  },
+  {
+    "id": 110,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 110)",
+    "reward": 2
+  },
+  {
+    "id": 111,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 111)",
+    "reward": 3
+  },
+  {
+    "id": 112,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 112)",
+    "reward": 1
+  },
+  {
+    "id": 113,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 113)",
+    "reward": 2
+  },
+  {
+    "id": 114,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 114)",
+    "reward": 3
+  },
+  {
+    "id": 115,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 115)",
+    "reward": 1
+  },
+  {
+    "id": 116,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 116)",
+    "reward": 2
+  },
+  {
+    "id": 117,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 117)",
+    "reward": 3
+  },
+  {
+    "id": 118,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 118)",
+    "reward": 1
+  },
+  {
+    "id": 119,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 119)",
+    "reward": 2
+  },
+  {
+    "id": 120,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 120)",
+    "reward": 3
+  },
+  {
+    "id": 121,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 121)",
+    "reward": 1
+  },
+  {
+    "id": 122,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 122)",
+    "reward": 2
+  },
+  {
+    "id": 123,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 123)",
+    "reward": 3
+  },
+  {
+    "id": 124,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 124)",
+    "reward": 1
+  },
+  {
+    "id": 125,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 125)",
+    "reward": 2
+  },
+  {
+    "id": 126,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 126)",
+    "reward": 3
+  },
+  {
+    "id": 127,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 127)",
+    "reward": 1
+  },
+  {
+    "id": 128,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 128)",
+    "reward": 2
+  },
+  {
+    "id": 129,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 129)",
+    "reward": 3
+  },
+  {
+    "id": 130,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 130)",
+    "reward": 1
+  },
+  {
+    "id": 131,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 131)",
+    "reward": 2
+  },
+  {
+    "id": 132,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 132)",
+    "reward": 3
+  },
+  {
+    "id": 133,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 133)",
+    "reward": 1
+  },
+  {
+    "id": 134,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 134)",
+    "reward": 2
+  },
+  {
+    "id": 135,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 135)",
+    "reward": 3
+  },
+  {
+    "id": 136,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 136)",
+    "reward": 1
+  },
+  {
+    "id": 137,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 137)",
+    "reward": 2
+  },
+  {
+    "id": 138,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 138)",
+    "reward": 3
+  },
+  {
+    "id": 139,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 139)",
+    "reward": 1
+  },
+  {
+    "id": 140,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 140)",
+    "reward": 2
+  },
+  {
+    "id": 141,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 141)",
+    "reward": 3
+  },
+  {
+    "id": 142,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 142)",
+    "reward": 1
+  },
+  {
+    "id": 143,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 143)",
+    "reward": 2
+  },
+  {
+    "id": 144,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 144)",
+    "reward": 3
+  },
+  {
+    "id": 145,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 145)",
+    "reward": 1
+  },
+  {
+    "id": 146,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 146)",
+    "reward": 2
+  },
+  {
+    "id": 147,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 147)",
+    "reward": 3
+  },
+  {
+    "id": 148,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 148)",
+    "reward": 1
+  },
+  {
+    "id": 149,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 149)",
+    "reward": 2
+  },
+  {
+    "id": 150,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 150)",
+    "reward": 3
+  },
+  {
+    "id": 151,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 151)",
+    "reward": 1
+  },
+  {
+    "id": 152,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 152)",
+    "reward": 2
+  },
+  {
+    "id": 153,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 153)",
+    "reward": 3
+  },
+  {
+    "id": 154,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 154)",
+    "reward": 1
+  },
+  {
+    "id": 155,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 155)",
+    "reward": 2
+  },
+  {
+    "id": 156,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 156)",
+    "reward": 3
+  },
+  {
+    "id": 157,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 157)",
+    "reward": 1
+  },
+  {
+    "id": 158,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 158)",
+    "reward": 2
+  },
+  {
+    "id": 159,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 159)",
+    "reward": 3
+  },
+  {
+    "id": 160,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 160)",
+    "reward": 1
+  },
+  {
+    "id": 161,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 161)",
+    "reward": 2
+  },
+  {
+    "id": 162,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 162)",
+    "reward": 3
+  },
+  {
+    "id": 163,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 163)",
+    "reward": 1
+  },
+  {
+    "id": 164,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 164)",
+    "reward": 2
+  },
+  {
+    "id": 165,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 165)",
+    "reward": 3
+  },
+  {
+    "id": 166,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 166)",
+    "reward": 1
+  },
+  {
+    "id": 167,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 167)",
+    "reward": 2
+  },
+  {
+    "id": 168,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 168)",
+    "reward": 3
+  },
+  {
+    "id": 169,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 169)",
+    "reward": 1
+  },
+  {
+    "id": 170,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 170)",
+    "reward": 2
+  },
+  {
+    "id": 171,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 171)",
+    "reward": 3
+  },
+  {
+    "id": 172,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 172)",
+    "reward": 1
+  },
+  {
+    "id": 173,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 173)",
+    "reward": 2
+  },
+  {
+    "id": 174,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 174)",
+    "reward": 3
+  },
+  {
+    "id": 175,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 175)",
+    "reward": 1
+  },
+  {
+    "id": 176,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 176)",
+    "reward": 2
+  },
+  {
+    "id": 177,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 177)",
+    "reward": 3
+  },
+  {
+    "id": 178,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 178)",
+    "reward": 1
+  },
+  {
+    "id": 179,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 179)",
+    "reward": 2
+  },
+  {
+    "id": 180,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 180)",
+    "reward": 3
+  },
+  {
+    "id": 181,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 181)",
+    "reward": 1
+  },
+  {
+    "id": 182,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 182)",
+    "reward": 2
+  },
+  {
+    "id": 183,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 183)",
+    "reward": 3
+  },
+  {
+    "id": 184,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 184)",
+    "reward": 1
+  },
+  {
+    "id": 185,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 185)",
+    "reward": 2
+  },
+  {
+    "id": 186,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 186)",
+    "reward": 3
+  },
+  {
+    "id": 187,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 187)",
+    "reward": 1
+  },
+  {
+    "id": 188,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 188)",
+    "reward": 2
+  },
+  {
+    "id": 189,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 189)",
+    "reward": 3
+  },
+  {
+    "id": 190,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 190)",
+    "reward": 1
+  },
+  {
+    "id": 191,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 191)",
+    "reward": 2
+  },
+  {
+    "id": 192,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 192)",
+    "reward": 3
+  },
+  {
+    "id": 193,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 193)",
+    "reward": 1
+  },
+  {
+    "id": 194,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 194)",
+    "reward": 2
+  },
+  {
+    "id": 195,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 195)",
+    "reward": 3
+  },
+  {
+    "id": 196,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 196)",
+    "reward": 1
+  },
+  {
+    "id": 197,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 197)",
+    "reward": 2
+  },
+  {
+    "id": 198,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 198)",
+    "reward": 3
+  },
+  {
+    "id": 199,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 199)",
+    "reward": 1
+  },
+  {
+    "id": 200,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 200)",
+    "reward": 2
+  },
+  {
+    "id": 201,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 201)",
+    "reward": 3
+  },
+  {
+    "id": 202,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 202)",
+    "reward": 1
+  },
+  {
+    "id": 203,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 203)",
+    "reward": 2
+  },
+  {
+    "id": 204,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 204)",
+    "reward": 3
+  },
+  {
+    "id": 205,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 205)",
+    "reward": 1
+  },
+  {
+    "id": 206,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 206)",
+    "reward": 2
+  },
+  {
+    "id": 207,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 207)",
+    "reward": 3
+  },
+  {
+    "id": 208,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 208)",
+    "reward": 1
+  },
+  {
+    "id": 209,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 209)",
+    "reward": 2
+  },
+  {
+    "id": 210,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 210)",
+    "reward": 3
+  },
+  {
+    "id": 211,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 211)",
+    "reward": 1
+  },
+  {
+    "id": 212,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 212)",
+    "reward": 2
+  },
+  {
+    "id": 213,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 213)",
+    "reward": 3
+  },
+  {
+    "id": 214,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 214)",
+    "reward": 1
+  },
+  {
+    "id": 215,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 215)",
+    "reward": 2
+  },
+  {
+    "id": 216,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 216)",
+    "reward": 3
+  },
+  {
+    "id": 217,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 217)",
+    "reward": 1
+  },
+  {
+    "id": 218,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 218)",
+    "reward": 2
+  },
+  {
+    "id": 219,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 219)",
+    "reward": 3
+  },
+  {
+    "id": 220,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 220)",
+    "reward": 1
+  },
+  {
+    "id": 221,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 221)",
+    "reward": 2
+  },
+  {
+    "id": 222,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 222)",
+    "reward": 3
+  },
+  {
+    "id": 223,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 223)",
+    "reward": 1
+  },
+  {
+    "id": 224,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 224)",
+    "reward": 2
+  },
+  {
+    "id": 225,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 225)",
+    "reward": 3
+  },
+  {
+    "id": 226,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 226)",
+    "reward": 1
+  },
+  {
+    "id": 227,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 227)",
+    "reward": 2
+  },
+  {
+    "id": 228,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 228)",
+    "reward": 3
+  },
+  {
+    "id": 229,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 229)",
+    "reward": 1
+  },
+  {
+    "id": 230,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 230)",
+    "reward": 2
+  },
+  {
+    "id": 231,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 231)",
+    "reward": 3
+  },
+  {
+    "id": 232,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 232)",
+    "reward": 1
+  },
+  {
+    "id": 233,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 233)",
+    "reward": 2
+  },
+  {
+    "id": 234,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 234)",
+    "reward": 3
+  },
+  {
+    "id": 235,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 235)",
+    "reward": 1
+  },
+  {
+    "id": 236,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 236)",
+    "reward": 2
+  },
+  {
+    "id": 237,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 237)",
+    "reward": 3
+  },
+  {
+    "id": 238,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 238)",
+    "reward": 1
+  },
+  {
+    "id": 239,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 239)",
+    "reward": 2
+  },
+  {
+    "id": 240,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 240)",
+    "reward": 3
+  },
+  {
+    "id": 241,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 241)",
+    "reward": 1
+  },
+  {
+    "id": 242,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 242)",
+    "reward": 2
+  },
+  {
+    "id": 243,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 243)",
+    "reward": 3
+  },
+  {
+    "id": 244,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 244)",
+    "reward": 1
+  },
+  {
+    "id": 245,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 245)",
+    "reward": 2
+  },
+  {
+    "id": 246,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 246)",
+    "reward": 3
+  },
+  {
+    "id": 247,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 247)",
+    "reward": 1
+  },
+  {
+    "id": 248,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 248)",
+    "reward": 2
+  },
+  {
+    "id": 249,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 249)",
+    "reward": 3
+  },
+  {
+    "id": 250,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 250)",
+    "reward": 1
+  },
+  {
+    "id": 251,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 251)",
+    "reward": 2
+  },
+  {
+    "id": 252,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 252)",
+    "reward": 3
+  },
+  {
+    "id": 253,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 253)",
+    "reward": 1
+  },
+  {
+    "id": 254,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 254)",
+    "reward": 2
+  },
+  {
+    "id": 255,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 255)",
+    "reward": 3
+  },
+  {
+    "id": 256,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 256)",
+    "reward": 1
+  },
+  {
+    "id": 257,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 257)",
+    "reward": 2
+  },
+  {
+    "id": 258,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 258)",
+    "reward": 3
+  },
+  {
+    "id": 259,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 259)",
+    "reward": 1
+  },
+  {
+    "id": 260,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 260)",
+    "reward": 2
+  },
+  {
+    "id": 261,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 261)",
+    "reward": 3
+  },
+  {
+    "id": 262,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 262)",
+    "reward": 1
+  },
+  {
+    "id": 263,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 263)",
+    "reward": 2
+  },
+  {
+    "id": 264,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 264)",
+    "reward": 3
+  },
+  {
+    "id": 265,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 265)",
+    "reward": 1
+  },
+  {
+    "id": 266,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 266)",
+    "reward": 2
+  },
+  {
+    "id": 267,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 267)",
+    "reward": 3
+  },
+  {
+    "id": 268,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 268)",
+    "reward": 1
+  },
+  {
+    "id": 269,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 269)",
+    "reward": 2
+  },
+  {
+    "id": 270,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 270)",
+    "reward": 3
+  },
+  {
+    "id": 271,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 271)",
+    "reward": 1
+  },
+  {
+    "id": 272,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 272)",
+    "reward": 2
+  },
+  {
+    "id": 273,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 273)",
+    "reward": 3
+  },
+  {
+    "id": 274,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 274)",
+    "reward": 1
+  },
+  {
+    "id": 275,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 275)",
+    "reward": 2
+  },
+  {
+    "id": 276,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 276)",
+    "reward": 3
+  },
+  {
+    "id": 277,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 277)",
+    "reward": 1
+  },
+  {
+    "id": 278,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 278)",
+    "reward": 2
+  },
+  {
+    "id": 279,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 279)",
+    "reward": 3
+  },
+  {
+    "id": 280,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 280)",
+    "reward": 1
+  },
+  {
+    "id": 281,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 281)",
+    "reward": 2
+  },
+  {
+    "id": 282,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 282)",
+    "reward": 3
+  },
+  {
+    "id": 283,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 283)",
+    "reward": 1
+  },
+  {
+    "id": 284,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 284)",
+    "reward": 2
+  },
+  {
+    "id": 285,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 285)",
+    "reward": 3
+  },
+  {
+    "id": 286,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 286)",
+    "reward": 1
+  },
+  {
+    "id": 287,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 287)",
+    "reward": 2
+  },
+  {
+    "id": 288,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 288)",
+    "reward": 3
+  },
+  {
+    "id": 289,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 289)",
+    "reward": 1
+  },
+  {
+    "id": 290,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 290)",
+    "reward": 2
+  },
+  {
+    "id": 291,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 291)",
+    "reward": 3
+  },
+  {
+    "id": 292,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 292)",
+    "reward": 1
+  },
+  {
+    "id": 293,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 293)",
+    "reward": 2
+  },
+  {
+    "id": 294,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 294)",
+    "reward": 3
+  },
+  {
+    "id": 295,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 295)",
+    "reward": 1
+  },
+  {
+    "id": 296,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 296)",
+    "reward": 2
+  },
+  {
+    "id": 297,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 297)",
+    "reward": 3
+  },
+  {
+    "id": 298,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 298)",
+    "reward": 1
+  },
+  {
+    "id": 299,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 299)",
+    "reward": 2
+  },
+  {
+    "id": 300,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 300)",
+    "reward": 3
+  },
+  {
+    "id": 301,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 301)",
+    "reward": 1
+  },
+  {
+    "id": 302,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 302)",
+    "reward": 2
+  },
+  {
+    "id": 303,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 303)",
+    "reward": 3
+  },
+  {
+    "id": 304,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 304)",
+    "reward": 1
+  },
+  {
+    "id": 305,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 305)",
+    "reward": 2
+  },
+  {
+    "id": 306,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 306)",
+    "reward": 3
+  },
+  {
+    "id": 307,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 307)",
+    "reward": 1
+  },
+  {
+    "id": 308,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 308)",
+    "reward": 2
+  },
+  {
+    "id": 309,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 309)",
+    "reward": 3
+  },
+  {
+    "id": 310,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 310)",
+    "reward": 1
+  },
+  {
+    "id": 311,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 311)",
+    "reward": 2
+  },
+  {
+    "id": 312,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 312)",
+    "reward": 3
+  },
+  {
+    "id": 313,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 313)",
+    "reward": 1
+  },
+  {
+    "id": 314,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 314)",
+    "reward": 2
+  },
+  {
+    "id": 315,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 315)",
+    "reward": 3
+  },
+  {
+    "id": 316,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 316)",
+    "reward": 1
+  },
+  {
+    "id": 317,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 317)",
+    "reward": 2
+  },
+  {
+    "id": 318,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 318)",
+    "reward": 3
+  },
+  {
+    "id": 319,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 319)",
+    "reward": 1
+  },
+  {
+    "id": 320,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 320)",
+    "reward": 2
+  },
+  {
+    "id": 321,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 321)",
+    "reward": 3
+  },
+  {
+    "id": 322,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 322)",
+    "reward": 1
+  },
+  {
+    "id": 323,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 323)",
+    "reward": 2
+  },
+  {
+    "id": 324,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 324)",
+    "reward": 3
+  },
+  {
+    "id": 325,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 325)",
+    "reward": 1
+  },
+  {
+    "id": 326,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 326)",
+    "reward": 2
+  },
+  {
+    "id": 327,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 327)",
+    "reward": 3
+  },
+  {
+    "id": 328,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 328)",
+    "reward": 1
+  },
+  {
+    "id": 329,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 329)",
+    "reward": 2
+  },
+  {
+    "id": 330,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 330)",
+    "reward": 3
+  },
+  {
+    "id": 331,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 331)",
+    "reward": 1
+  },
+  {
+    "id": 332,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 332)",
+    "reward": 2
+  },
+  {
+    "id": 333,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 333)",
+    "reward": 3
+  },
+  {
+    "id": 334,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 334)",
+    "reward": 1
+  },
+  {
+    "id": 335,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 335)",
+    "reward": 2
+  },
+  {
+    "id": 336,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 336)",
+    "reward": 3
+  },
+  {
+    "id": 337,
+    "difficulty": "easy",
+    "quest": "Drink a glass of water mindfully. (Day 337)",
+    "reward": 1
+  },
+  {
+    "id": 338,
+    "difficulty": "medium",
+    "quest": "Clean and organize one drawer or folder. (Day 338)",
+    "reward": 2
+  },
+  {
+    "id": 339,
+    "difficulty": "hard",
+    "quest": "Wake up 45 minutes earlier and use the time intentionally. (Day 339)",
+    "reward": 3
+  },
+  {
+    "id": 340,
+    "difficulty": "easy",
+    "quest": "Open a window and take 5 deep breaths. (Day 340)",
+    "reward": 1
+  },
+  {
+    "id": 341,
+    "difficulty": "medium",
+    "quest": "Write a short note about how today felt. (Day 341)",
+    "reward": 2
+  },
+  {
+    "id": 342,
+    "difficulty": "hard",
+    "quest": "Do a 30-minute workout or long walk. (Day 342)",
+    "reward": 3
+  },
+  {
+    "id": 343,
+    "difficulty": "easy",
+    "quest": "Write down one small win from today. (Day 343)",
+    "reward": 1
+  },
+  {
+    "id": 344,
+    "difficulty": "medium",
+    "quest": "Learn one interesting fact and share it. (Day 344)",
+    "reward": 2
+  },
+  {
+    "id": 345,
+    "difficulty": "hard",
+    "quest": "Create something: write, draw, record, or build. (Day 345)",
+    "reward": 3
+  },
+  {
+    "id": 346,
+    "difficulty": "easy",
+    "quest": "Stretch your neck and shoulders for 2 minutes. (Day 346)",
+    "reward": 1
+  },
+  {
+    "id": 347,
+    "difficulty": "medium",
+    "quest": "Cook or prepare something simple and healthy. (Day 347)",
+    "reward": 2
+  },
+  {
+    "id": 348,
+    "difficulty": "hard",
+    "quest": "Spend one hour focused on an important personal goal. (Day 348)",
+    "reward": 3
+  },
+  {
+    "id": 349,
+    "difficulty": "easy",
+    "quest": "Smile at a stranger. (Day 349)",
+    "reward": 1
+  },
+  {
+    "id": 350,
+    "difficulty": "medium",
+    "quest": "Message someone you haven’t talked to in a while. (Day 350)",
+    "reward": 2
+  },
+  {
+    "id": 351,
+    "difficulty": "hard",
+    "quest": "Have a meaningful conversation with someone. (Day 351)",
+    "reward": 3
+  },
+  {
+    "id": 352,
+    "difficulty": "easy",
+    "quest": "Look at the sky for one full minute. (Day 352)",
+    "reward": 1
+  },
+  {
+    "id": 353,
+    "difficulty": "medium",
+    "quest": "Spend 20 minutes on a hobby. (Day 353)",
+    "reward": 2
+  },
+  {
+    "id": 354,
+    "difficulty": "hard",
+    "quest": "Explore a new place you’ve never been before. (Day 354)",
+    "reward": 3
+  },
+  {
+    "id": 355,
+    "difficulty": "easy",
+    "quest": "Compliment someone sincerely. (Day 355)",
+    "reward": 1
+  },
+  {
+    "id": 356,
+    "difficulty": "medium",
+    "quest": "Delete 20 unnecessary photos or files. (Day 356)",
+    "reward": 2
+  },
+  {
+    "id": 357,
+    "difficulty": "hard",
+    "quest": "Write a letter to your future self. (Day 357)",
+    "reward": 3
+  },
+  {
+    "id": 358,
+    "difficulty": "easy",
+    "quest": "Put your phone away for 15 minutes. (Day 358)",
+    "reward": 1
+  },
+  {
+    "id": 359,
+    "difficulty": "medium",
+    "quest": "Plan something nice for yourself this week. (Day 359)",
+    "reward": 2
+  },
+  {
+    "id": 360,
+    "difficulty": "hard",
+    "quest": "Do a random act of kindness for someone today. (Day 360)",
+    "reward": 3
+  },
+  {
+    "id": 361,
+    "difficulty": "easy",
+    "quest": "Pick up one piece of trash you see outside. (Day 361)",
+    "reward": 1
+  },
+  {
+    "id": 362,
+    "difficulty": "medium",
+    "quest": "Take a panoramic photo of your neighborhood or city. (Day 362)",
+    "reward": 2
+  },
+  {
+    "id": 363,
+    "difficulty": "hard",
+    "quest": "Avoid social media for the entire day. (Day 363)",
+    "reward": 3
+  },
+  {
+    "id": 364,
+    "difficulty": "easy",
+    "quest": "Take a photo of something beautiful you noticed today. (Day 364)",
+    "reward": 1
+  },
+  {
+    "id": 365,
+    "difficulty": "medium",
+    "quest": "Go for a 15-minute walk without headphones. (Day 365)",
+    "reward": 2
+  },
+  {
+    "id": 366,
+    "difficulty": "hard",
+    "quest": "Write a one-page reflection about your current life. (Day 366)",
+    "reward": 3
+  }
+]

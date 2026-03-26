@@ -1,0 +1,6 @@
+{
+  "name": "Dailyz",
+  "description": "A gamified self-improvement app with daily quests, streaks, and rewards.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "icon": "/public/icon.png"
+}
