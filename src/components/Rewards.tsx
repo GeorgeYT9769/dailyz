@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Star, ShoppingBag, Clock, Trophy, Palette, User, CheckCircle } from 'lucide-react';
+import { Star, ShoppingBag, Clock, Trophy, Palette, User, CheckCircle, Flame } from 'lucide-react';
 import rewardsData from '../data/rewards.json';
 import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
+import StreakModal from './StreakModal';
 
 // 💡 CUSTOM LOTTIE ANIMATION:
 // Replace this with your own Lottie JSON for the reward unlock effect
@@ -12,6 +13,7 @@ const unlockLottie = {"v":"4.10.1","fr":30,"ip":0,"op":40,"w":80,"h":80,"nm":"Su
 export default function Rewards() {
   const { userData, redeemReward, updateSettings } = useAppContext();
   const [showUnlock, setShowUnlock] = useState<{title: string, type?: 'unlock' | 'equip'} | null>(null);
+  const [showStreakModal, setShowStreakModal] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const handleRedeem = (reward: any) => {
@@ -81,9 +83,23 @@ export default function Rewards() {
     <div className="animate-pop">
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Rewards Shop</h1>
-        <div className="flex items-center gap-1 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-gray-100 dark:border-gray-700">
-          <Star className="text-yellow-400 fill-yellow-400" size={16} />
-          <span className="font-bold">{userData.points}</span>
+        <div className="flex items-center gap-2">
+          {/* Streak pill: flame and number */}
+          <button
+            onClick={() => setShowStreakModal(true)}
+            className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+            title="View Streak Map"
+            aria-label="View Streak Map"
+          >
+            <Flame className="text-orange-500 fill-orange-500 group-hover:scale-110 transition-transform" size={16} />
+            <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.streak}</span>
+          </button>
+
+          {/* Stars pill */}
+          <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-gray-100 dark:border-gray-700">
+            <Star className="text-yellow-400 fill-yellow-400" size={16} />
+            <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.points}</span>
+          </div>
         </div>
       </header>
 
@@ -146,14 +162,31 @@ export default function Rewards() {
                         disabled={!canAfford && !isUnlocked}
                         className={`px-4 py-2 rounded-xl font-bold text-sm transition-all active:scale-95 ${
                           isEquipped
-                            ? 'bg-green-500 text-white'
-                            : (canAfford || isUnlocked)
-                              ? 'bg-accent text-white shadow-md shadow-accent/20' 
-                              : 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm flex items-center gap-1.5'
+                            : isUnlocked
+                              ? 'bg-accent text-white shadow-md shadow-accent/25 hover:opacity-95 flex items-center gap-1.5' 
+                              : canAfford
+                                ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-md shadow-amber-500/25 flex items-center gap-1.5'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed flex items-center gap-1.5'
                         }`}
-                        style={isEquipped ? {} : (canAfford || isUnlocked) ? { backgroundColor: 'var(--accent-color)' } : {}}
+                        style={
+                          isUnlocked && !isEquipped
+                            ? userData.accentColor === '#f59e0b'
+                              ? { backgroundColor: '#4f46e5' }
+                              : { backgroundColor: 'var(--accent-color)' }
+                            : {}
+                        }
                       >
-                        {reward.type === 'standard' ? 'Redeem' : isEquipped ? 'Equipped' : isUnlocked ? 'Equip' : 'Buy'}
+                        {isEquipped ? (
+                          <>
+                            <CheckCircle size={14} />
+                            Equipped
+                          </>
+                        ) : isUnlocked ? (
+                          reward.type === 'standard' ? 'Redeem' : 'Equip'
+                        ) : (
+                          reward.type === 'standard' ? 'Redeem' : 'Buy'
+                        )}
                       </button>
                     </div>
                   );
@@ -170,12 +203,14 @@ export default function Rewards() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className={`fixed bottom-24 left-4 right-4 p-4 rounded-2xl shadow-2xl flex items-center gap-3 z-[60] ${showUnlock.type === 'equip' ? 'bg-accent text-white' : 'bg-green-500 text-white'}`}
+            className={`fixed bottom-24 left-4 right-4 p-4 rounded-2xl shadow-2xl flex items-center gap-3 z-[60] ${
+              showUnlock.type === 'equip' ? 'bg-accent text-white' : 'bg-amber-500 text-white'
+            }`}
             style={showUnlock.type === 'equip' ? { backgroundColor: 'var(--accent-color)' } : {}}
           >
             <div className="bg-white/20 p-1 rounded-full w-12 h-12 flex items-center justify-center">
               {showUnlock.type === 'equip' ? (
-                <Star size={24} />
+                <CheckCircle size={24} />
               ) : (
                 <Lottie animationData={unlockLottie} loop={false} />
               )}
@@ -204,6 +239,18 @@ export default function Rewards() {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {showStreakModal && (
+          <StreakModal
+            isOpen={showStreakModal}
+            onClose={() => setShowStreakModal(false)}
+            streak={userData.streak}
+            longestStreak={userData.longestStreak}
+            completedDays={userData.completedDays}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, Scan, CheckCircle } from 'lucide-react';
+import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, Scan, CheckCircle, ChevronRight, Dices } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import StreakModal from './StreakModal';
+import { getRandomInterestingName } from '../utils/nameGenerator';
 
 export default function Profile() {
   const { userData, updateSettings } = useAppContext();
@@ -11,6 +13,7 @@ export default function Profile() {
   const [showQR, setShowQR] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showPfpMenu, setShowPfpMenu] = useState(false);
+  const [showStreakModal, setShowStreakModal] = useState(false);
   const [isEditingRank, setIsEditingRank] = useState(false);
   const [isEditingTag, setIsEditingTag] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -172,13 +175,29 @@ export default function Profile() {
         </div>
         
         <div className="text-center w-full px-4">
-          <input
-            type="text"
-            value={userData.name}
-            onChange={(e) => updateSettings({ name: e.target.value })}
-            className="text-2xl font-bold bg-transparent border-none text-center focus:outline-none focus:ring-2 focus:ring-accent/20 rounded-lg px-2 w-full"
-            placeholder="Enter your name"
-          />
+          <div className="flex items-center justify-center gap-1.5 max-w-sm mx-auto">
+            <input
+              type="text"
+              value={userData.name}
+              onChange={(e) => updateSettings({ name: e.target.value })}
+              className="text-2xl font-bold bg-transparent border-none text-center focus:outline-none focus:ring-2 focus:ring-accent/20 rounded-lg px-2 flex-1"
+              placeholder="Enter your name"
+            />
+            <button
+              onClick={() => {
+                const newName = getRandomInterestingName();
+                updateSettings({ name: newName });
+                if (userData.vibrationEnabled && navigator.vibrate) {
+                  navigator.vibrate(40);
+                }
+              }}
+              className="p-1.5 text-gray-400 hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all shrink-0 active:rotate-45"
+              title="Roll a random interesting name"
+              aria-label="Roll a random interesting name"
+            >
+              <Dices size={20} />
+            </button>
+          </div>
           <div className="flex flex-col items-center gap-1 mt-1">
             <div className="flex items-center justify-center gap-2">
               {isEditingRank ? (
@@ -316,8 +335,15 @@ export default function Profile() {
           <div className="space-y-3">
             {stats.map((stat, i) => {
               const Icon = stat.icon;
+              const isStreak = stat.label.includes('Streak');
               return (
-                <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4">
+                <div 
+                  key={i} 
+                  onClick={isStreak ? () => setShowStreakModal(true) : undefined}
+                  className={`bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 transition-all ${
+                    isStreak ? 'cursor-pointer hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-md' : ''
+                  }`}
+                >
                   <div className={`${stat.bg} p-3 rounded-xl`}>
                     <Icon className={stat.color} size={24} />
                   </div>
@@ -325,6 +351,12 @@ export default function Profile() {
                     <p className="text-xs text-gray-500 dark:text-gray-400 font-medium uppercase tracking-wider">{stat.label}</p>
                     <p className="text-xl font-bold">{stat.value}</p>
                   </div>
+                  {isStreak && (
+                    <div className="flex items-center gap-1 text-xs font-bold text-orange-500">
+                      <span>Map</span>
+                      <ChevronRight size={14} />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -522,6 +554,18 @@ export default function Profile() {
             </div>
             <p className="font-bold">{feedback}</p>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showStreakModal && (
+          <StreakModal
+            isOpen={showStreakModal}
+            onClose={() => setShowStreakModal(false)}
+            streak={userData.streak}
+            longestStreak={userData.longestStreak}
+            completedDays={userData.completedDays}
+          />
         )}
       </AnimatePresence>
     </div>

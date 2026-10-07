@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { calculateStreaks } from '../utils/dateUtils';
+import { getRandomInterestingName } from '../utils/nameGenerator';
 import rewardsData from '../data/rewards.json';
 
 export type Reward = {
@@ -28,6 +29,13 @@ export type UserData = {
   activeAvatar: string | null;
   pfpTag: string | null;
   hasCustomPfpTagUnlock: boolean;
+  nextDayQuest?: {
+    id?: number;
+    quest: string;
+    difficulty: string;
+    reward: number;
+    dateIso: string;
+  } | null;
 };
 
 interface AppContextType {
@@ -48,7 +56,7 @@ const defaultUserData: UserData = {
   accentColor: "#3b82f6",
   vibrationEnabled: true,
   profileImage: null,
-  name: "Adventurer",
+  name: "Cosmic Wanderer",
   rank: "Novice",
   hasCustomRankUnlock: false,
   unlockedRanks: ["Novice"],
@@ -58,6 +66,7 @@ const defaultUserData: UserData = {
   activeAvatar: null,
   pfpTag: null,
   hasCustomPfpTagUnlock: false,
+  nextDayQuest: null,
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -69,12 +78,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const parsed = JSON.parse(saved);
         const streaks = calculateStreaks(parsed.completedDays || []);
-        return { ...defaultUserData, ...parsed, streak: streaks.current, longestStreak: streaks.longest };
+        // If name is unset or the old generic default "Adventurer", generate a fresh interesting name
+        const initialName = (!parsed.name || parsed.name === 'Adventurer')
+          ? getRandomInterestingName()
+          : parsed.name;
+        return { 
+          ...defaultUserData, 
+          ...parsed, 
+          name: initialName, 
+          streak: streaks.current, 
+          longestStreak: streaks.longest 
+        };
       } catch (e) {
-        return defaultUserData;
+        return { ...defaultUserData, name: getRandomInterestingName() };
       }
     }
-    return defaultUserData;
+    return { ...defaultUserData, name: getRandomInterestingName() };
   });
 
   useEffect(() => {
