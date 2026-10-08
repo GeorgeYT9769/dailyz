@@ -1,12 +1,51 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark" style="background-color: #111827; color-scheme: dark;">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Dailyz</title>
-    <link rel="icon" type="image/png" href="/public/icon.png" />
+    <meta name="description" content="A gamified self-improvement app with daily quests, streaks, and rewards." />
+    <meta property="og:title" content="Dailyz" />
+    <meta property="og:description" content="A gamified self-improvement app with daily quests, streaks, and rewards." />
+    <meta name="theme-color" content="#111827" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('dailyQuestsUserData');
+          if (saved) {
+            var data = JSON.parse(saved);
+            if (data.theme === 'light') {
+              document.documentElement.classList.remove('dark');
+              document.documentElement.style.backgroundColor = '#f9fafb';
+              document.documentElement.style.colorScheme = 'light';
+              var meta = document.querySelector('meta[name="theme-color"]');
+              if (meta) meta.setAttribute('content', '#f9fafb');
+              return;
+            }
+          }
+        } catch (e) {}
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.backgroundColor = '#111827';
+        document.documentElement.style.colorScheme = 'dark';
+      })();
+    </script>
+    <style>
+      html, body {
+        background-color: #111827;
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+      }
+      html:not(.dark), html:not(.dark) body {
+        background-color: #f9fafb;
+      }
+    </style>
   </head>
-  <body>
+  <body class="bg-gray-900 text-gray-100 antialiased" style="background-color: #111827;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -9,6 +9,24 @@
   --accent-color: #3b82f6;
 }
 
+html, body {
+  background-color: #111827;
+  color: #f3f4f6;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html:not(.dark), html:not(.dark) body {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }

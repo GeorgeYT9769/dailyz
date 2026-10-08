@@ -3,9 +3,11 @@ import { useAppContext } from '../context/AppContext';
 import { 
   Moon, Sun, Palette, Download, Upload, Vibrate, Check, 
   Heart, Coffee, Info, ExternalLink, Shield, 
-  Sparkles, Flame, Star, X, ChevronRight, Award, 
-  BookOpen
+  Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award, 
+  BookOpen, Compass
 } from 'lucide-react';
+import { triggerHaptic } from '../utils/haptics';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Material3SwitchProps {
   checked: boolean;
@@ -86,7 +88,7 @@ function KofiIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 export default function Settings() {
-  const { userData, updateSettings, importData } = useAppContext();
+  const { userData, updateSettings, importData, openOnboarding } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const BMAC_URL = 'https://buymeacoffee.com/georgeyt9769';
@@ -94,6 +96,7 @@ export default function Settings() {
 
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showThankYouToast, setShowThankYouToast] = useState(false);
+  const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
 
   const handleSupportClick = (url: string) => {
     setShowThankYouToast(true);
@@ -132,14 +135,20 @@ export default function Settings() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const colors = [
-    '#3b82f6', // blue
-    '#10b981', // emerald
-    '#8b5cf6', // violet
-    '#f43f5e', // rose
-    '#f59e0b', // amber
-    '#06b6d4', // cyan
+  const BASIC_COLORS = [
+    { id: '#3b82f6', name: 'Blue', light: '#60a5fa', dark: '#1d4ed8' },
+    { id: '#10b981', name: 'Green', light: '#34d399', dark: '#047857' },
+    { id: '#8b5cf6', name: 'Purple', light: '#a78bfa', dark: '#6d28d9' },
+    { id: '#ef4444', name: 'Red', light: '#f87171', dark: '#b91c1c' },
+    { id: '#f97316', name: 'Orange', light: '#fb923c', dark: '#c2410c' },
+    { id: '#eab308', name: 'Yellow', light: '#fde047', dark: '#a16207' },
+    { id: '#ec4899', name: 'Pink', light: '#f472b6', dark: '#be185d' },
+    { id: '#06b6d4', name: 'Cyan', light: '#22d3ee', dark: '#0e7490' },
   ];
+
+  const currentColor = BASIC_COLORS.find(
+    c => c.id.toLowerCase() === userData.accentColor?.toLowerCase()
+  ) || BASIC_COLORS[0];
 
   return (
     <div className="animate-pop pb-6">
@@ -169,7 +178,10 @@ export default function Settings() {
             </div>
             <Material3Switch
               checked={userData.theme === 'dark'}
-              onChange={() => updateSettings({ theme: userData.theme === 'dark' ? 'light' : 'dark' })}
+              onChange={() => {
+                triggerHaptic('light', userData.vibrationEnabled);
+                updateSettings({ theme: userData.theme === 'dark' ? 'light' : 'dark' });
+              }}
               ariaLabel="Toggle dark mode"
             />
           </div>
@@ -183,40 +195,133 @@ export default function Settings() {
             </div>
             <Material3Switch
               checked={userData.vibrationEnabled}
-              onChange={() => updateSettings({ vibrationEnabled: !userData.vibrationEnabled })}
+              onChange={() => {
+                const nextVal = !userData.vibrationEnabled;
+                if (nextVal) triggerHaptic('medium', true);
+                updateSettings({ vibrationEnabled: nextVal });
+              }}
               ariaLabel="Toggle vibration"
             />
           </div>
 
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
-                <Palette size={20} />
+          <div className="relative pt-4 border-t border-gray-100 dark:border-gray-700/60">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                  <Palette size={20} />
+                </div>
+                <div>
+                  <span className="font-medium">Accent Color</span>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Theme highlights & buttons</p>
+                </div>
               </div>
-              <span className="font-medium">Accent Color</span>
+
+              {/* Dropdown Trigger Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic('light', userData.vibrationEnabled);
+                  setIsColorDropdownOpen(prev => !prev);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-all cursor-pointer active:scale-95"
+                aria-expanded={isColorDropdownOpen}
+                aria-haspopup="listbox"
+                aria-label="Select accent color"
+              >
+                {/* Designed basic color circle inside trigger */}
+                <div
+                  className="relative w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-xs ring-1 ring-white/50 dark:ring-black/30"
+                  style={{
+                    background: `linear-gradient(135deg, ${currentColor.light} 0%, ${currentColor.id} 60%, ${currentColor.dark} 100%)`,
+                    boxShadow: `0 2px 6px -1px ${currentColor.id}66`,
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
+                  <div className="absolute top-0.5 left-1 w-1.5 h-0.5 rounded-full bg-white/60 blur-[0.3px] rotate-[-25deg] pointer-events-none" />
+                </div>
+
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  {currentColor.name}
+                </span>
+
+                <ChevronDown 
+                  size={16} 
+                  className={`text-gray-400 transition-transform duration-200 ${isColorDropdownOpen ? 'rotate-180 text-gray-700 dark:text-gray-200' : ''}`} 
+                />
+              </button>
             </div>
-            <div className="flex gap-3 flex-wrap">
-              {colors.map(color => {
-                const isSelected = userData.accentColor === color;
-                return (
-                  <button
-                    key={color}
-                    onClick={() => updateSettings({ accentColor: color })}
-                    aria-label={`Select accent color ${color}`}
-                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all cursor-pointer ${
-                      isSelected 
-                        ? 'scale-110 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800 shadow-md' 
-                        : 'hover:scale-105 opacity-90 hover:opacity-100'
-                    }`}
-                    style={{ backgroundColor: color, ringColor: color }}
+
+            {/* Dropdown Popover */}
+            <AnimatePresence>
+              {isColorDropdownOpen && (
+                <>
+                  {/* Backdrop for outside click */}
+                  <div 
+                    className="fixed inset-0 z-20"
+                    onClick={() => setIsColorDropdownOpen(false)}
+                  />
+
+                  <motion.div
+                    initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                    transition={{ duration: 0.15, ease: 'easeOut' }}
+                    className="absolute right-0 top-full mt-2 w-48 sm:w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-1.5 z-30 max-h-72 overflow-y-auto"
+                    role="listbox"
+                    aria-label="Accent colors list"
                   >
-                    {isSelected && (
-                      <Check size={20} className="text-white stroke-[3.5] drop-shadow-sm animate-pop" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                    {BASIC_COLORS.map(color => {
+                      const isSelected = currentColor.id.toLowerCase() === color.id.toLowerCase();
+                      return (
+                        <button
+                          key={color.id}
+                          type="button"
+                          role="option"
+                          aria-selected={isSelected}
+                          onClick={() => {
+                            triggerHaptic('selection', userData.vibrationEnabled);
+                            updateSettings({ accentColor: color.id });
+                            setIsColorDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-gray-100 dark:bg-gray-700/80 font-bold text-gray-900 dark:text-white'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700/40 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {/* Designed tactile circle in menu */}
+                            <div
+                              className="relative w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-xs ring-1 ring-white/50 dark:ring-black/30"
+                              style={{
+                                background: `linear-gradient(135deg, ${color.light} 0%, ${color.id} 60%, ${color.dark} 100%)`,
+                                boxShadow: isSelected 
+                                  ? `0 2px 8px -1px ${color.id}88` 
+                                  : `0 1px 3px -1px ${color.id}44`,
+                              }}
+                            >
+                              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
+                              <div className="absolute top-0.5 left-1 w-1.5 h-0.5 rounded-full bg-white/60 blur-[0.3px] rotate-[-25deg] pointer-events-none" />
+                            </div>
+
+                            <span className="text-sm font-medium">{color.name}</span>
+                          </div>
+
+                          {isSelected && (
+                            <div 
+                              className="w-4 h-4 rounded-full flex items-center justify-center text-white"
+                              style={{ backgroundColor: color.id }}
+                            >
+                              <Check size={10} strokeWidth={3.5} />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
@@ -253,6 +358,53 @@ export default function Settings() {
               accept=".json" 
               className="hidden" 
             />
+          </div>
+        </section>
+
+        {/* Features & Guides Section */}
+        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+            Features & Guides
+          </h2>
+          
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                triggerHaptic('light', userData.vibrationEnabled);
+                openOnboarding();
+              }}
+              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-500">
+                  <Compass size={20} />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium text-gray-900 dark:text-white">App Onboarding Tour</div>
+                  <div className="text-xs text-gray-400">Replay the visual feature showcase</div>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            <button
+              onClick={() => {
+                triggerHaptic('light', userData.vibrationEnabled);
+                setShowGuideModal(true);
+              }}
+              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-500">
+                  <Sparkles size={20} />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium text-gray-900 dark:text-white">Adventure Rules & FAQ</div>
+                  <div className="text-xs text-gray-400">Daily quest rules, streaks & stars</div>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
         </section>
 

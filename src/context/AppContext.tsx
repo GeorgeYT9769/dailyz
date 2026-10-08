@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { calculateStreaks } from '../utils/dateUtils';
 import { getRandomInterestingName } from '../utils/nameGenerator';
+import { updateSystemBars } from '../utils/statusBar';
 import rewardsData from '../data/rewards.json';
 
 export type Reward = {
@@ -29,6 +30,7 @@ export type UserData = {
   activeAvatar: string | null;
   pfpTag: string | null;
   hasCustomPfpTagUnlock: boolean;
+  hasSeenOnboarding?: boolean;
   nextDayQuest?: {
     id?: number;
     quest: string;
@@ -40,6 +42,10 @@ export type UserData = {
 
 interface AppContextType {
   userData: UserData;
+  isLoaded: boolean;
+  isOnboardingOpen: boolean;
+  openOnboarding: () => void;
+  closeOnboarding: () => void;
   completeQuest: (reward: number, dateIso: string, force?: boolean) => void;
   redeemReward: (id: string, customValue?: string) => void;
   updateSettings: (settings: Partial<UserData>) => void;
@@ -66,6 +72,7 @@ const defaultUserData: UserData = {
   activeAvatar: null,
   pfpTag: null,
   hasCustomPfpTagUnlock: false,
+  hasSeenOnboarding: false,
   nextDayQuest: null,
 };
 
@@ -87,7 +94,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...parsed, 
           name: initialName, 
           streak: streaks.current, 
-          longestStreak: streaks.longest 
+          longestStreak: streaks.longest,
+          hasSeenOnboarding: parsed.hasSeenOnboarding ?? false,
         };
       } catch (e) {
         return { ...defaultUserData, name: getRandomInterestingName() };
@@ -96,15 +104,51 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return { ...defaultUserData, name: getRandomInterestingName() };
   });
 
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
+  useEffect(() => {
+    // Trigger onboarding automatically on initial launch if not completed yet
+    if (isLoaded && !userData.hasSeenOnboarding) {
+      setIsOnboardingOpen(true);
+    }
+  }, [isLoaded, userData.hasSeenOnboarding]);
+
+  const openOnboarding = () => {
+    setIsOnboardingOpen(true);
+  };
+
+  const closeOnboarding = () => {
+    setIsOnboardingOpen(false);
+    setUserData(prev => ({ ...prev, hasSeenOnboarding: true }));
+  };
+
   useEffect(() => {
     localStorage.setItem('dailyQuestsUserData', JSON.stringify(userData));
-    if (userData.theme === 'dark') {
+    const isDark = userData.theme === 'dark';
+    if (isDark) {
       document.documentElement.classList.add('dark');
+      document.documentElement.style.backgroundColor = '#111827';
+      document.documentElement.style.colorScheme = 'dark';
     } else {
       document.documentElement.classList.remove('dark');
+      document.documentElement.style.backgroundColor = '#f9fafb';
+      document.documentElement.style.colorScheme = 'light';
+    }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', isDark ? '#111827' : '#f9fafb');
     }
     document.documentElement.style.setProperty('--accent-color', userData.accentColor);
-  }, [userData]);
+
+    // Sync native status bar & navigation bar colors on Android / Capacitor
+    updateSystemBars(isDark);
+
+    // Mark initial loading and hydration as finished
+    if (!isLoaded) {
+      setIsLoaded(true);
+    }
+  }, [userData, isLoaded]);
 
   const completeQuest = (reward: number, dateIso: string, force: boolean = false) => {
     setUserData(prev => {
@@ -180,7 +224,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
-    <AppContext.Provider value={{ userData, completeQuest, redeemReward, updateSettings, importData }}>
+    <AppContext.Provider value={{ 
+      userData, 
+      isLoaded, 
+      isOnboardingOpen, 
+      openOnboarding, 
+      closeOnboarding, 
+      completeQuest, 
+      redeemReward, 
+      updateSettings, 
+      importData 
+    }}>
       {children}
     </AppContext.Provider>
   );

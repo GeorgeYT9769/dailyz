@@ -4,17 +4,38 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useAppContext } from './context/AppContext';
 import Layout from './components/Layout';
 import Home from './components/Home';
 import Profile from './components/Profile';
 import Rewards from './components/Rewards';
 import Settings from './components/Settings';
 import ProfilePreview from './components/ProfilePreview';
-import { AnimatePresence } from 'motion/react';
+import SplashScreen from './components/SplashScreen';
+import Onboarding from './components/Onboarding';
+import { motion, AnimatePresence } from 'motion/react';
 
-export default function App() {
+const TAB_ORDER = ['home', 'profile', 'rewards', 'settings'];
+
+const pageVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 25 : direction < 0 ? -25 : 0,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -25 : direction < 0 ? 25 : 0,
+    opacity: 0,
+  }),
+};
+
+function MainContent() {
+  const { isLoaded, isOnboardingOpen, closeOnboarding } = useAppContext();
   const [activeTab, setActiveTab] = useState('home');
+  const [tabDirection, setTabDirection] = useState<number>(0);
   const [profilePreview, setProfilePreview] = useState<any>(null);
 
   useEffect(() => {
@@ -35,20 +56,61 @@ export default function App() {
     }
   }, []);
 
+  const handleTabChange = (newTab: string) => {
+    if (newTab === activeTab) return;
+    const curIdx = TAB_ORDER.indexOf(activeTab);
+    const newIdx = TAB_ORDER.indexOf(newTab);
+    setTabDirection(newIdx > curIdx ? 1 : -1);
+    setActiveTab(newTab);
+  };
+
+  const handleSwipeLeft = () => {
+    const curIdx = TAB_ORDER.indexOf(activeTab);
+    if (curIdx < TAB_ORDER.length - 1) {
+      handleTabChange(TAB_ORDER[curIdx + 1]);
+    }
+  };
+
+  const handleSwipeRight = () => {
+    const curIdx = TAB_ORDER.indexOf(activeTab);
+    if (curIdx > 0) {
+      handleTabChange(TAB_ORDER[curIdx - 1]);
+    }
+  };
+
   const renderTab = () => {
     switch (activeTab) {
-      case 'home': return <Home />;
+      case 'home': return <Home onNavigateTab={handleTabChange} />;
       case 'profile': return <Profile />;
       case 'rewards': return <Rewards />;
       case 'settings': return <Settings />;
-      default: return <Home />;
+      default: return <Home onNavigateTab={handleTabChange} />;
     }
   };
 
   return (
-    <AppProvider>
-      <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
-        {renderTab()}
+    <>
+      <SplashScreen isLoading={!isLoaded} />
+      <Layout 
+        activeTab={activeTab} 
+        setActiveTab={handleTabChange}
+        onSwipeLeft={handleSwipeLeft}
+        onSwipeRight={handleSwipeRight}
+      >
+        <AnimatePresence mode="wait" custom={tabDirection} initial={false}>
+          <motion.div
+            key={activeTab}
+            custom={tabDirection}
+            variants={pageVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.14, ease: [0.25, 1, 0.5, 1] }}
+            className="w-full flex-1 flex flex-col"
+          >
+            {renderTab()}
+          </motion.div>
+        </AnimatePresence>
       </Layout>
       <AnimatePresence>
         {profilePreview && (
@@ -58,6 +120,19 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {isLoaded && isOnboardingOpen && (
+          <Onboarding onClose={closeOnboarding} />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <MainContent />
     </AppProvider>
   );
 }

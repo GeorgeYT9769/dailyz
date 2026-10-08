@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import StreakModal from './StreakModal';
 import { getRandomInterestingName } from '../utils/nameGenerator';
+import { triggerHaptic } from '../utils/haptics';
 
 export default function Profile() {
   const { userData, updateSettings } = useAppContext();
@@ -60,9 +61,7 @@ export default function Profile() {
   }, [showScanner]);
 
   const triggerFeedback = (msg: string) => {
-    if (userData.vibrationEnabled && navigator.vibrate) {
-      navigator.vibrate(20);
-    }
+    triggerHaptic('light', userData.vibrationEnabled);
     setFeedback(msg);
     setTimeout(() => setFeedback(null), 2000);
   };
@@ -187,9 +186,7 @@ export default function Profile() {
               onClick={() => {
                 const newName = getRandomInterestingName();
                 updateSettings({ name: newName });
-                if (userData.vibrationEnabled && navigator.vibrate) {
-                  navigator.vibrate(40);
-                }
+                triggerHaptic('medium', userData.vibrationEnabled);
               }}
               className="p-1.5 text-gray-400 hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all shrink-0 active:rotate-45"
               title="Roll a random interesting name"

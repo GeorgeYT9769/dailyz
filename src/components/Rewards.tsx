@@ -5,6 +5,7 @@ import rewardsData from '../data/rewards.json';
 import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import StreakModal from './StreakModal';
+import { triggerHaptic } from '../utils/haptics';
 
 // 💡 CUSTOM LOTTIE ANIMATION:
 // Replace this with your own Lottie JSON for the reward unlock effect
@@ -26,9 +27,7 @@ export default function Rewards() {
 
     if (isUnlocked) {
       // Just equip
-      if (userData.vibrationEnabled && navigator.vibrate) {
-        navigator.vibrate(20);
-      }
+      triggerHaptic('light', userData.vibrationEnabled);
       if (reward.type === 'rank') updateSettings({ rank: reward.value });
       if (reward.type === 'decoration') updateSettings({ activeDecoration: reward.value });
       if (reward.type === 'avatar') updateSettings({ activeAvatar: reward.value });
@@ -37,9 +36,7 @@ export default function Rewards() {
       // Buy
       if (userData.points < reward.cost) return;
 
-      if (userData.vibrationEnabled && navigator.vibrate) {
-        navigator.vibrate(50);
-      }
+      triggerHaptic('success', userData.vibrationEnabled);
 
       if (reward.type === 'rank_custom') {
         redeemReward(reward.id);
