@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917" />
+      <stop offset="100%" stop-color="#451a03" />
+    </linearGradient>
+    <linearGradient id="goldCrown" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="armor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3f3f46" />
+      <stop offset="50%" stop-color="#27272a" />
+      <stop offset="100%" stop-color="#18181b" />
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fed7aa" />
+      <stop offset="100%" stop-color="#fcd34d" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg4)" rx="40" />
+  <!-- Solar rays -->
+  <circle cx="100" cy="90" r="65" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 8" opacity="0.4" fill="none" />
+  <circle cx="100" cy="90" r="75" stroke="#fbbf24" stroke-width="1" stroke-dasharray="10 12" opacity="0.3" fill="none" />
+  <!-- Armor Shoulders -->
+  <path d="M 35 190 Q 100 140 165 190 Z" fill="url(#armor)" />
+  <path d="M 70 148 L 100 170 L 130 148" stroke="#f59e0b" stroke-width="3" fill="none" />
+  <!-- Neck / Face -->
+  <rect x="85" y="120" width="30" height="30" fill="url(#skin)" />
+  <path d="M 65 85 C 65 60 135 60 135 85 C 135 125 65 125 65 85 Z" fill="url(#skin)" />
+  <!-- Crown / Diadem -->
+  <polygon points="60,80 70,45 85,65 100,35 115,65 130,45 140,80" fill="url(#goldCrown)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.4))" />
+  <circle cx="100" cy="55" r="4" fill="#ef4444" />
+  <circle cx="85" cy="68" r="2.5" fill="#3b82f6" />
+  <circle cx="115" cy="68" r="2.5" fill="#3b82f6" />
+  <!-- Eyes -->
+  <ellipse cx="84" cy="95" rx="4" ry="5" fill="#1c1917" />
+  <ellipse cx="116" cy="95" rx="4" ry="5" fill="#1c1917" />
+  <circle cx="85" cy="93" r="1.5" fill="#ffffff" />
+  <circle cx="117" cy="93" r="1.5" fill="#ffffff" />
+  <!-- Confident Smile -->
+  <path d="M 90 110 Q 100 118 110 110" stroke="#b45309" stroke-width="2.5" stroke-linecap="round" fill="none" />
+</svg>

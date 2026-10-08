@@ -1,18 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, Scan, CheckCircle, ChevronRight, Dices } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, CheckCircle, ChevronRight, Dices } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
 import StreakModal from './StreakModal';
+import ProfileCardModal from './ProfileCardModal';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { triggerHaptic } from '../utils/haptics';
 
 export default function Profile() {
   const { userData, updateSettings } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [showQR, setShowQR] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
   const [showPfpMenu, setShowPfpMenu] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [isEditingRank, setIsEditingRank] = useState(false);
@@ -20,45 +18,11 @@ export default function Profile() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const defaultPfps = [
-    '/pfp1.png',
-    '/pfp2.png',
-    '/pfp3.png',
-    '/pfp4.png',
+    '/pfp1.svg',
+    '/pfp2.svg',
+    '/pfp3.svg',
+    '/pfp4.svg',
   ];
-
-  useEffect(() => {
-    if (showScanner) {
-      const scanner = new Html5QrcodeScanner(
-        "reader",
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        /* verbose= */ false
-      );
-
-      scanner.render((decodedText) => {
-        try {
-          const url = new URL(decodedText);
-          const name = url.searchParams.get('user');
-          const rank = url.searchParams.get('rank');
-          if (name && rank) {
-            // Use window.location.search to trigger the preview in App.tsx
-            window.location.search = url.search;
-          } else {
-            alert(`Scanned: ${decodedText}`);
-          }
-        } catch (e) {
-          alert(`Scanned: ${decodedText}`);
-        }
-        scanner.clear();
-        setShowScanner(false);
-      }, (error) => {
-        // console.warn(error);
-      });
-
-      return () => {
-        scanner.clear().catch(e => console.error("Failed to clear scanner", e));
-      };
-    }
-  }, [showScanner]);
 
   const triggerFeedback = (msg: string) => {
     triggerHaptic('light', userData.vibrationEnabled);
@@ -120,7 +84,7 @@ export default function Profile() {
 
   return (
     <div className="animate-pop pb-8">
-      <header className="mb-8 flex flex-col items-center">
+      <header className="mb-8 pt-2 sm:pt-3 flex flex-col items-center">
         <div className="relative mb-4">
           <div className={`w-32 h-32 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-lg flex items-center justify-center transition-all duration-500 ${getDecorationClass()}`}>
             {userData.profileImage ? (
@@ -129,6 +93,11 @@ export default function Profile() {
                 alt="Profile" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  if (userData.profileImage?.endsWith('.svg')) {
+                    (e.target as HTMLImageElement).src = userData.profileImage.replace('.svg', '.png');
+                  }
+                }}
               />
             ) : (
               <User size={64} className="text-gray-400" />
@@ -174,12 +143,12 @@ export default function Profile() {
         </div>
         
         <div className="text-center w-full px-4">
-          <div className="flex items-center justify-center gap-1.5 max-w-sm mx-auto">
+          <div className="relative flex items-center justify-center max-w-sm mx-auto">
             <input
               type="text"
               value={userData.name}
               onChange={(e) => updateSettings({ name: e.target.value })}
-              className="text-2xl font-bold bg-transparent border-none text-center focus:outline-none focus:ring-2 focus:ring-accent/20 rounded-lg px-2 flex-1"
+              className="text-2xl font-bold bg-transparent border-none text-center focus:outline-none focus:ring-2 focus:ring-accent/20 rounded-lg px-9 w-full"
               placeholder="Enter your name"
             />
             <button
@@ -188,7 +157,7 @@ export default function Profile() {
                 updateSettings({ name: newName });
                 triggerHaptic('medium', userData.vibrationEnabled);
               }}
-              className="p-1.5 text-gray-400 hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all shrink-0 active:rotate-45"
+              className="absolute right-0 p-1.5 text-gray-400 hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all shrink-0 active:rotate-45 cursor-pointer"
               title="Roll a random interesting name"
               aria-label="Roll a random interesting name"
             >
@@ -255,20 +224,16 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="flex gap-4 mt-4">
+        <div className="flex justify-center mt-4">
           <button 
-            onClick={() => setShowQR(true)}
-            className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-accent transition-colors uppercase tracking-widest"
+            onClick={() => {
+              triggerHaptic('light', userData.vibrationEnabled);
+              setShowCardModal(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:border-accent hover:text-accent dark:hover:text-accent transition-all cursor-pointer group"
           >
-            <Share2 size={14} />
-            Share
-          </button>
-          <button 
-            onClick={() => setShowScanner(true)}
-            className="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-accent transition-colors uppercase tracking-widest"
-          >
-            <Scan size={14} />
-            Scan
+            <Share2 size={14} className="group-hover:scale-110 transition-transform" />
+            <span>Share Profile Card</span>
           </button>
         </div>
       </header>
@@ -296,7 +261,7 @@ export default function Profile() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mb-8">
+              <div className="grid grid-cols-4 gap-2 mb-8">
                 {defaultPfps.map((pfp, i) => (
                   <button
                     key={i}
@@ -305,10 +270,17 @@ export default function Profile() {
                       triggerFeedback("PFP Updated!");
                       setShowPfpMenu(false);
                     }}
-                    className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 ${userData.profileImage === pfp ? 'border-accent' : 'border-transparent'}`}
+                    className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer bg-gray-100 dark:bg-gray-700/50 ${userData.profileImage === pfp ? 'border-accent' : 'border-transparent'}`}
                     style={userData.profileImage === pfp ? { borderColor: 'var(--accent-color)' } : {}}
                   >
-                    <img src={pfp} alt={`Default ${i+1}`} className="w-full h-full object-cover" />
+                    <img 
+                      src={pfp} 
+                      alt={`Default ${i+1}`} 
+                      className="w-full h-full object-cover" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = pfp.replace('.svg', '.png');
+                      }}
+                    />
                   </button>
                 ))}
               </div>
@@ -472,67 +444,14 @@ export default function Profile() {
         )}
       </div>
 
-      {/* QR Code Modal */}
+      {/* Profile Card Modal */}
       <AnimatePresence>
-        {showQR && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
-            onClick={() => setShowQR(false)}
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-xs w-full flex flex-col items-center text-center shadow-2xl"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="bg-white p-4 rounded-3xl mb-6 shadow-inner border-4 border-accent" style={{ borderColor: 'var(--accent-color)' }}>
-                <QRCodeSVG value={shareUrl} size={200} level="H" includeMargin />
-              </div>
-              <h3 className="text-xl font-bold mb-2">{userData.name}</h3>
-              <p className="text-accent font-bold text-sm uppercase tracking-widest mb-6" style={{ color: 'var(--accent-color)' }}>
-                {userData.rank}
-              </p>
-              <button 
-                onClick={() => setShowQR(false)}
-                className="w-full py-3 bg-accent text-white rounded-xl font-bold shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all"
-                style={{ backgroundColor: 'var(--accent-color)' }}
-              >
-                Close
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Scanner Modal */}
-      <AnimatePresence>
-        {showScanner && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-[100] flex flex-col items-center justify-center p-6"
-          >
-            <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-2xl">
-              <div className="p-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
-                <h3 className="font-bold">Scan Profile</h3>
-                <button 
-                  onClick={() => setShowScanner(false)}
-                  className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-500"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              <div id="reader" className="w-full aspect-square bg-black"></div>
-              <div className="p-6 text-center text-sm text-gray-500">
-                Point your camera at a Daily Quests QR code
-              </div>
-            </div>
-          </motion.div>
+        {showCardModal && (
+          <ProfileCardModal 
+            isOpen={showCardModal}
+            onClose={() => setShowCardModal(false)}
+            userData={userData}
+          />
         )}
       </AnimatePresence>
 

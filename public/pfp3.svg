@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09090b" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="cloak" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+    <radialGradient id="magicEye" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a5f3fc" />
+      <stop offset="60%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#083344" />
+    </radialGradient>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg3)" rx="40" />
+  <!-- Arcane Runes in background -->
+  <circle cx="100" cy="100" r="75" stroke="#818cf8" stroke-width="1" stroke-dasharray="8 6" opacity="0.3" fill="none" />
+  <polygon points="100,30 160,135 40,135" stroke="#a855f7" stroke-width="1" stroke-dasharray="4 6" opacity="0.25" fill="none" />
+  <!-- Cloak / Shoulders -->
+  <path d="M 30 195 Q 100 135 170 195 Z" fill="url(#cloak)" />
+  <path d="M 100 145 L 100 195" stroke="#818cf8" stroke-width="2" opacity="0.6" />
+  <!-- Hood Outer -->
+  <path d="M 45 130 C 40 60 70 30 100 30 C 130 30 160 60 155 130 C 135 145 65 145 45 130 Z" fill="url(#cloak)" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.5))" />
+  <!-- Hood Inner Shadow -->
+  <path d="M 60 120 C 55 75 75 52 100 52 C 125 52 145 75 140 120 C 125 132 75 132 60 120 Z" fill="#09090b" />
+  <!-- Glowing Mystic Eyes -->
+  <ellipse cx="82" cy="98" rx="8" ry="4" fill="url(#magicEye)" />
+  <circle cx="82" cy="98" r="2" fill="#ffffff" />
+  <ellipse cx="118" cy="98" rx="8" ry="4" fill="url(#magicEye)" />
+  <circle cx="118" cy="98" r="2" fill="#ffffff" />
+  <!-- Forehead Arcane Gem -->
+  <polygon points="100,68 105,75 100,82 95,75" fill="#f43f5e" />
+  <circle cx="100" cy="75" r="1.5" fill="#ffffff" />
+</svg>

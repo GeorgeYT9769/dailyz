@@ -78,8 +78,8 @@ export default function Rewards() {
 
   return (
     <div className="animate-pop">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Rewards Shop</h1>
+      <header className="flex justify-between items-center mb-6 pt-2 sm:pt-3">
+        <h1 className="text-2xl font-bold tracking-tight">Rewards Shop</h1>
         <div className="flex items-center gap-2">
           {/* Streak pill: flame and number */}
           <button

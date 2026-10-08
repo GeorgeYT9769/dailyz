@@ -53,7 +53,17 @@ export default function ProfilePreview({ data, onClose }: ProfilePreviewProps) {
             className={`w-48 h-48 rounded-[3rem] overflow-hidden bg-gray-200 dark:bg-gray-800 border-8 border-white dark:border-gray-900 shadow-2xl flex items-center justify-center transition-all duration-500 ${data.dec ? `decoration-${data.dec}` : ''}`}
           >
             {data.pfp ? (
-              <img src={data.pfp} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img 
+                src={data.pfp} 
+                alt="Profile" 
+                className="w-full h-full object-cover" 
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  if (data.pfp?.endsWith('.svg')) {
+                    (e.target as HTMLImageElement).src = data.pfp.replace('.svg', '.png');
+                  }
+                }}
+              />
             ) : (
               <User size={96} className="text-gray-400" />
             )}

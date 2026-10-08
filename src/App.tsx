@@ -106,7 +106,7 @@ function MainContent() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.14, ease: [0.25, 1, 0.5, 1] }}
-            className="w-full flex-1 flex flex-col"
+            className="w-full flex-1 flex flex-col min-h-full"
           >
             {renderTab()}
           </motion.div>

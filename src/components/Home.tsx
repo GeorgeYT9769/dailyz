@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import StreakModal from './StreakModal';
 import { triggerHaptic } from '../utils/haptics';
+import { syncWidgetWithNative } from '../utils/widgetSync';
 
 // Lottie success checkmark
 const successLottie = {"v":"4.10.1","fr":30,"ip":0,"op":40,"w":80,"h":80,"nm":"Success Checkmark","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"Check Mark","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[40,40,0],"ix":2},"a":{"a":0,"k":[-1.312,6,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0]],"v":[[-15.75,8],[-8,16],[13.125,-4]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.667],"y":[1]},"o":{"x":[0.333],"y":[0]},"n":["0p667_1_0p333_0"],"t":25,"s":[0],"e":[100]},{"t":33}],"ix":1},"e":{"a":0,"k":0,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3,"ix":5},"lc":2,"lj":2,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Shape 1","np":3,"cix":2,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":40,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"Circle Flash","sr":1,"ks":{"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"n":["0p833_0p833_0p167_0p167"],"t":25,"s":[0],"e":[98]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"n":["0p833_0p833_0p167_0p167"],"t":30,"s":[98],"e":[0]},{"t":38}],"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[40,40,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":25,"s":[0,0,100],"e":[100,100,100]},{"t":30}],"ix":6}},"ao":0,"shapes":[{"d":1,"ty":"el","s":{"a":0,"k":[64,64],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0.529866635799,0.961458325386,0.448091417551,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false}],"ip":0,"op":40,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"Circle Stroke","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[39.022,39.022,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":16,"s":[100,100,100],"e":[80,80,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":22,"s":[80,80,100],"e":[120,120,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":25,"s":[120,120,100],"e":[100,100,100]},{"t":29}],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[60,60],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.667],"y":[1]},"o":{"x":[0.333],"y":[0]},"n":["0p667_1_0p333_0"],"t":0,"s":[0],"e":[100]},{"t":16}],"ix":1},"e":{"a":0,"k":0,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[0.427450984716,0.800000011921,0.35686275363,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3,"ix":5},"lc":2,"lj":2,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0.978,0.978],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse 1","np":3,"cix":2,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":40,"st":0,"bm":0},{"ddd":0,"ind":4,"ty":4,"nm":"Circle Green Fill","sr":1,"ks":{"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"n":["0p833_0p833_0p167_0p167"],"t":21,"s":[0],"e":[98]},{"t":28}],"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[40,40,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":21,"s":[0,0,100],"e":[100,100,100]},{"t":28}],"ix":6}},"ao":0,"shapes":[{"d":1,"ty":"el","s":{"a":0,"k":[64,64],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0.427450984716,0.800000011921,0.35686275363,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false}],"ip":0,"op":40,"st":0,"bm":0}]};
@@ -89,6 +90,20 @@ export default function Home({ onNavigateTab }: HomeProps) {
     }
   }, [isCompleted]);
 
+  // Keep native Android Homescreen Widget in sync
+  useEffect(() => {
+    if (todayQuest) {
+      syncWidgetWithNative({
+        questTitle: todayQuest.quest,
+        difficulty: todayQuest.difficulty,
+        reward: todayQuest.reward,
+        streak: userData.streak,
+        stars: userData.points,
+        isCompleted: isCompleted,
+      });
+    }
+  }, [todayQuest, userData.streak, userData.points, isCompleted]);
+
   const handleUnlockTomorrow = () => {
     if (userData.points < 20 || isTomorrowUnlocked) return;
 
@@ -146,9 +161,9 @@ export default function Home({ onNavigateTab }: HomeProps) {
   const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow';
 
   return (
-    <div className="flex-1 flex flex-col justify-between h-full min-h-[calc(100vh-8.5rem)] animate-pop pb-1">
-      {/* Top Header */}
-      <header className="flex justify-between items-center mb-4 shrink-0">
+    <div className="flex-1 flex flex-col justify-between min-h-full animate-pop">
+      {/* Top Header App Bar - positioned lower with generous breathing room */}
+      <header className="flex justify-between items-center mb-5 pt-2 sm:pt-3 shrink-0">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Hey, {userData.name}!</h1>
           <p className="text-gray-500 dark:text-gray-400 text-xs">
@@ -183,8 +198,8 @@ export default function Home({ onNavigateTab }: HomeProps) {
         </div>
       </header>
 
-      {/* Merged Full-Page Quest Card */}
-      <div className="flex-1 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-3xl p-6 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden transition-all min-h-[420px]">
+      {/* Merged Full-Page Quest Card - dynamic height so bottom is always scrollable & reachable */}
+      <div className="flex-1 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative transition-all">
         {/* Celebration Overlay */}
         <AnimatePresence>
           {showAnimation && (
@@ -192,7 +207,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-gray-950/30 flex items-center justify-center z-30 backdrop-blur-md"
+              className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-950/30 flex items-center justify-center z-30 backdrop-blur-md"
             >
               <motion.div 
                 initial={{ y: 20 }}
@@ -303,7 +318,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
         <div className="flex-1 flex flex-col justify-center my-2">
           <AnimatePresence mode="wait">
             {isShowingTomorrow ? (
-              // TOMORROW'S QUEST VIEW
+              // TOMORROW'S QUEST VIEW - Identical widget layout to today's quest
               <motion.div
                 key="tomorrow-view"
                 initial={{ opacity: 0, y: 12 }}
@@ -312,60 +327,37 @@ export default function Home({ onNavigateTab }: HomeProps) {
                 transition={{ duration: 0.2 }}
                 className="flex flex-col justify-center"
               >
-                {isTomorrowUnlocked && tomorrowQuest ? (
-                  <div>
-                    <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-medium border border-amber-200/60 dark:border-amber-800/60">
-                      <Sparkles size={14} className="text-amber-500" />
-                      <span>Unlocked early & ready for tomorrow</span>
-                    </div>
+                {/* On top of the quest text: text Unlock tomorrow's quest ahead with countdown */}
+                <div className="mb-3 flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 text-amber-500 dark:text-amber-400">
+                    <Sparkles size={13} />
+                    {isTomorrowUnlocked ? "Tomorrow's Action • Unlocked Early" : "Unlock tomorrow's quest ahead"}
+                  </span>
+                  <span className="text-xs font-mono font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1 bg-gray-100 dark:bg-gray-700/60 px-2.5 py-0.5 rounded-full">
+                    <Clock size={12} />
+                    <span>Unlocks in {countdown}</span>
+                  </span>
+                </div>
 
-                    <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-5 text-gray-900 dark:text-gray-50">
-                      {tomorrowQuest.quest}
-                    </h2>
+                {/* Quest text styled identical to today's widget */}
+                <div className="relative">
+                  <h2 className={`text-2xl sm:text-3xl font-extrabold leading-snug mb-5 ${
+                    !isTomorrowUnlocked 
+                      ? 'filter blur-[5px] select-none opacity-30 dark:opacity-20 transition-all duration-300' 
+                      : 'text-gray-900 dark:text-gray-50'
+                  }`}>
+                    {tomorrowQuest ? tomorrowQuest.quest : "Undertake an intentional mindfulness exercise outdoors and capture a rare moment of clarity."}
+                  </h2>
 
-                    <div className="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-300 font-medium">
-                      <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 px-3.5 py-2 rounded-2xl border border-gray-100 dark:border-gray-700">
-                        <Gift size={18} className="text-accent" style={{ color: 'var(--accent-color)' }} />
-                        <span className="text-sm">Reward: {tomorrowQuest.reward} {tomorrowQuest.reward === 1 ? 'Point' : 'Points'}</span>
-                      </div>
-
-                      <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 px-3.5 py-2 rounded-2xl border border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-400">
-                        <Clock size={16} />
-                        <span className="text-sm font-mono font-medium">Starts in {countdown}</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    {/* Mystery Blurred Preview */}
-                    <div className="relative py-2 select-none filter blur-[6px] opacity-35 dark:opacity-20 pointer-events-none transition-all duration-500">
-                      <h2 className="text-2xl sm:text-3xl font-extrabold leading-snug mb-4">
-                        Undertake an intentional mindfulness exercise outdoors and capture a rare moment of clarity.
-                      </h2>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Gift size={18} />
-                        <span>Reward: 2 Points</span>
+                  {!isTomorrowUnlocked && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-gray-800/95 shadow-md border border-gray-200/80 dark:border-gray-700 backdrop-blur-sm">
+                        <Lock size={14} className="text-amber-500" />
+                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Quest Preview Hidden</span>
                       </div>
                     </div>
-
-                    {/* Mystery Box Info Card */}
-                    <div className="mt-2 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center flex flex-col items-center">
-                      <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center mb-2">
-                        <Sparkles size={20} />
-                      </div>
-                      <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-1">
-                        Unlock Tomorrow's Quest Ahead
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 max-w-xs mb-2">
-                        Today's quest is already done! Spend 20 Stars to preview and unlock tomorrow's quest early.
-                      </p>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-mono">
-                        <Clock size={13} />
-                        <span>Or unlocks free in {countdown}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </motion.div>
             ) : (
               // TODAY'S QUEST VIEW
@@ -409,27 +401,23 @@ export default function Home({ onNavigateTab }: HomeProps) {
         <div className="shrink-0 pt-4 border-t border-gray-100 dark:border-gray-700/60">
           {isShowingTomorrow ? (
             isTomorrowUnlocked && tomorrowQuest ? (
-              <div className="flex flex-col gap-2">
-                <div className="w-full py-4 rounded-2xl font-bold text-base bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-sm">
-                  <CheckCircle size={18} />
-                  <span>Ready for Tomorrow • Activates at Midnight</span>
-                </div>
+              <div className="w-full py-4 sm:py-4.5 rounded-2xl font-bold text-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-sm">
+                <CheckCircle size={20} />
+                <span>Ready for Tomorrow • Unlocked</span>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={handleUnlockTomorrow}
-                  disabled={userData.points < 20}
-                  className={`w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-lg ${
-                    userData.points >= 20
-                      ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/25'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none'
-                  }`}
-                >
-                  <Star size={18} className={userData.points >= 20 ? 'text-yellow-200 fill-yellow-200' : ''} />
-                  <span>{userData.points >= 20 ? 'Unlock Tomorrow (20 Stars)' : `Need 20 Stars to Unlock (${userData.points}/20)`}</span>
-                </button>
-              </div>
+              <button
+                onClick={handleUnlockTomorrow}
+                disabled={userData.points < 20}
+                className={`w-full py-4 sm:py-4.5 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-lg ${
+                  userData.points >= 20
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/25'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none'
+                }`}
+              >
+                <Star size={20} className={userData.points >= 20 ? 'text-yellow-200 fill-yellow-200' : ''} />
+                <span>{userData.points >= 20 ? 'Unlock Tomorrow (20 Stars)' : `Need 20 Stars to Unlock (${userData.points}/20)`}</span>
+              </button>
             )
           ) : (
             <div>

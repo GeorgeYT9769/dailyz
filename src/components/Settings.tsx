@@ -4,10 +4,11 @@ import {
   Moon, Sun, Palette, Download, Upload, Vibrate, Check, 
   Heart, Coffee, Info, ExternalLink, Shield, 
   Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award, 
-  BookOpen, Compass
+  BookOpen, Compass, LayoutGrid
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import { motion, AnimatePresence } from 'motion/react';
+import HomescreenWidgetModal from './HomescreenWidgetModal';
 
 interface Material3SwitchProps {
   checked: boolean;
@@ -95,6 +96,7 @@ export default function Settings() {
   const KOFI_URL = 'https://ko-fi.com/georgeyt9769';
 
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [showWidgetModal, setShowWidgetModal] = useState(false);
   const [showThankYouToast, setShowThankYouToast] = useState(false);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
 
@@ -152,8 +154,8 @@ export default function Settings() {
 
   return (
     <div className="animate-pop pb-6">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold">Settings</h1>
+      <header className="mb-8 pt-2 sm:pt-3">
+        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
       </header>
 
       {/* Thank you toast when tipping */}
@@ -405,6 +407,25 @@ export default function Settings() {
               </div>
               <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
             </button>
+
+            <button
+              onClick={() => {
+                triggerHaptic('light', userData.vibrationEnabled);
+                setShowWidgetModal(true);
+              }}
+              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-500">
+                  <LayoutGrid size={20} />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium text-gray-900 dark:text-white">Homescreen Widget</div>
+                  <div className="text-xs text-gray-400">Android widget picker preview & setup</div>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
         </section>
 
@@ -549,6 +570,12 @@ export default function Settings() {
           </div>
         </div>
       )}
+
+      {/* Homescreen Widget Setup & Preview Modal */}
+      <HomescreenWidgetModal 
+        isOpen={showWidgetModal} 
+        onClose={() => setShowWidgetModal(false)} 
+      />
     </div>
   );
 }

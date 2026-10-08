@@ -67,15 +67,17 @@ export default function Layout({
 
   return (
     <div 
-      className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pb-28 transition-colors duration-300 overflow-x-hidden overflow-y-visible flex flex-col"
+      className="h-[100dvh] max-h-[100dvh] bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden flex flex-col"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <main className="max-w-md mx-auto p-4 pt-safe pt-6 min-h-[calc(100vh-5rem)] flex-1 w-full flex flex-col">
+      <main className="max-w-md mx-auto px-4 pt-safe pt-8 sm:pt-10 pb-6 flex-1 w-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden">
         {children}
+        {/* Guaranteed bottom clearance spacer so user can scroll completely down */}
+        <div className="h-6 shrink-0" aria-hidden="true" />
       </main>
       
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 px-4 py-2 pb-safe z-50">
+      <nav className="shrink-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 px-4 py-2 pb-safe z-50">
         <div className="max-w-md mx-auto flex justify-between items-center">
           {tabs.map(tab => {
             const Icon = tab.icon;

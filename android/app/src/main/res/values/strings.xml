@@ -4,4 +4,10 @@
     <string name="title_activity_main">Dailyz</string>
     <string name="package_name">com.georgeyt9769.dailyz</string>
     <string name="custom_url_scheme">com.georgeyt9769.dailyz</string>
+    <string name="widget_name">Daily Quest</string>
+    <string name="widget_description">Track today\'s quest, streak, and daily star rewards directly on your home screen.</string>
+    <string name="widget_action_open">Open Quest</string>
+    <string name="widget_completed">Done for Today! 🎉</string>
+    <string name="widget_default_title">Pick up one piece of trash you see outside. (Day 1)</string>
+    <string name="widget_default_difficulty">EASY • +1 STAR</string>
 </resources>
