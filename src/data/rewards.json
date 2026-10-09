@@ -1,4 +1,7 @@
 [
+  { "id": "freeze_1", "title": "Streak Freeze (Protects 1 Missed Day)", "cost": 25, "type": "freeze", "value": "1" },
+  { "id": "freeze_3", "title": "Streak Freeze Pack (3 Freezes)", "cost": 65, "type": "freeze_pack", "value": "3" },
+  { "id": "recovery_1", "title": "Streak Recovery Token", "cost": 30, "type": "recovery_token", "value": "1" },
   { "id": "1", "title": "Watch an episode of a show", "cost": 10, "type": "standard" },
   { "id": "2", "title": "Buy a coffee", "cost": 15, "type": "standard" },
   { "id": "3", "title": "Guilt-free gaming hour", "cost": 20, "type": "standard" },

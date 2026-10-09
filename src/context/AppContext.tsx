@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { calculateStreaks } from '../utils/dateUtils';
+import { calculateStreaks, getTodayISO, getYesterdayISO } from '../utils/dateUtils';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { updateSystemBars } from '../utils/statusBar';
+import { scheduleDailyReminder } from '../utils/notificationUtils';
 import rewardsData from '../data/rewards.json';
+import questsData from '../data/quests.json';
 
 export type Reward = {
   id: string;
@@ -31,6 +33,20 @@ export type UserData = {
   pfpTag: string | null;
   hasCustomPfpTagUnlock: boolean;
   hasSeenOnboarding?: boolean;
+  streakFreezes: number;
+  usedStreakFreezes: string[];
+  lastBrokenStreak: { count: number; brokenDate: string } | null;
+  lastFreeRerollDate?: string;
+  currentRolledQuest?: {
+    id: number;
+    quest: string;
+    difficulty: string;
+    reward: number;
+    category?: string;
+    dateIso: string;
+  } | null;
+  notificationsEnabled: boolean;
+  notificationTime: string;
   nextDayQuest?: {
     id?: number;
     quest: string;
@@ -50,6 +66,10 @@ interface AppContextType {
   redeemReward: (id: string, customValue?: string) => void;
   updateSettings: (settings: Partial<UserData>) => void;
   importData: (data: UserData) => void;
+  useStreakFreeze: (dateIso?: string) => boolean;
+  recoverStreak: () => { success: boolean; message: string };
+  buyStreakFreeze: (count?: number, cost?: number) => boolean;
+  rerollQuest: () => { success: boolean; isFree: boolean; message: string; quest?: any };
 }
 
 const defaultUserData: UserData = {
@@ -73,6 +93,13 @@ const defaultUserData: UserData = {
   pfpTag: null,
   hasCustomPfpTagUnlock: false,
   hasSeenOnboarding: false,
+  streakFreezes: 1, // 1 complimentary starter streak freeze
+  usedStreakFreezes: [],
+  lastBrokenStreak: null,
+  lastFreeRerollDate: undefined,
+  currentRolledQuest: null,
+  notificationsEnabled: false,
+  notificationTime: "09:00",
   nextDayQuest: null,
 };
 
@@ -84,17 +111,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const streaks = calculateStreaks(parsed.completedDays || []);
-        // If name is unset or the old generic default "Adventurer", generate a fresh interesting name
+        const usedFreezes = parsed.usedStreakFreezes || [];
+        const streaks = calculateStreaks(parsed.completedDays || [], usedFreezes);
         const initialName = (!parsed.name || parsed.name === 'Adventurer')
           ? getRandomInterestingName()
           : parsed.name;
+        
+        const streakFreezesCount = typeof parsed.streakFreezes === 'number' ? parsed.streakFreezes : 1;
+
         return { 
           ...defaultUserData, 
           ...parsed, 
           name: initialName, 
           streak: streaks.current, 
           longestStreak: streaks.longest,
+          streakFreezes: streakFreezesCount,
+          usedStreakFreezes: usedFreezes,
+          lastBrokenStreak: parsed.lastBrokenStreak || null,
+          notificationsEnabled: parsed.notificationsEnabled ?? false,
+          notificationTime: parsed.notificationTime || "09:00",
           hasSeenOnboarding: parsed.hasSeenOnboarding ?? false,
         };
       } catch (e) {
@@ -150,21 +185,142 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [userData, isLoaded]);
 
+  useEffect(() => {
+    // Schedule or cancel native/web local notification reminder when settings update
+    if (isLoaded) {
+      scheduleDailyReminder(userData.notificationTime || "09:00", userData.notificationsEnabled || false);
+    }
+  }, [userData.notificationsEnabled, userData.notificationTime, isLoaded]);
+
   const completeQuest = (reward: number, dateIso: string, force: boolean = false) => {
     setUserData(prev => {
       const isAlreadyCompleted = prev.completedDays.includes(dateIso);
       if (isAlreadyCompleted && !force) return prev;
       
       const newCompleted = isAlreadyCompleted ? prev.completedDays : [...prev.completedDays, dateIso];
-      const streaks = calculateStreaks(newCompleted);
+      const streaks = calculateStreaks(newCompleted, prev.usedStreakFreezes || []);
       return {
         ...prev,
         completedDays: newCompleted,
         points: prev.points + reward,
         streak: streaks.current,
-        longestStreak: streaks.longest
+        longestStreak: streaks.longest,
+        lastBrokenStreak: null, // Clear broken streak once a new day is completed
       };
     });
+  };
+
+  const useStreakFreeze = (dateIso?: string): boolean => {
+    const targetDate = dateIso || getYesterdayISO();
+    if (userData.streakFreezes <= 0) return false;
+    if (userData.usedStreakFreezes.includes(targetDate) || userData.completedDays.includes(targetDate)) return false;
+
+    setUserData(prev => {
+      const newUsedFreezes = [...prev.usedStreakFreezes, targetDate];
+      const streaks = calculateStreaks(prev.completedDays, newUsedFreezes);
+      return {
+        ...prev,
+        streakFreezes: Math.max(0, prev.streakFreezes - 1),
+        usedStreakFreezes: newUsedFreezes,
+        streak: streaks.current,
+        longestStreak: Math.max(prev.longestStreak, streaks.longest),
+        lastBrokenStreak: null,
+      };
+    });
+    return true;
+  };
+
+  const recoverStreak = (): { success: boolean; message: string } => {
+    const broken = userData.lastBrokenStreak;
+    if (!broken || broken.count <= 0) {
+      return { success: false, message: 'No broken streak available to recover.' };
+    }
+
+    const RECOVERY_COST = 15;
+    const canPayWithStars = userData.points >= RECOVERY_COST;
+    const hasFreeze = userData.streakFreezes > 0;
+
+    if (!canPayWithStars && !hasFreeze) {
+      return { success: false, message: `Need ${RECOVERY_COST} Stars or 1 Streak Freeze to recover streak.` };
+    }
+
+    setUserData(prev => {
+      const targetDate = broken.brokenDate || getYesterdayISO();
+      const newUsedFreezes = prev.usedStreakFreezes.includes(targetDate) 
+        ? prev.usedStreakFreezes 
+        : [...prev.usedStreakFreezes, targetDate];
+
+      let newPoints = prev.points;
+      let newFreezes = prev.streakFreezes;
+
+      if (hasFreeze) {
+        newFreezes -= 1;
+      } else {
+        newPoints -= RECOVERY_COST;
+      }
+
+      const streaks = calculateStreaks(prev.completedDays, newUsedFreezes);
+      const restoredCurrent = Math.max(streaks.current, broken.count);
+
+      return {
+        ...prev,
+        points: newPoints,
+        streakFreezes: newFreezes,
+        usedStreakFreezes: newUsedFreezes,
+        streak: restoredCurrent,
+        longestStreak: Math.max(prev.longestStreak, restoredCurrent),
+        lastBrokenStreak: null,
+      };
+    });
+
+    return { success: true, message: `Streak of ${broken.count} days successfully restored! 🔥` };
+  };
+
+  const buyStreakFreeze = (count: number = 1, cost: number = 25): boolean => {
+    if (userData.points < cost) return false;
+    setUserData(prev => ({
+      ...prev,
+      points: prev.points - cost,
+      streakFreezes: prev.streakFreezes + count,
+    }));
+    return true;
+  };
+
+  const rerollQuest = (): { success: boolean; isFree: boolean; message: string; quest?: any } => {
+    const today = getTodayISO();
+    const isFree = userData.lastFreeRerollDate !== today;
+
+    if (!isFree && userData.points < 5) {
+      return { success: false, isFree: false, message: 'You need 5 stars to reroll again today.' };
+    }
+
+    // Pick a new quest different from the current rolled/base quest
+    const currentId = userData.currentRolledQuest?.id;
+    const candidatePool = questsData.filter(q => q.id !== currentId);
+    const chosen = candidatePool[Math.floor(Math.random() * candidatePool.length)] || questsData[0];
+
+    const rolled = {
+      id: chosen.id,
+      quest: chosen.quest.replace(/\(Day \d+\)/, '').trim(),
+      difficulty: chosen.difficulty,
+      reward: chosen.reward,
+      category: (chosen as any).category || 'Mind & Focus',
+      dateIso: today,
+    };
+
+    setUserData(prev => ({
+      ...prev,
+      points: isFree ? prev.points : prev.points - 5,
+      lastFreeRerollDate: isFree ? today : prev.lastFreeRerollDate,
+      currentRolledQuest: rolled,
+    }));
+
+    return { 
+      success: true, 
+      isFree, 
+      quest: rolled,
+      message: isFree ? 'Free daily reroll used! New quest rolled 🎲' : 'Rerolled quest for 5 Stars 🎲'
+    };
   };
 
   const redeemReward = (id: string, customValue?: string) => {
@@ -178,7 +334,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         redeemedRewards: [...prev.redeemedRewards, reward]
       };
 
-      if (reward.type === 'rank') {
+      if (reward.type === 'freeze') {
+        newState.streakFreezes = (prev.streakFreezes || 0) + 1;
+      } else if (reward.type === 'freeze_pack') {
+        newState.streakFreezes = (prev.streakFreezes || 0) + 3;
+      } else if (reward.type === 'recovery_token') {
+        // If broken streak exists, automatically repair it
+        if (prev.lastBrokenStreak) {
+          const targetDate = prev.lastBrokenStreak.brokenDate || getYesterdayISO();
+          newState.usedStreakFreezes = [...prev.usedStreakFreezes, targetDate];
+          const streaks = calculateStreaks(prev.completedDays, newState.usedStreakFreezes);
+          newState.streak = Math.max(streaks.current, prev.lastBrokenStreak.count);
+          newState.longestStreak = Math.max(prev.longestStreak, newState.streak);
+          newState.lastBrokenStreak = null;
+        } else {
+          // Store an extra freeze as token
+          newState.streakFreezes = (prev.streakFreezes || 0) + 1;
+        }
+      } else if (reward.type === 'rank') {
         newState.rank = reward.value;
         if (!newState.unlockedRanks.includes(reward.value)) {
           newState.unlockedRanks = [...newState.unlockedRanks, reward.value];
@@ -219,7 +392,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const importData = (data: UserData) => {
-    const streaks = calculateStreaks(data.completedDays || []);
+    const streaks = calculateStreaks(data.completedDays || [], data.usedStreakFreezes || []);
     setUserData({ ...defaultUserData, ...data, streak: streaks.current, longestStreak: streaks.longest });
   };
 
@@ -233,7 +406,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       completeQuest, 
       redeemReward, 
       updateSettings, 
-      importData 
+      importData,
+      useStreakFreeze,
+      recoverStreak,
+      buyStreakFreeze,
+      rerollQuest,
     }}>
       {children}
     </AppContext.Provider>

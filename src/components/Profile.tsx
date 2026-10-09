@@ -1,11 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, CheckCircle, ChevronRight, Dices } from 'lucide-react';
+import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, CheckCircle, ChevronRight, Dices, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import StreakModal from './StreakModal';
 import ProfileCardModal from './ProfileCardModal';
+import CategoryDistributionBar from './CategoryDistributionBar';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { triggerHaptic } from '../utils/haptics';
+import questsData from '../data/quests.json';
+import { getDayOfYear } from '../utils/dateUtils';
 
 export default function Profile() {
   const { userData, updateSettings } = useAppContext();
@@ -16,6 +19,23 @@ export default function Profile() {
   const [isEditingRank, setIsEditingRank] = useState(false);
   const [isEditingTag, setIsEditingTag] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [categoryView, setCategoryView] = useState<'completed' | 'catalog'>('completed');
+
+  // Compute completed quests
+  const completedQuestsList = (userData.completedDays || []).map((dateIso) => {
+    try {
+      const parts = dateIso.split('-');
+      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      const doy = getDayOfYear(d);
+      return questsData[(doy - 1) % questsData.length];
+    } catch (e) {
+      return questsData[0];
+    }
+  }).filter(Boolean);
+
+  const displayQuests = (categoryView === 'completed' && completedQuestsList.length > 0)
+    ? completedQuestsList
+    : questsData;
 
   const defaultPfps = [
     '/pfp1.svg',
@@ -330,6 +350,58 @@ export default function Profile() {
               );
             })}
           </div>
+        </section>
+
+        {/* Quest Categories Breakdown (GitHub Language Division Bar Style) */}
+        <section className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 flex items-center justify-center shadow-xs">
+                <Sparkles size={16} />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white">Quest Categories</h3>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">Distribution breakdown like repo languages</p>
+              </div>
+            </div>
+            <div className="flex items-center bg-gray-100 dark:bg-gray-900/80 p-0.5 rounded-xl text-xs font-bold">
+              <button
+                onClick={() => {
+                  triggerHaptic('selection', userData.vibrationEnabled);
+                  setCategoryView('completed');
+                }}
+                className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                  categoryView === 'completed'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-xs'
+                    : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                Completed ({completedQuestsList.length})
+              </button>
+              <button
+                onClick={() => {
+                  triggerHaptic('selection', userData.vibrationEnabled);
+                  setCategoryView('catalog');
+                }}
+                className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                  categoryView === 'catalog'
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-xs'
+                    : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                All ({questsData.length})
+              </button>
+            </div>
+          </div>
+
+          <CategoryDistributionBar
+            quests={displayQuests}
+            title={categoryView === 'completed' ? "Completed Quest Divisions" : "Master Quest Divisions"}
+            subtitle={categoryView === 'completed'
+              ? (completedQuestsList.length > 0 ? "Based on all quests you have completed so far" : "Complete your first daily quest to start your personal breakdown!")
+              : "Full 366-day offline quests collection"
+            }
+          />
         </section>
 
         {(userData.unlockedAvatars.length > 0 || userData.unlockedDecorations.length > 0 || userData.unlockedRanks.length > 1) && (

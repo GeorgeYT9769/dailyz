@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
 /**
- * DailyQuestWidgetProvider - Controls the Dailyz Homescreen Widget
+ * DailyQuestWidgetProvider - Controls the simplified Dailyz Homescreen Widget
  */
 public class DailyQuestWidgetProvider extends AppWidgetProvider {
 
@@ -30,51 +30,45 @@ public class DailyQuestWidgetProvider extends AppWidgetProvider {
     }
 
     public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        try {
+            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        String title = prefs.getString(KEY_QUEST_TITLE, context.getString(R.string.widget_default_title));
-        String difficulty = prefs.getString(KEY_DIFFICULTY, "easy");
-        int reward = prefs.getInt(KEY_REWARD, 1);
-        int streak = prefs.getInt(KEY_STREAK, 0);
-        int stars = prefs.getInt(KEY_STARS, 0);
-        boolean isCompleted = prefs.getBoolean(KEY_IS_COMPLETED, false);
+            String title = prefs.getString(KEY_QUEST_TITLE, context.getString(R.string.widget_default_title));
+            int streak = prefs.getInt(KEY_STREAK, 0);
+            int stars = prefs.getInt(KEY_STARS, 0);
+            boolean isCompleted = prefs.getBoolean(KEY_IS_COMPLETED, false);
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_daily_quest);
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_daily_quest);
 
-        // Update Quest Title
-        if (isCompleted) {
-            views.setTextViewText(R.id.widget_quest_title, "✓ Done for today! Great job, Adventurer 🎉");
-            views.setTextViewText(R.id.widget_action_button, "Rewards →");
-        } else {
-            views.setTextViewText(R.id.widget_quest_title, title);
-            views.setTextViewText(R.id.widget_action_button, context.getString(R.string.widget_action_open));
-        }
+            // Big Quest Text
+            if (isCompleted) {
+                views.setTextViewText(R.id.widget_quest_title, "✓ Done for today! Great job, Adventurer 🎉");
+            } else {
+                views.setTextViewText(R.id.widget_quest_title, title);
+            }
 
-        // Format Difficulty badge
-        String diffText = difficulty.toUpperCase() + " • +" + reward + (reward == 1 ? " STAR" : " STARS");
-        views.setTextViewText(R.id.widget_quest_difficulty, diffText);
+            // Small Text: Stars & Streak
+            String starsLabel = "⭐ " + stars + " " + (stars == 1 ? "Star" : "Stars");
+            String streakLabel = "🔥 " + streak + " " + (streak == 1 ? "Day" : "Days");
+            views.setTextViewText(R.id.widget_stars_text, starsLabel);
+            views.setTextViewText(R.id.widget_streak_text, streakLabel);
 
-        // Streak & Stars counters
-        views.setTextViewText(R.id.widget_streak_text, streak + "d");
-        views.setTextViewText(R.id.widget_stars_text, String.valueOf(stars));
+            // Tap anywhere on the widget card to launch the app
+            Intent launchIntent = new Intent(context, MainActivity.class);
+            launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            launchIntent.putExtra("from_widget", true);
 
-        // Click PendingIntent to launch app
-        Intent launchIntent = new Intent(context, MainActivity.class);
-        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        launchIntent.putExtra("from_widget", true);
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    context,
+                    0,
+                    launchIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                launchIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
 
-        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
-        views.setOnClickPendingIntent(R.id.widget_action_button, pendingIntent);
-
-        // Tell the AppWidgetManager to perform an update on the current app widget
-        appWidgetManager.updateAppWidget(appWidgetId, views);
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        } catch (Exception ignored) {}
     }
 
     /**

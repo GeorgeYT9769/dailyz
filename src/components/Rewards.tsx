@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Star, ShoppingBag, Clock, Trophy, Palette, User, CheckCircle, Flame } from 'lucide-react';
+import { Star, ShoppingBag, Clock, Trophy, Palette, User, CheckCircle, Flame, Snowflake } from 'lucide-react';
 import rewardsData from '../data/rewards.json';
 import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
@@ -24,6 +24,14 @@ export default function Rewards() {
       (reward.type === 'avatar' && userData.unlockedAvatars.includes(reward.value)) ||
       (reward.type === 'rank_custom' && userData.hasCustomRankUnlock) ||
       (reward.type === 'avatar_custom' && userData.unlockedAvatars.some(a => a.startsWith('img:')));
+
+    if (reward.type === 'freeze' || reward.type === 'freeze_pack' || reward.type === 'recovery_token') {
+      if (userData.points < reward.cost) return;
+      triggerHaptic('success', userData.vibrationEnabled);
+      redeemReward(reward.id);
+      triggerFeedback(reward.title, 'unlock');
+      return;
+    }
 
     if (isUnlocked) {
       // Just equip
@@ -70,6 +78,7 @@ export default function Rewards() {
   };
 
   const categories = [
+    { id: 'freeze', label: 'Streak Protection', icon: Snowflake },
     { id: 'standard', label: 'Standard Rewards', icon: ShoppingBag },
     { id: 'rank', label: 'Ranks', icon: Trophy },
     { id: 'decoration', label: 'Decorations', icon: Palette },
@@ -111,6 +120,7 @@ export default function Rewards() {
       <div className="space-y-8 pb-8">
         {categories.map(category => {
           const categoryRewards = (rewardsData as any[]).filter(r => 
+            category.id === 'freeze' ? (r.type === 'freeze' || r.type === 'freeze_pack' || r.type === 'recovery_token') :
             category.id === 'standard' ? r.type === 'standard' : 
             category.id === 'rank' ? (r.type === 'rank' || r.type === 'rank_custom') :
             category.id === 'avatar' ? (r.type === 'avatar' || r.type === 'avatar_custom') :
@@ -182,7 +192,9 @@ export default function Rewards() {
                         ) : isUnlocked ? (
                           reward.type === 'standard' ? 'Redeem' : 'Equip'
                         ) : (
-                          reward.type === 'standard' ? 'Redeem' : 'Buy'
+                          (reward.type === 'freeze' || reward.type === 'freeze_pack' || reward.type === 'recovery_token')
+                            ? 'Get'
+                            : reward.type === 'standard' ? 'Redeem' : 'Buy'
                         )}
                       </button>
                     </div>

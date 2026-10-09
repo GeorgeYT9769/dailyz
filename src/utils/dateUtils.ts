@@ -21,10 +21,17 @@ export const getYesterdayISO = (): string => {
   return d.toISOString().split('T')[0];
 };
 
-export const calculateStreaks = (completedDays: string[]) => {
-  if (!completedDays || completedDays.length === 0) return { current: 0, longest: 0 };
+export const getDaysAgoISO = (days: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString().split('T')[0];
+};
+
+export const calculateStreaks = (completedDays: string[], usedStreakFreezes: string[] = []) => {
+  const combined = [...new Set([...(completedDays || []), ...(usedStreakFreezes || [])])].filter(Boolean);
+  if (!combined || combined.length === 0) return { current: 0, longest: 0 };
   
-  const sorted = [...new Set(completedDays)].sort();
+  const sorted = [...combined].sort();
   let longest = 1;
   let tempStreak = 1;
 

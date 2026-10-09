@@ -4,11 +4,12 @@ import {
   Moon, Sun, Palette, Download, Upload, Vibrate, Check, 
   Heart, Coffee, Info, ExternalLink, Shield, 
   Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award, 
-  BookOpen, Compass, LayoutGrid
+  BookOpen, Compass, LayoutGrid, Bell, Snowflake
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import { motion, AnimatePresence } from 'motion/react';
 import HomescreenWidgetModal from './HomescreenWidgetModal';
+import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification } from '../utils/notificationUtils';
 
 interface Material3SwitchProps {
   checked: boolean;
@@ -89,7 +90,7 @@ function KofiIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 export default function Settings() {
-  const { userData, updateSettings, importData, openOnboarding } = useAppContext();
+  const { userData, updateSettings, importData, openOnboarding, buyStreakFreeze } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const BMAC_URL = 'https://buymeacoffee.com/georgeyt9769';
@@ -98,7 +99,13 @@ export default function Settings() {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showWidgetModal, setShowWidgetModal] = useState(false);
   const [showThankYouToast, setShowThankYouToast] = useState(false);
+  const [settingsToast, setSettingsToast] = useState<string | null>(null);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
+
+  const showToast = (msg: string) => {
+    setSettingsToast(msg);
+    setTimeout(() => setSettingsToast(null), 3000);
+  };
 
   const handleSupportClick = (url: string) => {
     setShowThankYouToast(true);
@@ -324,6 +331,140 @@ export default function Settings() {
                 </>
               )}
             </AnimatePresence>
+          </div>
+        </section>
+
+        {/* Daily Notifications & Reminders */}
+        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
+                <Bell size={22} />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">Daily Notifications</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Offline reminder for today's quest</p>
+              </div>
+            </div>
+            <Material3Switch
+              checked={userData.notificationsEnabled}
+              onChange={async () => {
+                triggerHaptic('selection', userData.vibrationEnabled);
+                if (!userData.notificationsEnabled) {
+                  const granted = await requestNotificationPermission();
+                  if (granted) {
+                    updateSettings({ notificationsEnabled: true });
+                    scheduleDailyReminder(userData.notificationTime || "09:00", true);
+                    showToast("Daily quest reminders turned on!");
+                  } else {
+                    showToast("Notification permission not granted.");
+                  }
+                } else {
+                  updateSettings({ notificationsEnabled: false });
+                  scheduleDailyReminder(userData.notificationTime || "09:00", false);
+                  showToast("Daily notifications disabled.");
+                }
+              }}
+              ariaLabel="Toggle daily quest notifications"
+            />
+          </div>
+
+          {userData.notificationsEnabled && (
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-700/60 space-y-4 animate-pop">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                  Preferred Reminder Time
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { time: '08:00', label: '08:00 AM' },
+                    { time: '09:00', label: '09:00 AM' },
+                    { time: '13:00', label: '01:00 PM' },
+                    { time: '20:00', label: '08:00 PM' },
+                  ].map(t => (
+                    <button
+                      key={t.time}
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('selection', userData.vibrationEnabled);
+                        updateSettings({ notificationTime: t.time });
+                        scheduleDailyReminder(t.time, true);
+                        showToast(`Reminder scheduled for ${t.label}!`);
+                      }}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                        userData.notificationTime === t.time
+                          ? 'bg-accent text-white border-accent shadow-sm'
+                          : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
+                      }`}
+                      style={userData.notificationTime === t.time ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Verify notification alert:
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    triggerHaptic('medium', userData.vibrationEnabled);
+                    const sent = await sendInstantNotification(
+                      "Dailyz - Test Notification 🔔",
+                      "Your quest notifications are active! Keep that momentum going."
+                    );
+                    if (sent) {
+                      showToast("Test notification dispatched!");
+                    } else {
+                      showToast("Please allow notifications in browser/system settings.");
+                    }
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs font-bold text-gray-800 dark:text-gray-200 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                >
+                  <Bell size={13} />
+                  <span>Send Test Alert</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Streak Protection & Freezes */}
+        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400">
+                <Snowflake size={22} className="animate-spin-slow" />
+              </div>
+              <div>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">Streak Protection</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {userData.streakFreezes || 0} Streak Freeze{(userData.streakFreezes || 0) === 1 ? '' : 's'} equipped
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (userData.points < 25) {
+                  showToast("Need 25 stars to buy a Streak Freeze.");
+                  return;
+                }
+                triggerHaptic('success', userData.vibrationEnabled);
+                buyStreakFreeze(1, 25);
+                showToast("❄️ Streak Freeze equipped!");
+              }}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                userData.points >= 25
+                  ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <Star size={12} className={userData.points >= 25 ? 'fill-yellow-300 text-yellow-300' : ''} />
+              <span>+1 Freeze (25 ⭐)</span>
+            </button>
           </div>
         </section>
 
@@ -576,6 +717,20 @@ export default function Settings() {
         isOpen={showWidgetModal} 
         onClose={() => setShowWidgetModal(false)} 
       />
+
+      {/* Settings Toast Message */}
+      <AnimatePresence>
+        {settingsToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 dark:bg-gray-100/95 text-white dark:text-gray-900 px-4 py-3 rounded-2xl shadow-2xl z-50 text-center font-bold text-xs flex items-center justify-center gap-2 backdrop-blur-sm"
+          >
+            <span>{settingsToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

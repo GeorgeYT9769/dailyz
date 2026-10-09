@@ -47,7 +47,7 @@ export default function HomescreenWidgetModal({
         stars: userData.points,
         isCompleted,
       });
-      setSyncStatus('Widget data refreshed!');
+      setSyncStatus('Widget synced!');
       setTimeout(() => setSyncStatus(null), 3000);
     } catch {
       setSyncStatus('Sync complete');
@@ -78,7 +78,7 @@ export default function HomescreenWidgetModal({
                   Homescreen Widget
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Android Widget Picker Preview & Setup
+                  Minimal daily quest & stats at a glance
                 </p>
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function HomescreenWidgetModal({
                 triggerHaptic('light', userData.vibrationEnabled);
                 onClose();
               }}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
               aria-label="Close"
             >
               <X size={20} />
@@ -96,6 +96,36 @@ export default function HomescreenWidgetModal({
 
           {/* Modal Body */}
           <div className="p-6 overflow-y-auto space-y-6">
+            {/* Live Interactive Simplified Widget Card */}
+            <div>
+              <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-amber-400" />
+                  Live Widget Preview
+                </span>
+                <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Auto-updated
+                </span>
+              </div>
+
+              {/* Simplified Minimalist Widget Card */}
+              <div className="bg-[#182234] border border-[#374151] rounded-3xl p-5 sm:p-6 shadow-xl text-left transition-all">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug mb-3">
+                  {isCompleted ? '✓ Done for today! Great job, Adventurer 🎉' : questTitle}
+                </h3>
+                <div className="flex items-center gap-2 text-xs font-bold">
+                  <span className="text-[#FBBF24] flex items-center gap-1">
+                    ⭐ {userData.points} Stars
+                  </span>
+                  <span className="text-[#6B7280]">•</span>
+                  <span className="text-[#FB923C] flex items-center gap-1">
+                    🔥 {userData.streak} Day Streak
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* View switcher tabs */}
             <div className="flex bg-gray-100 dark:bg-gray-700/60 p-1 rounded-2xl">
               <button
@@ -110,7 +140,7 @@ export default function HomescreenWidgetModal({
                     : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'
                 }`}
               >
-                Widget Card Preview
+                Widget Picker Preview
               </button>
               <button
                 type="button"
@@ -134,7 +164,7 @@ export default function HomescreenWidgetModal({
                 <div className="p-4 sm:p-5 flex flex-col items-center">
                   <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2 self-start flex items-center gap-1.5">
                     <Sparkles size={12} className="text-amber-400" />
-                    Android Widget Picker Preview Image
+                    Android Widget Picker Preview Picture
                   </div>
                   <img
                     src="/widget_preview.png"
@@ -142,7 +172,7 @@ export default function HomescreenWidgetModal({
                     className="w-full max-h-56 object-contain rounded-xl shadow-lg border border-gray-700/50"
                   />
                   <p className="text-[11px] text-gray-400 mt-2 text-center">
-                    This is the picture displayed inside the Android Widget Picker list.
+                    Simplified design shown when picking widgets in Android launcher.
                   </p>
                 </div>
               ) : (
@@ -158,38 +188,6 @@ export default function HomescreenWidgetModal({
                   />
                 </div>
               )}
-            </div>
-
-            {/* Live Data Card */}
-            <div className="bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-100 dark:border-gray-700/70">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Live Widget Data Sync
-                </span>
-                <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Auto-Synchronized
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between text-xs py-1 text-gray-700 dark:text-gray-300">
-                <span className="text-gray-500">Current Streak:</span>
-                <span className="font-bold flex items-center gap-1 text-orange-500">
-                  <Flame size={13} /> {userData.streak} Days
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs py-1 text-gray-700 dark:text-gray-300">
-                <span className="text-gray-500">Total Stars:</span>
-                <span className="font-bold flex items-center gap-1 text-amber-500">
-                  <Star size={13} /> {userData.points} Stars
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs py-1 text-gray-700 dark:text-gray-300">
-                <span className="text-gray-500">Today's Status:</span>
-                <span className="font-semibold text-gray-900 dark:text-white">
-                  {isCompleted ? '✓ Completed' : 'Pending completion'}
-                </span>
-              </div>
             </div>
 
             {/* How to Add Step-by-Step Guide */}
@@ -213,7 +211,7 @@ export default function HomescreenWidgetModal({
                     2
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">
-                    <strong className="text-gray-900 dark:text-white">Select Widgets:</strong> Tap the <span className="font-semibold text-blue-500">Widgets</span> icon in the popup menu.
+                    <strong className="text-gray-900 dark:text-white">Select Widgets:</strong> Tap the <span className="font-semibold text-blue-500">Widgets</span> icon in the menu.
                   </div>
                 </div>
 
@@ -222,7 +220,7 @@ export default function HomescreenWidgetModal({
                     3
                   </div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">
-                    <strong className="text-gray-900 dark:text-white">Place Dailyz:</strong> Scroll down to <strong className="text-gray-900 dark:text-white">Dailyz</strong>, find the <strong className="text-amber-500">Daily Quest</strong> widget preview, and drag it into position!
+                    <strong className="text-gray-900 dark:text-white">Place Dailyz:</strong> Scroll to <strong className="text-gray-900 dark:text-white">Dailyz</strong>, pick the <strong className="text-amber-500">Daily Quest</strong> widget, and place it!
                   </div>
                 </div>
               </div>
@@ -238,7 +236,7 @@ export default function HomescreenWidgetModal({
               </span>
             ) : (
               <span className="text-xs text-gray-400">
-                Updates automatically in background
+                Syncs with your latest quest & stars
               </span>
             )}
 
@@ -247,7 +245,7 @@ export default function HomescreenWidgetModal({
               onClick={handleSyncNow}
               disabled={isSyncing}
               className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent text-white font-bold text-xs shadow-md hover:opacity-95 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-              style={{ backgroundColor: 'var(--accent-color)' }}
+              style={{ backgroundColor: userData.accentColor || '#3b82f6' }}
             >
               <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
               {isSyncing ? 'Syncing...' : 'Sync Widget'}

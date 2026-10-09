@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Flame, Star, Sparkles, CheckCircle2, Lock, ArrowRight, 
   ChevronLeft, Award, Palette, Clock, Dices, X, Compass,
-  Calendar, Check, Zap, Shield, Heart
+  Calendar, Check, Zap, Shield, Heart, Bell
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
 import { getRandomInterestingName } from '../utils/nameGenerator';
+import { requestNotificationPermission, scheduleDailyReminder } from '../utils/notificationUtils';
 
 interface OnboardingProps {
   onClose?: () => void;
@@ -30,19 +31,26 @@ export default function Onboarding({ onClose }: OnboardingProps) {
   const [direction, setDirection] = useState(1);
   const [customName, setCustomName] = useState(userData.name || 'Cosmic Wanderer');
   const [selectedColor, setSelectedColor] = useState(userData.accentColor || '#3b82f6');
+  const [remindersEnabled, setRemindersEnabled] = useState(userData.notificationsEnabled ?? false);
+  const [reminderTime, setReminderTime] = useState(userData.notificationTime || '09:00');
 
   // Swipe handling
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
-  const TOTAL_SLIDES = 5;
+  const TOTAL_SLIDES = 6;
 
   const handleFinish = () => {
     triggerHaptic('success', userData.vibrationEnabled);
-    // Persist customized name and accent color if modified
+    if (remindersEnabled) {
+      scheduleDailyReminder(reminderTime, true);
+    }
+    // Persist customized name, accent color, and notifications settings
     updateSettings({
       name: customName.trim() || userData.name || 'Cosmic Wanderer',
       accentColor: selectedColor,
+      notificationsEnabled: remindersEnabled,
+      notificationTime: reminderTime,
       hasSeenOnboarding: true,
     });
     if (onClose) {
@@ -410,8 +418,107 @@ export default function Onboarding({ onClose }: OnboardingProps) {
               </div>
             )}
 
-            {/* SLIDE 4: Profile & Rewards Shop */}
+            {/* SLIDE 4: Daily Reminders & Local Notifications */}
             {currentSlide === 3 && (
+              <div className="w-full flex flex-col items-center">
+                {/* Visual Showcase Card: Notification preview */}
+                <div className="relative mb-6 w-full max-w-[310px]">
+                  <div className="p-4 sm:p-5 rounded-3xl bg-gray-800/90 border border-white/10 shadow-2xl backdrop-blur-md relative overflow-hidden text-left">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                          <Bell size={14} />
+                        </div>
+                        <span className="text-xs font-bold text-gray-200">Daily Reminder</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-gray-400">{reminderTime}</span>
+                    </div>
+
+                    {/* Notification Toast Mockup */}
+                    <div className="p-3 bg-white/10 rounded-2xl border border-white/10 my-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <img 
+                          src="/icon.png" 
+                          alt="Dailyz" 
+                          className="w-4 h-4 rounded-md object-cover" 
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <span className="text-xs font-bold text-white">Dailyz • Action Time! ⚡</span>
+                      </div>
+                      <p className="text-[11px] text-gray-300 leading-snug">
+                        Your micro-quest is waiting. Complete it to earn stars and keep your streak burning!
+                      </p>
+                    </div>
+
+                    {/* Preset selection pills */}
+                    <div className="mt-3">
+                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                        Choose Reminder Time
+                      </span>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {[
+                          { time: '08:00', label: '08:00 AM', desc: 'Early Bird' },
+                          { time: '09:00', label: '09:00 AM', desc: 'Morning' },
+                          { time: '13:00', label: '01:00 PM', desc: 'Midday' },
+                          { time: '20:00', label: '08:00 PM', desc: 'Evening' },
+                        ].map((t) => (
+                          <button
+                            key={t.time}
+                            type="button"
+                            onClick={() => {
+                              triggerHaptic('selection', userData.vibrationEnabled);
+                              setReminderTime(t.time);
+                            }}
+                            className={`p-2 rounded-xl text-left border transition-all cursor-pointer ${
+                              reminderTime === t.time
+                                ? 'bg-blue-600/30 border-blue-400 text-white font-bold ring-1 ring-blue-400/50'
+                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
+                            }`}
+                          >
+                            <div className="font-semibold text-xs">{t.label}</div>
+                            <div className="text-[10px] text-gray-400">{t.desc}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Enable reminder toggle button */}
+                  <div className="mt-3 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        triggerHaptic('medium', userData.vibrationEnabled);
+                        if (!remindersEnabled) {
+                          const granted = await requestNotificationPermission();
+                          setRemindersEnabled(granted);
+                        } else {
+                          setRemindersEnabled(false);
+                        }
+                      }}
+                      className={`w-full py-2.5 px-4 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                        remindersEnabled
+                          ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 ring-1 ring-emerald-500/30'
+                          : 'bg-white/10 border-white/15 text-white hover:bg-white/20'
+                      }`}
+                    >
+                      <Bell size={14} className={remindersEnabled ? "text-emerald-400 fill-emerald-400" : ""} />
+                      <span>{remindersEnabled ? "Daily Reminders Active ✓" : "Enable Daily Reminders"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
+                  Never Miss <span className="text-blue-400">Your Streak.</span>
+                </h2>
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-4">
+                  Habits stick when they have an anchor. Choose a time that fits your day for a polite, offline reminder.
+                </p>
+              </div>
+            )}
+
+            {/* SLIDE 5: Profile & Rewards Shop */}
+            {currentSlide === 4 && (
               <div className="w-full flex flex-col items-center">
                 {/* Visual Showcase Card */}
                 <div className="relative mb-8 w-full max-w-[300px]">
@@ -482,8 +589,8 @@ export default function Onboarding({ onClose }: OnboardingProps) {
               </div>
             )}
 
-            {/* SLIDE 5: Personalize & Launch */}
-            {currentSlide === 4 && (
+            {/* SLIDE 6: Personalize & Launch */}
+            {currentSlide === 5 && (
               <div className="w-full flex flex-col items-center">
                 {/* Interactive Personalization Card */}
                 <div className="w-full max-w-[320px] p-5 rounded-3xl bg-gray-800/80 border border-white/10 shadow-2xl backdrop-blur-md mb-6 text-left">

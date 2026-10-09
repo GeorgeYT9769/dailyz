@@ -95,11 +95,11 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
     const avatarY = 195;
     const avatarRadius = 88;
 
-    // Badge Title: DAILYZ ADVENTURER PASS
+    // Badge Title: DAILYZ PROFILE CARD
     ctx.fillStyle = accentColor;
     ctx.font = '900 16px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    drawFittedText(ctx, 'DAILYZ ADVENTURER PASS', leftCenterX, 85, 340, 16, '900', 'center');
+    drawFittedText(ctx, 'DAILYZ PROFILE CARD', leftCenterX, 85, 340, 16, '900', 'center');
 
     // Avatar background circle
     ctx.save();
@@ -355,10 +355,7 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
             <span className="text-[11px] font-black uppercase tracking-[0.25em] px-3 py-1 rounded-full border border-white/20 bg-white/5 text-gray-200 flex items-center gap-1.5">
               <Sparkles size={12} className="text-amber-400" />
-              Dailyz Adventurer Pass
-            </span>
-            <span className="text-xs font-mono font-medium text-gray-400 pr-10">
-              MOMENTUM ID
+              Dailyz Profile Card
             </span>
           </div>
 
@@ -416,8 +413,6 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
               >
                 {userData.rank}
               </span>
-
-              <span className="text-[11px] text-gray-400 mt-1">Official Adventurer</span>
             </div>
 
             {/* Right Column: Stats (Stars, Streak, Done) */}
@@ -464,26 +459,26 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
           </div>
         </div>
 
-        {/* Action Buttons: Download Card & Share (Copy Link button removed!) */}
-        <div className="p-4 bg-gray-950/80 border-t border-white/10 flex items-center gap-3">
+        {/* Action Buttons: Download Card & Share (Identical sizing on all mobile screens) */}
+        <div className="p-4 bg-gray-950/80 border-t border-white/10 grid grid-cols-2 gap-3">
           {/* Download / Save Image */}
           <button
             onClick={handleSaveImage}
             disabled={isGenerating}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white font-bold cursor-pointer group"
+            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white font-bold cursor-pointer group"
           >
-            <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
-            <span className="text-sm">Download Card</span>
+            <Download size={18} className="shrink-0 group-hover:translate-y-0.5 transition-transform" />
+            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Download Card</span>
           </button>
 
           {/* Share */}
           <button
             onClick={handleShare}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl bg-accent hover:opacity-90 active:scale-95 transition-all text-white font-bold cursor-pointer shadow-lg"
+            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-accent hover:opacity-90 active:scale-95 transition-all text-white font-bold cursor-pointer shadow-lg"
             style={{ backgroundColor: userData.accentColor || '#3b82f6' }}
           >
-            <Share2 size={18} />
-            <span className="text-sm">Share Card</span>
+            <Share2 size={18} className="shrink-0" />
+            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Share Card</span>
           </button>
         </div>
       </motion.div>
