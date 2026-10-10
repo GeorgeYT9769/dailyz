@@ -97,7 +97,7 @@ function MainContent() {
         onSwipeLeft={handleSwipeLeft}
         onSwipeRight={handleSwipeRight}
       >
-        <div className="relative w-full flex-1 flex flex-col min-h-full overflow-hidden">
+        <div className="relative w-full min-h-full overflow-x-clip">
           <AnimatePresence mode="popLayout" custom={tabDirection} initial={false}>
             <motion.div
               key={activeTab}
@@ -110,7 +110,7 @@ function MainContent() {
                 x: { type: 'spring', stiffness: 320, damping: 32 },
                 opacity: { duration: 0.15 }
               }}
-              className="w-full flex-1 flex flex-col min-h-full"
+              className="w-full min-h-full"
             >
               {renderTab()}
             </motion.div>

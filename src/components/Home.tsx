@@ -166,55 +166,65 @@ export default function Home({ onNavigateTab }: HomeProps) {
   const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow';
 
   return (
-    <div className="flex-1 flex flex-col justify-between min-h-full">
-      {/* Top Header App Bar - guaranteed no overflow for long names, pills always pinned right */}
-      <header className="flex justify-between items-center gap-3 mb-5 pt-2 sm:pt-3 shrink-0">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight truncate">
-            Hey, {userData.name}!
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-xs truncate">
-            {isCompleted ? 'Daily goal crushed! Ready for tomorrow?' : 'Your daily quest awaits'}
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Streak Freezes pill */}
-          {userData.streakFreezes > 0 && (
+    <div className="flex flex-col gap-4 pb-20 w-full">
+      {/* Top Header App Bar: Split into Resources Status Row + Full-Width Dedicated Greeting */}
+      <header className="flex flex-col gap-2.5 mb-1 pt-1 sm:pt-2 shrink-0">
+        {/* Top Resource Bar: Date / Status on left, Resources neatly grouped on right */}
+        <div className="flex items-center justify-between gap-2 w-full">
+          <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-wider">
+            <Calendar size={13} />
+            <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Streak Freezes pill */}
+            {userData.streakFreezes > 0 && (
+              <button
+                onClick={() => setShowStreakModal(true)}
+                className="flex items-center gap-1 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 px-2.5 py-1.5 rounded-full shadow-xs border border-cyan-200 dark:border-cyan-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
+                title={`${userData.streakFreezes} Streak Freeze available`}
+                aria-label="Streak Freezes Available"
+              >
+                <Snowflake size={14} className="text-cyan-500" />
+                <span className="font-bold text-xs">{userData.streakFreezes}</span>
+              </button>
+            )}
+
+            {/* Streak pill */}
             <button
               onClick={() => setShowStreakModal(true)}
-              className="flex items-center gap-1 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 px-2.5 py-1.5 rounded-full shadow-sm border border-cyan-200 dark:border-cyan-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
-              title={`${userData.streakFreezes} Streak Freeze available`}
-              aria-label="Streak Freezes Available"
+              className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
+              title="View Streak Map"
+              aria-label="View Streak Map"
             >
-              <Snowflake size={14} className="text-cyan-500" />
-              <span className="font-bold text-xs">{userData.streakFreezes}</span>
+              <Flame className="text-orange-500 fill-orange-500 group-hover:scale-110 transition-transform" size={16} />
+              <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.streak}</span>
             </button>
-          )}
 
-          {/* Streak pill */}
-          <button
-            onClick={() => setShowStreakModal(true)}
-            className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
-            title="View Streak Map"
-            aria-label="View Streak Map"
-          >
-            <Flame className="text-orange-500 fill-orange-500 group-hover:scale-110 transition-transform" size={16} />
-            <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.streak}</span>
-          </button>
+            {/* Stars pill - clickable, leads to rewards tab */}
+            <button
+              onClick={() => {
+                triggerHaptic('light', userData.vibrationEnabled);
+                onNavigateTab?.('rewards');
+              }}
+              className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
+              title="Rewards Shop"
+              aria-label="Rewards Shop"
+            >
+              <Star className="text-yellow-400 fill-yellow-400 group-hover:scale-110 transition-transform" size={16} />
+              <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.points}</span>
+            </button>
+          </div>
+        </div>
 
-          {/* Stars pill - clickable, leads to rewards tab */}
-          <button
-            onClick={() => {
-              triggerHaptic('light', userData.vibrationEnabled);
-              onNavigateTab?.('rewards');
-            }}
-            className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
-            title="Rewards Shop"
-            aria-label="Rewards Shop"
-          >
-            <Star className="text-yellow-400 fill-yellow-400 group-hover:scale-110 transition-transform" size={16} />
-            <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.points}</span>
-          </button>
+        {/* Dedicated Full-Width Greeting - Never squished or overlapped */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            Hey, {userData.name}!
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-0.5">
+            {isCompleted ? 'Daily goal crushed! Ready for tomorrow?' : 'Your daily quest awaits'}
+          </p>
         </div>
       </header>
 
@@ -246,8 +256,8 @@ export default function Home({ onNavigateTab }: HomeProps) {
         </div>
       )}
 
-      {/* Merged Full-Page Quest Card - dynamic height so bottom is always scrollable & reachable */}
-      <div className="flex-1 flex flex-col justify-between bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative transition-all">
+      {/* Merged Quest Card - comfortable natural height well above bottom nav bar */}
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative transition-all flex flex-col">
         {/* Celebration Overlay */}
         <AnimatePresence>
           {showAnimation && (
@@ -452,11 +462,12 @@ export default function Home({ onNavigateTab }: HomeProps) {
                   </span>
                 </div>
 
-                <h2 className={`text-2xl sm:text-3xl font-extrabold leading-snug mb-5 ${isCompleted ? 'text-gray-500 dark:text-gray-400 line-through decoration-emerald-500/50' : 'text-gray-900 dark:text-gray-50'}`}>
+                <h2 className={`text-2xl sm:text-3xl font-extrabold leading-snug mb-4 ${isCompleted ? 'text-gray-500 dark:text-gray-400 line-through decoration-emerald-500/50' : 'text-gray-900 dark:text-gray-50'}`}>
                   {todayQuest.quest}
                 </h2>
 
-                <div className="flex flex-wrap items-center gap-2 text-gray-600 dark:text-gray-300 font-medium">
+                {/* Reward & Streak Chips */}
+                <div className="flex flex-wrap items-center gap-2 text-gray-600 dark:text-gray-300 font-medium mb-1">
                   <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200/60 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200">
                     <Gift size={14} className="text-accent" style={{ color: 'var(--accent-color)' }} />
                     <span>Reward: +{todayQuest.reward} {todayQuest.reward === 1 ? 'Star' : 'Stars'}</span>
@@ -468,9 +479,26 @@ export default function Home({ onNavigateTab }: HomeProps) {
                       <span>Keeps streak active</span>
                     </div>
                   )}
+                </div>
 
-                  {/* Free or 5-Star Reroll Button */}
-                  {!isCompleted && (
+                {/* Integrated Action Section: Complete Quest & Reroll Button Positioned Together */}
+                {!isCompleted ? (
+                  <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-stretch gap-2.5">
+                    {/* Primary Complete Quest Button */}
+                    <button
+                      onClick={handleComplete}
+                      disabled={isCompleted}
+                      className="flex-1 py-3.5 sm:py-4 px-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 text-white shadow-lg active:scale-95 cursor-pointer transition-all hover:opacity-95"
+                      style={{ 
+                        backgroundColor: 'var(--accent-color)', 
+                        boxShadow: '0 8px 24px -4px var(--accent-color)40' 
+                      }}
+                    >
+                      <CheckCircle size={20} />
+                      <span>Complete Quest</span>
+                    </button>
+
+                    {/* Integrated Reroll Button */}
                     <button
                       onClick={() => {
                         triggerHaptic('medium', userData.vibrationEnabled);
@@ -478,38 +506,54 @@ export default function Home({ onNavigateTab }: HomeProps) {
                         setActionFeedback(res.message);
                         setTimeout(() => setActionFeedback(null), 2500);
                       }}
-                      className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-xl border text-xs font-bold transition-all active:scale-95 cursor-pointer shadow-xs ${
+                      className={`px-3.5 sm:px-4 py-3 rounded-2xl border font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs ${
                         userData.lastFreeRerollDate !== todayISO
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/40'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/80 hover:bg-emerald-100'
                           : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200 border-gray-200/60 dark:border-gray-700 hover:border-amber-400'
                       }`}
                       title={userData.lastFreeRerollDate !== todayISO ? "Free daily reroll available" : "Reroll quest for 5 stars"}
                     >
-                      <RefreshCw size={12} className={userData.lastFreeRerollDate !== todayISO ? "text-emerald-500" : "text-amber-500"} />
-                      <span>Reroll</span>
+                      <div className="flex items-center gap-1.5">
+                        <RefreshCw size={13} className={userData.lastFreeRerollDate !== todayISO ? "text-emerald-500" : "text-amber-500"} />
+                        <span>Reroll</span>
+                      </div>
                       {userData.lastFreeRerollDate !== todayISO ? (
-                        <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white px-1.5 py-0.5 rounded-full leading-none">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 leading-none">
                           Free
                         </span>
                       ) : (
-                        <span className="flex items-center gap-0.5 text-[11px] font-bold text-amber-500">
-                          <Star size={11} className="fill-amber-400 text-amber-400" />
-                          <span>5</span>
+                        <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-500 leading-none">
+                          <Star size={10} className="fill-amber-400 text-amber-400" />
+                          <span>5 Stars</span>
                         </span>
                       )}
                     </button>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex flex-col gap-2.5">
+                    <div className="w-full py-3.5 rounded-2xl font-bold text-base bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-xs">
+                      <CheckCircle size={20} className="text-emerald-500" />
+                      <span>Quest Completed Today!</span>
+                    </div>
+                    <button
+                      onClick={() => setActiveQuestView('tomorrow')}
+                      className="w-full py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                    >
+                      <span>Preview Tomorrow's Quest</span>
+                      <ArrowRight size={14} />
+                    </button>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Bottom Actions Section */}
-        <div className="shrink-0 pt-4 border-t border-gray-100 dark:border-gray-700/60">
-          {isShowingTomorrow ? (
-            isTomorrowUnlocked && tomorrowQuest ? (
-              <div className="w-full py-4 sm:py-4.5 rounded-2xl font-bold text-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-sm">
+        {/* Tomorrow Actions Section (Only for tomorrow's quest view) */}
+        {isShowingTomorrow && (
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60">
+            {isTomorrowUnlocked && tomorrowQuest ? (
+              <div className="w-full py-3.5 sm:py-4 rounded-2xl font-bold text-base bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-xs">
                 <CheckCircle size={20} />
                 <span>Ready for Tomorrow • Unlocked</span>
               </div>
@@ -517,7 +561,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
               <button
                 onClick={handleUnlockTomorrow}
                 disabled={userData.points < 20}
-                className={`w-full py-4 sm:py-4.5 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-lg ${
+                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-lg ${
                   userData.points >= 20
                     ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/25'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none'
@@ -526,44 +570,9 @@ export default function Home({ onNavigateTab }: HomeProps) {
                 <Star size={20} className={userData.points >= 20 ? 'text-yellow-200 fill-yellow-200' : ''} />
                 <span>{userData.points >= 20 ? 'Unlock Tomorrow (20 Stars)' : `Need 20 Stars to Unlock (${userData.points}/20)`}</span>
               </button>
-            )
-          ) : (
-            <div>
-              <button
-                onClick={handleComplete}
-                disabled={isCompleted}
-                className={`w-full py-4 sm:py-4.5 rounded-2xl font-bold text-lg transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 ${
-                  isCompleted 
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed' 
-                    : 'bg-accent text-white shadow-lg shadow-accent/30 hover:opacity-95'
-                }`}
-                style={!isCompleted ? { backgroundColor: 'var(--accent-color)' } : {}}
-              >
-                {isCompleted ? (
-                  <>
-                    <CheckCircle size={20} className="text-emerald-500" />
-                    <span>Completed</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle size={20} />
-                    <span>Complete Quest</span>
-                  </>
-                )}
-              </button>
-
-              {isCompleted && (
-                <button
-                  onClick={() => setActiveQuestView('tomorrow')}
-                  className="mt-2.5 w-full py-2.5 text-xs font-semibold text-accent dark:text-blue-400 flex items-center justify-center gap-1.5 hover:underline cursor-pointer"
-                  style={{ color: 'var(--accent-color)' }}
-                >
-                  <span>Go to Tomorrow's Quest</span>
-                  <ArrowRight size={14} />
-                </button>
-              )}
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
           {/* Dev Debug Tools */}
           {showDebugTools && (
@@ -592,9 +601,8 @@ export default function Home({ onNavigateTab }: HomeProps) {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Streak Modal */}
+        {/* Streak Modal */}
       <AnimatePresence>
         {showStreakModal && (
           <StreakModal

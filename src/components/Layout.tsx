@@ -65,16 +65,25 @@ export default function Layout({
     }
   };
 
+  const mainRef = useRef<HTMLElement>(null);
+
+  React.useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeTab]);
+
   return (
     <div 
       className="h-[100dvh] max-h-[100dvh] bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden flex flex-col"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <main className="max-w-md mx-auto px-4 pt-safe pt-8 sm:pt-10 pb-6 flex-1 w-full flex flex-col min-h-0 overflow-y-auto overflow-x-hidden">
+      <main 
+        ref={mainRef}
+        className="max-w-md mx-auto px-4 pt-safe pt-8 sm:pt-10 pb-6 flex-1 w-full min-h-0 overflow-y-auto overflow-x-hidden"
+      >
         {children}
         {/* Generous bottom clearance spacer so all content scrolls completely above the floating nav */}
-        <div className="h-20 sm:h-24 shrink-0" aria-hidden="true" />
+        <div className="h-28 sm:h-32 shrink-0" aria-hidden="true" />
       </main>
       
       {/* Floating Bottom Nav Island */}
@@ -85,11 +94,15 @@ export default function Layout({
         >
           {/* Active Sliding Pill: precisely matches the active tab's width and position */}
           {(() => {
+            const TAB_WIDTHS: Record<string, number> = {
+              home: 84,
+              profile: 94,
+              rewards: 104,
+              settings: 106,
+            };
             const activeIdx = tabs.findIndex(t => t.id === activeTab);
-            // Inactive tab = 40px, Active tab = 100px, gap = 4px, nav padding = 6px (p-1.5)
-            // The nav has p-1.5 (left: 1.5). The active button starts at activeIdx * (40 + 4)
             const inactiveWidth = 40;
-            const activeWidth = 100;
+            const activeWidth = TAB_WIDTHS[activeTab] || 94;
             const gap = 4;
             const leftOffset = activeIdx * (inactiveWidth + gap);
 
@@ -117,8 +130,16 @@ export default function Layout({
 
           <div className="flex items-center gap-1 relative z-10">
             {tabs.map((tab) => {
+              const TAB_WIDTHS: Record<string, number> = {
+                home: 84,
+                profile: 94,
+                rewards: 104,
+                settings: 106,
+              };
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const targetWidth = isActive ? TAB_WIDTHS[tab.id] || 94 : 40;
+
               return (
                 <button
                   key={tab.id}
@@ -131,10 +152,13 @@ export default function Layout({
                   }}
                   className={`relative flex items-center h-10 rounded-full cursor-pointer select-none [-webkit-tap-highlight-color:transparent] outline-none transition-[width,color] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
                     isActive 
-                      ? 'w-[100px] font-bold text-xs sm:text-sm' 
-                      : 'w-10 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                      ? 'font-bold text-xs' 
+                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                   }`}
-                  style={isActive ? { color: 'var(--accent-color)' } : undefined}
+                  style={{
+                    width: `${targetWidth}px`,
+                    color: isActive ? 'var(--accent-color)' : undefined,
+                  }}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -149,7 +173,7 @@ export default function Layout({
                     />
                   </div>
                   
-                  {/* Label: positioned immediately to the right of the icon with zero twitching */}
+                  {/* Label: positioned immediately to the right of the icon with balanced padding */}
                   <AnimatePresence initial={false} mode="wait">
                     {isActive && (
                       <motion.span
@@ -161,7 +185,7 @@ export default function Layout({
                           opacity: { duration: 0.16, delay: 0.05 },
                           x: { duration: 0.16, ease: 'easeOut' },
                         }}
-                        className="pl-8 pr-3 font-bold text-xs sm:text-sm whitespace-nowrap select-none overflow-hidden truncate pointer-events-none"
+                        className="pl-[34px] pr-2.5 font-bold text-xs whitespace-nowrap select-none pointer-events-none"
                         style={{ color: 'var(--accent-color)' }}
                       >
                         {tab.label}

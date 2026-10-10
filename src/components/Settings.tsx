@@ -9,6 +9,7 @@ import {
 import { triggerHaptic } from '../utils/haptics';
 import { motion, AnimatePresence } from 'motion/react';
 import HomescreenWidgetModal from './HomescreenWidgetModal';
+import Material3TimePickerModal from './Material3TimePickerModal';
 import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification, formatTimeDisplay } from '../utils/notificationUtils';
 
 interface Material3SwitchProps {
@@ -98,6 +99,7 @@ export default function Settings() {
 
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showWidgetModal, setShowWidgetModal] = useState(false);
+  const [showTimePickerModal, setShowTimePickerModal] = useState(false);
   const [showThankYouToast, setShowThankYouToast] = useState(false);
   const [settingsToast, setSettingsToast] = useState<string | null>(null);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
@@ -160,7 +162,7 @@ export default function Settings() {
   ) || BASIC_COLORS[0];
 
   return (
-    <div className="pb-6">
+    <div className="pb-16 sm:pb-20">
       <header className="mb-8 pt-2 sm:pt-3">
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
       </header>
@@ -381,36 +383,33 @@ export default function Settings() {
                   </span>
                 </div>
 
-                {/* Custom Time Picker Card */}
-                <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 mb-3">
+                {/* Custom Material 3 Time Picker Card */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light', userData.vibrationEnabled);
+                    setShowTimePickerModal(true);
+                  }}
+                  className="w-full p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 mb-3 text-left transition-all cursor-pointer active:scale-[0.99] group shadow-xs"
+                >
                   <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-xs border border-gray-100 dark:border-gray-700">
-                      <Clock size={16} />
+                    <div className="p-2 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-xs border border-gray-100 dark:border-gray-700 group-hover:scale-105 transition-transform">
+                      <Clock size={16} className="text-accent" style={{ color: 'var(--accent-color)' }} />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-gray-900 dark:text-white">Custom Reminder Time</div>
-                      <div className="text-[11px] text-gray-500 dark:text-gray-400">Tap to pick any hour & minute</div>
+                      <div className="text-[11px] text-gray-500 dark:text-gray-400">Material 3 dial & time picker</div>
                     </div>
                   </div>
 
-                  {/* Native Time Input Field */}
-                  <div className="relative">
-                    <input
-                      type="time"
-                      value={userData.notificationTime || "09:00"}
-                      onChange={(e) => {
-                        const newTime = e.target.value;
-                        if (!newTime) return;
-                        triggerHaptic('selection', userData.vibrationEnabled);
-                        updateSettings({ notificationTime: newTime });
-                        scheduleDailyReminder(newTime, true);
-                        showToast(`Reminder set to ${formatTimeDisplay(newTime)}!`);
-                      }}
-                      className="px-3 py-2 rounded-xl text-sm font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-xs focus:ring-2 focus:ring-accent focus:outline-none cursor-pointer"
-                      aria-label="Set custom notification time"
-                    />
+                  {/* Formatted time pill trigger */}
+                  <div className="flex items-center gap-2">
+                    <div className="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-black bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-xs group-hover:border-accent transition-colors font-mono">
+                      {formatTimeDisplay(userData.notificationTime || "09:00")}
+                    </div>
+                    <ChevronRight size={16} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                   </div>
-                </div>
+                </button>
 
                 {/* Quick Presets */}
                 <div>
@@ -765,6 +764,19 @@ export default function Settings() {
       <HomescreenWidgetModal 
         isOpen={showWidgetModal} 
         onClose={() => setShowWidgetModal(false)} 
+      />
+
+      {/* Material 3 Time Picker Modal */}
+      <Material3TimePickerModal
+        isOpen={showTimePickerModal}
+        onClose={() => setShowTimePickerModal(false)}
+        initialTime={userData.notificationTime || "09:00"}
+        onConfirm={(newTime) => {
+          updateSettings({ notificationTime: newTime });
+          scheduleDailyReminder(newTime, true);
+          showToast(`Reminder set to ${formatTimeDisplay(newTime)}!`);
+        }}
+        vibrationEnabled={userData.vibrationEnabled}
       />
 
       {/* Settings Toast Message */}
