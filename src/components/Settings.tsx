@@ -4,12 +4,12 @@ import {
   Moon, Sun, Palette, Download, Upload, Vibrate, Check, 
   Heart, Coffee, Info, ExternalLink, Shield, 
   Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award, 
-  BookOpen, Compass, LayoutGrid, Bell, Snowflake
+  BookOpen, Compass, LayoutGrid, Bell, Snowflake, Clock
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import { motion, AnimatePresence } from 'motion/react';
 import HomescreenWidgetModal from './HomescreenWidgetModal';
-import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification } from '../utils/notificationUtils';
+import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification, formatTimeDisplay } from '../utils/notificationUtils';
 
 interface Material3SwitchProps {
   checked: boolean;
@@ -160,7 +160,7 @@ export default function Settings() {
   ) || BASIC_COLORS[0];
 
   return (
-    <div className="animate-pop pb-6">
+    <div className="pb-6">
       <header className="mb-8 pt-2 sm:pt-3">
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
       </header>
@@ -343,7 +343,7 @@ export default function Settings() {
               </div>
               <div>
                 <h2 className="text-base font-bold text-gray-900 dark:text-white">Daily Notifications</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Offline reminder for today's quest</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Standard system notification • No alarms or snooze</p>
               </div>
             </div>
             <Material3Switch
@@ -355,7 +355,7 @@ export default function Settings() {
                   if (granted) {
                     updateSettings({ notificationsEnabled: true });
                     scheduleDailyReminder(userData.notificationTime || "09:00", true);
-                    showToast("Daily quest reminders turned on!");
+                    showToast(`Daily reminder scheduled for ${formatTimeDisplay(userData.notificationTime || "09:00")}!`);
                   } else {
                     showToast("Notification permission not granted.");
                   }
@@ -372,49 +372,98 @@ export default function Settings() {
           {userData.notificationsEnabled && (
             <div className="pt-4 border-t border-gray-100 dark:border-gray-700/60 space-y-4 animate-pop">
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                  Preferred Reminder Time
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {[
-                    { time: '08:00', label: '08:00 AM' },
-                    { time: '09:00', label: '09:00 AM' },
-                    { time: '13:00', label: '01:00 PM' },
-                    { time: '20:00', label: '08:00 PM' },
-                  ].map(t => (
-                    <button
-                      key={t.time}
-                      type="button"
-                      onClick={() => {
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Scheduled Reminder Time
+                  </label>
+                  <span className="text-xs font-bold text-accent font-mono" style={{ color: 'var(--accent-color)' }}>
+                    {formatTimeDisplay(userData.notificationTime || "09:00")}
+                  </span>
+                </div>
+
+                {/* Custom Time Picker Card */}
+                <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-xs border border-gray-100 dark:border-gray-700">
+                      <Clock size={16} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-gray-900 dark:text-white">Custom Reminder Time</div>
+                      <div className="text-[11px] text-gray-500 dark:text-gray-400">Tap to pick any hour & minute</div>
+                    </div>
+                  </div>
+
+                  {/* Native Time Input Field */}
+                  <div className="relative">
+                    <input
+                      type="time"
+                      value={userData.notificationTime || "09:00"}
+                      onChange={(e) => {
+                        const newTime = e.target.value;
+                        if (!newTime) return;
                         triggerHaptic('selection', userData.vibrationEnabled);
-                        updateSettings({ notificationTime: t.time });
-                        scheduleDailyReminder(t.time, true);
-                        showToast(`Reminder scheduled for ${t.label}!`);
+                        updateSettings({ notificationTime: newTime });
+                        scheduleDailyReminder(newTime, true);
+                        showToast(`Reminder set to ${formatTimeDisplay(newTime)}!`);
                       }}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                        userData.notificationTime === t.time
-                          ? 'bg-accent text-white border-accent shadow-sm'
-                          : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
-                      }`}
-                      style={userData.notificationTime === t.time ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
+                      className="px-3 py-2 rounded-xl text-sm font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-xs focus:ring-2 focus:ring-accent focus:outline-none cursor-pointer"
+                      aria-label="Set custom notification time"
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div>
+                  <span className="text-[11px] font-semibold text-gray-400 block mb-2">Quick Presets</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { time: '08:00', label: '08:00 AM', desc: 'Early Bird' },
+                      { time: '09:00', label: '09:00 AM', desc: 'Morning' },
+                      { time: '13:00', label: '01:00 PM', desc: 'Midday' },
+                      { time: '20:00', label: '08:00 PM', desc: 'Evening' },
+                    ].map(t => (
+                      <button
+                        key={t.time}
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('selection', userData.vibrationEnabled);
+                          updateSettings({ notificationTime: t.time });
+                          scheduleDailyReminder(t.time, true);
+                          showToast(`Reminder scheduled for ${t.label}!`);
+                        }}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border text-left ${
+                          userData.notificationTime === t.time
+                            ? 'bg-accent text-white border-accent shadow-sm'
+                            : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
+                        }`}
+                        style={userData.notificationTime === t.time ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
+                      >
+                        <div>{t.label}</div>
+                        <div className={`text-[10px] font-normal ${userData.notificationTime === t.time ? 'text-white/80' : 'text-gray-400'}`}>
+                          {t.desc}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
+              {/* Behavior Note */}
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed bg-gray-50 dark:bg-gray-900/40 p-3 rounded-2xl border border-gray-100 dark:border-gray-800">
+                ℹ️ <strong>Standard Notification:</strong> Delivered as a normal notification banner with your device's default notification tone. Does not act as an alarm clock or snooze.
+              </p>
+
               <div className="flex items-center justify-between pt-1">
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Verify notification alert:
+                  Verify notification banner:
                 </span>
                 <button
                   type="button"
                   onClick={async () => {
                     triggerHaptic('medium', userData.vibrationEnabled);
                     const sent = await sendInstantNotification(
-                      "Dailyz - Test Notification 🔔",
-                      "Your quest notifications are active! Keep that momentum going."
+                      "Dailyz • Today's Quest 🎯",
+                      "Your daily micro-quest is waiting. Take a moment to complete it!"
                     );
                     if (sent) {
                       showToast("Test notification dispatched!");

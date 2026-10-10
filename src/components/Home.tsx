@@ -166,7 +166,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
   const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow';
 
   return (
-    <div className="flex-1 flex flex-col justify-between min-h-full animate-pop">
+    <div className="flex-1 flex flex-col justify-between min-h-full">
       {/* Top Header App Bar - guaranteed no overflow for long names, pills always pinned right */}
       <header className="flex justify-between items-center gap-3 mb-5 pt-2 sm:pt-3 shrink-0">
         <div className="min-w-0 flex-1">

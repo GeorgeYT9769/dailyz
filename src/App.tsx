@@ -19,16 +19,16 @@ const TAB_ORDER = ['home', 'profile', 'rewards', 'settings'];
 
 const pageVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 25 : direction < 0 ? -25 : 0,
-    opacity: 0,
+    x: direction > 0 ? '100%' : direction < 0 ? '-100%' : '0%',
+    opacity: 1,
   }),
   center: {
-    x: 0,
+    x: '0%',
     opacity: 1,
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -25 : direction < 0 ? 25 : 0,
-    opacity: 0,
+    x: direction > 0 ? '-100%' : direction < 0 ? '100%' : '0%',
+    opacity: 1,
   }),
 };
 
@@ -97,20 +97,25 @@ function MainContent() {
         onSwipeLeft={handleSwipeLeft}
         onSwipeRight={handleSwipeRight}
       >
-        <AnimatePresence mode="wait" custom={tabDirection} initial={false}>
-          <motion.div
-            key={activeTab}
-            custom={tabDirection}
-            variants={pageVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.14, ease: [0.25, 1, 0.5, 1] }}
-            className="w-full flex-1 flex flex-col min-h-full"
-          >
-            {renderTab()}
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative w-full flex-1 flex flex-col min-h-full overflow-hidden">
+          <AnimatePresence mode="popLayout" custom={tabDirection} initial={false}>
+            <motion.div
+              key={activeTab}
+              custom={tabDirection}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: 'spring', stiffness: 320, damping: 32 },
+                opacity: { duration: 0.15 }
+              }}
+              className="w-full flex-1 flex flex-col min-h-full"
+            >
+              {renderTab()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </Layout>
       <AnimatePresence>
         {profilePreview && (

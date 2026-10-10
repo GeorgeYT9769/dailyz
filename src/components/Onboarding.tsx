@@ -8,7 +8,7 @@ import {
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
 import { getRandomInterestingName } from '../utils/nameGenerator';
-import { requestNotificationPermission, scheduleDailyReminder } from '../utils/notificationUtils';
+import { requestNotificationPermission, scheduleDailyReminder, formatTimeDisplay } from '../utils/notificationUtils';
 
 interface OnboardingProps {
   onClose?: () => void;
@@ -431,7 +431,9 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                         </div>
                         <span className="text-xs font-bold text-gray-200">Daily Reminder</span>
                       </div>
-                      <span className="text-[11px] font-mono text-gray-400">{reminderTime}</span>
+                      <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
+                        {formatTimeDisplay(reminderTime)}
+                      </span>
                     </div>
 
                     {/* Notification Toast Mockup */}
@@ -443,19 +445,43 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                           className="w-4 h-4 rounded-md object-cover" 
                           onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
-                        <span className="text-xs font-bold text-white">Dailyz • Action Time! ⚡</span>
+                        <span className="text-xs font-bold text-white">Dailyz • Today's Quest 🎯</span>
                       </div>
                       <p className="text-[11px] text-gray-300 leading-snug">
-                        Your micro-quest is waiting. Complete it to earn stars and keep your streak burning!
+                        Your daily micro-quest is ready. Take a moment to complete it!
                       </p>
                     </div>
 
-                    {/* Preset selection pills */}
+                    {/* Custom Time Picker */}
                     <div className="mt-3">
-                      <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">
-                        Choose Reminder Time
-                      </span>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+                          Reminder Time
+                        </span>
+                        <span className="text-[10px] text-gray-400">Standard banner</span>
+                      </div>
+
+                      {/* Native Time Input Field */}
+                      <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <Clock size={15} className="text-blue-400" />
+                          <span className="text-xs font-semibold text-gray-200">Custom Time:</span>
+                        </div>
+                        <input
+                          type="time"
+                          value={reminderTime}
+                          onChange={(e) => {
+                            if (!e.target.value) return;
+                            triggerHaptic('selection', userData.vibrationEnabled);
+                            setReminderTime(e.target.value);
+                          }}
+                          className="px-2.5 py-1 rounded-xl text-xs font-bold bg-white/10 border border-white/15 text-white focus:outline-none focus:ring-1 focus:ring-blue-400 cursor-pointer"
+                          aria-label="Pick custom reminder time"
+                        />
+                      </div>
+
+                      {/* Presets */}
+                      <div className="grid grid-cols-2 gap-1.5 text-xs">
                         {[
                           { time: '08:00', label: '08:00 AM', desc: 'Early Bird' },
                           { time: '09:00', label: '09:00 AM', desc: 'Morning' },
@@ -469,14 +495,14 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                               triggerHaptic('selection', userData.vibrationEnabled);
                               setReminderTime(t.time);
                             }}
-                            className={`p-2 rounded-xl text-left border transition-all cursor-pointer ${
+                            className={`p-1.5 px-2 rounded-xl text-left border transition-all cursor-pointer ${
                               reminderTime === t.time
                                 ? 'bg-blue-600/30 border-blue-400 text-white font-bold ring-1 ring-blue-400/50'
                                 : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
                             }`}
                           >
-                            <div className="font-semibold text-xs">{t.label}</div>
-                            <div className="text-[10px] text-gray-400">{t.desc}</div>
+                            <div className="font-semibold text-[11px]">{t.label}</div>
+                            <div className="text-[9px] text-gray-400">{t.desc}</div>
                           </button>
                         ))}
                       </div>
@@ -512,7 +538,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   Never Miss <span className="text-blue-400">Your Streak.</span>
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-4">
-                  Habits stick when they have an anchor. Choose a time that fits your day for a polite, offline reminder.
+                  Standard notifications that respect your routine. Pick any custom time that fits your day.
                 </p>
               </div>
             )}

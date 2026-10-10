@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { calculateStreaks, getTodayISO, getYesterdayISO } from '../utils/dateUtils';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { updateSystemBars } from '../utils/statusBar';
-import { scheduleDailyReminder } from '../utils/notificationUtils';
+import { scheduleDailyReminder, sendInstantNotification } from '../utils/notificationUtils';
 import rewardsData from '../data/rewards.json';
 import questsData from '../data/quests.json';
 
@@ -191,6 +191,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       scheduleDailyReminder(userData.notificationTime || "09:00", userData.notificationsEnabled || false);
     }
   }, [userData.notificationsEnabled, userData.notificationTime, isLoaded]);
+
+  useEffect(() => {
+    // Web session check: Trigger standard notification if app is open/active at chosen time
+    if (!userData.notificationsEnabled || !isLoaded) return;
+    const checkReminder = () => {
+      const now = new Date();
+      const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const targetHHMM = userData.notificationTime || "09:00";
+      const todayISO = getTodayISO();
+      const lastFired = localStorage.getItem('dailyz_last_reminder_fired');
+      if (currentHHMM === targetHHMM && lastFired !== todayISO && !userData.completedDays.includes(todayISO)) {
+        localStorage.setItem('dailyz_last_reminder_fired', todayISO);
+        sendInstantNotification(
+          "Dailyz • Today's Quest",
+          "Your daily micro-quest is waiting. Take a moment to complete it!"
+        );
+      }
+    };
+    checkReminder();
+    const interval = setInterval(checkReminder, 30000); // Check every 30 seconds
+    return () => clearInterval(interval);
+  }, [userData.notificationsEnabled, userData.notificationTime, userData.completedDays, isLoaded]);
 
   const completeQuest = (reward: number, dateIso: string, force: boolean = false) => {
     setUserData(prev => {
