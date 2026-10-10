@@ -691,74 +691,91 @@ export default function Settings() {
       </div>
 
       {/* Guide & Rules Modal */}
-      {showGuideModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[85vh] overflow-y-auto animate-pop">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles size={20} className="text-accent" />
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white">Dailyz Adventure Guide</h3>
-              </div>
-              <button 
-                onClick={() => setShowGuideModal(false)}
-                className="p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs text-gray-600 dark:text-gray-300">
-              <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                  <Flame size={14} className="text-orange-500" />
-                  <span>1. Daily Quests & Streaks</span>
-                </div>
-                <p>
-                  Every day brings a new habit quest. Tap "Complete Quest" to claim your stars and build your consecutive day streak. Check your streak map at the top bar anytime!
-                </p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                  <Star size={14} className="text-amber-500" />
-                  <span>2. Tomorrow's Mystery Quest</span>
-                </div>
-                <p>
-                  Curious about tomorrow? Unlock the next day's quest for 20 stars. It unblurs immediately and saves to become your active quest when the clock strikes tomorrow!
-                </p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                  <Award size={14} className="text-indigo-500" />
-                  <span>3. Rewards & Customization</span>
-                </div>
-                <p>
-                  Spend stars in the Rewards Shop on profile frames, elite badges, and cosmetic ranks to elevate your adventurer card.
-                </p>
-              </div>
-
-              <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                  <Shield size={14} className="text-emerald-500" />
-                  <span>4. Private & Backup Safe</span>
-                </div>
-                <p>
-                  Your progress is saved securely in your browser's local storage. Use the "Export Backup" button anytime to save your data or transfer it to another device.
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowGuideModal(false)}
-              className="mt-6 w-full py-3 bg-accent text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition-opacity cursor-pointer"
-              style={{ backgroundColor: 'var(--accent-color)' }}
+      <AnimatePresence>
+        {showGuideModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+            onClick={() => setShowGuideModal(false)}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+              style={{ willChange: 'transform, opacity' }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white dark:bg-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[85vh] overflow-y-auto"
             >
-              Got it, let's go!
-            </button>
-          </div>
-        </div>
-      )}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={20} className="text-accent" />
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">Dailyz Adventure Guide</h3>
+                </div>
+                <button 
+                  onClick={() => setShowGuideModal(false)}
+                  className="p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs text-gray-600 dark:text-gray-300">
+                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Flame size={14} className="text-orange-500" />
+                    <span>1. Daily Quests & Streaks</span>
+                  </div>
+                  <p>
+                    Every day brings a new habit quest. Tap "Complete Quest" to claim your stars and build your consecutive day streak. Check your streak map at the top bar anytime!
+                  </p>
+                </div>
+
+                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Star size={14} className="text-amber-500" />
+                    <span>2. Tomorrow's Mystery Quest</span>
+                  </div>
+                  <p>
+                    Curious about tomorrow? Unlock the next day's quest for 20 stars. It unblurs immediately and saves to become your active quest when the clock strikes tomorrow!
+                  </p>
+                </div>
+
+                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Award size={14} className="text-indigo-500" />
+                    <span>3. Rewards & Customization</span>
+                  </div>
+                  <p>
+                    Spend stars in the Rewards Shop on profile frames, elite badges, and cosmetic ranks to elevate your adventurer card.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <Shield size={14} className="text-emerald-500" />
+                    <span>4. Private & Backup Safe</span>
+                  </div>
+                  <p>
+                    Your progress is saved securely in your browser's local storage. Use the "Export Backup" button anytime to save your data or transfer it to another device.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowGuideModal(false)}
+                className="mt-6 w-full py-3 bg-accent text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition-opacity cursor-pointer"
+                style={{ backgroundColor: 'var(--accent-color)' }}
+              >
+                Got it, let's go!
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Homescreen Widget Setup & Preview Modal */}
       <HomescreenWidgetModal 

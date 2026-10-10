@@ -22,6 +22,7 @@ export default function ProfilePreview({ data, onClose }: ProfilePreviewProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
       className="fixed inset-0 bg-white dark:bg-gray-950 z-[200] flex flex-col items-center overflow-y-auto"
     >
       {/* Dynamic Background */}

@@ -326,12 +326,21 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      className="fixed inset-0 bg-black/80 backdrop-blur-xs z-[100] flex items-center justify-center p-4 overflow-y-auto"
+      onClick={onClose}
+    >
       <motion.div 
-        initial={{ opacity: 0, scale: 0.92, y: 15 }}
+        initial={{ opacity: 0, scale: 0.95, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.92, y: 15 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+        style={{ willChange: 'transform, opacity' }}
+        onClick={e => e.stopPropagation()}
         className="max-w-2xl w-full bg-gray-900 border border-gray-800 text-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col my-auto relative"
       >
         {/* Close Button */}
@@ -482,6 +491,6 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
           </button>
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }

@@ -156,23 +156,32 @@ export default function Material3TimePickerModal({
   const minutesList = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in select-none">
-      <div 
-        className="fixed inset-0"
-        onClick={() => {
-          triggerHaptic('light', vibrationEnabled);
-          onClose();
-        }}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs select-none"
+        >
+          <div 
+            className="fixed inset-0"
+            onClick={() => {
+              triggerHaptic('light', vibrationEnabled);
+              onClose();
+            }}
+          />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.92, y: 16 }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-[340px] sm:max-w-[360px] bg-white dark:bg-gray-800 rounded-[28px] p-6 shadow-2xl border border-gray-100 dark:border-gray-700/80 flex flex-col items-center"
-        onClick={(e) => e.stopPropagation()}
-      >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            style={{ willChange: 'transform, opacity' }}
+            className="relative z-10 w-full max-w-[340px] sm:max-w-[360px] bg-white dark:bg-gray-800 rounded-[28px] p-6 shadow-2xl border border-gray-100 dark:border-gray-700/80 flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
         {/* Header Title */}
         <div className="w-full flex items-center justify-between mb-5">
           <span className="text-xs font-bold tracking-wider uppercase text-gray-500 dark:text-gray-400">
@@ -489,6 +498,8 @@ export default function Material3TimePickerModal({
           </div>
         </div>
       </motion.div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

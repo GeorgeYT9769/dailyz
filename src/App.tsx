@@ -19,16 +19,16 @@ const TAB_ORDER = ['home', 'profile', 'rewards', 'settings'];
 
 const pageVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? '100%' : direction < 0 ? '-100%' : '0%',
-    opacity: 1,
+    x: direction > 0 ? 24 : direction < 0 ? -24 : 0,
+    opacity: 0,
   }),
   center: {
-    x: '0%',
+    x: 0,
     opacity: 1,
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? '-100%' : direction < 0 ? '100%' : '0%',
-    opacity: 1,
+    x: direction > 0 ? -20 : direction < 0 ? 20 : 0,
+    opacity: 0,
   }),
 };
 
@@ -107,9 +107,10 @@ function MainContent() {
               animate="center"
               exit="exit"
               transition={{
-                x: { type: 'spring', stiffness: 320, damping: 32 },
-                opacity: { duration: 0.15 }
+                x: { duration: 0.16, ease: [0.16, 1, 0.3, 1] },
+                opacity: { duration: 0.13, ease: 'easeOut' },
               }}
+              style={{ willChange: 'transform, opacity' }}
               className="w-full min-h-full"
             >
               {renderTab()}

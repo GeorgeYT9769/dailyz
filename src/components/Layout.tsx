@@ -120,9 +120,9 @@ export default function Layout({
                 }}
                 transition={{
                   type: 'spring',
-                  stiffness: 420,
-                  damping: 34,
-                  mass: 0.7,
+                  stiffness: 540,
+                  damping: 38,
+                  mass: 0.5,
                 }}
               />
             );
@@ -150,7 +150,7 @@ export default function Layout({
                     }
                     setActiveTab(tab.id);
                   }}
-                  className={`relative flex items-center h-10 rounded-full cursor-pointer select-none [-webkit-tap-highlight-color:transparent] outline-none transition-[width,color] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                  className={`relative flex items-center h-10 rounded-full cursor-pointer select-none [-webkit-tap-highlight-color:transparent] outline-none touch-manipulation transition-[width,color] duration-180 ease-out ${
                     isActive 
                       ? 'font-bold text-xs' 
                       : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
@@ -166,7 +166,7 @@ export default function Layout({
                   <div className="absolute left-2.5 top-2.5 w-5 h-5 flex items-center justify-center shrink-0 pointer-events-none">
                     <Icon 
                       size={20}
-                      className={`shrink-0 transition-colors duration-200 ${
+                      className={`shrink-0 transition-colors duration-150 ${
                         isActive ? '' : 'text-gray-400 dark:text-gray-500'
                       }`}
                       style={isActive ? { color: 'var(--accent-color)' } : undefined}
@@ -180,10 +180,10 @@ export default function Layout({
                         key={tab.id}
                         initial={{ opacity: 0, x: 2 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, transition: { duration: 0.05 } }}
+                        exit={{ opacity: 0, transition: { duration: 0.04 } }}
                         transition={{ 
-                          opacity: { duration: 0.16, delay: 0.05 },
-                          x: { duration: 0.16, ease: 'easeOut' },
+                          opacity: { duration: 0.12, delay: 0.02 },
+                          x: { duration: 0.12, ease: 'easeOut' },
                         }}
                         className="pl-[34px] pr-2.5 font-bold text-xs whitespace-nowrap select-none pointer-events-none"
                         style={{ color: 'var(--accent-color)' }}

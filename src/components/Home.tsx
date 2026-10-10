@@ -86,14 +86,16 @@ export default function Home({ onNavigateTab }: HomeProps) {
   // When completed, it swaps to 'tomorrow'!
   const [activeQuestView, setActiveQuestView] = useState<'today' | 'tomorrow'>(() => isCompleted ? 'tomorrow' : 'today');
 
-  // Keep synced when completed changes
+  // Keep synced when completed changes (only swap when not actively playing completion animation)
   useEffect(() => {
-    if (isCompleted) {
-      setActiveQuestView('tomorrow');
-    } else {
-      setActiveQuestView('today');
+    if (!showAnimation) {
+      if (isCompleted) {
+        setActiveQuestView('tomorrow');
+      } else {
+        setActiveQuestView('today');
+      }
     }
-  }, [isCompleted]);
+  }, [isCompleted, showAnimation]);
 
   // Keep native Android Homescreen Widget in sync
   useEffect(() => {
@@ -163,7 +165,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
     hard: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/70',
   };
 
-  const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow';
+  const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow' && !showAnimation;
 
   return (
     <div className="flex flex-col gap-4 pb-20 w-full">
@@ -257,19 +259,23 @@ export default function Home({ onNavigateTab }: HomeProps) {
       )}
 
       {/* Merged Quest Card - comfortable natural height well above bottom nav bar */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative transition-all flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative transition-colors duration-200 flex flex-col">
         {/* Celebration Overlay */}
         <AnimatePresence>
           {showAnimation && (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-950/30 flex items-center justify-center z-30 backdrop-blur-md"
+              transition={{ duration: 0.18 }}
+              className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-950/40 flex items-center justify-center z-30 backdrop-blur-xs"
             >
               <motion.div 
-                initial={{ y: 20 }}
-                animate={{ y: 0 }}
+                initial={{ opacity: 0, scale: 0.92, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                style={{ willChange: 'transform, opacity' }}
                 className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center mx-4 border border-gray-100 dark:border-gray-700"
               >
                 <div className="w-24 h-24 mb-2">
@@ -487,7 +493,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
                     {/* Primary Complete Quest Button */}
                     <button
                       onClick={handleComplete}
-                      disabled={isCompleted}
+                      disabled={isCompleted || showAnimation}
                       className="flex-1 py-3.5 sm:py-4 px-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 text-white shadow-lg active:scale-95 cursor-pointer transition-all hover:opacity-95"
                       style={{ 
                         backgroundColor: 'var(--accent-color)', 

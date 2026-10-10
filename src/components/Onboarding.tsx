@@ -151,7 +151,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: 0.18 }}
       className="fixed inset-0 z-[120] flex flex-col justify-between bg-gray-900/95 dark:bg-gray-950/95 backdrop-blur-2xl text-white select-none overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}

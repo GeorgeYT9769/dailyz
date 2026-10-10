@@ -23,6 +23,11 @@ html:not(.dark), html:not(.dark) body {
   color: #111827;
 }
 
+button, a, [role="button"], [role="switch"], [role="tab"], input, select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .pt-safe {
   padding-top: env(safe-area-inset-top);
 }
