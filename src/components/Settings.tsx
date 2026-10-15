@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAppContext } from '../context/AppContext';
 import { 
   Moon, Sun, Palette, Download, Upload, Vibrate, Check, 
@@ -692,13 +693,13 @@ export default function Settings() {
 
       {/* Guide & Rules Modal */}
       <AnimatePresence>
-        {showGuideModal && (
+        {showGuideModal && createPortal(
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-hidden"
             onClick={() => setShowGuideModal(false)}
           >
             <motion.div 
@@ -773,7 +774,8 @@ export default function Settings() {
                 Got it, let's go!
               </button>
             </motion.div>
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </AnimatePresence>
 

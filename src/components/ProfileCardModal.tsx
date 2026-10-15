@@ -1,8 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { X, Download, Share2, Star, Flame, CalendarCheck, User, Sparkles } from 'lucide-react';
 import { UserData } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
+import { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
 
 interface ProfileCardModalProps {
   isOpen: boolean;
@@ -13,6 +15,16 @@ interface ProfileCardModalProps {
 export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileCardModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      const orig = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = orig;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -159,6 +171,22 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
     if (userData.pfpTag) {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
       drawFittedText(ctx, `TAG: ${userData.pfpTag}`, leftCenterX, 442, 340, 14, '600', 'center');
+    }
+
+    // Render Social Handles on Canvas if provided
+    const activeSocialEntries = Object.entries(userData.socials || {}).filter(([_, val]) => !!val?.trim());
+    if (activeSocialEntries.length > 0) {
+      const socialStartY = userData.pfpTag ? 468 : 446;
+      const displaySocials = activeSocialEntries.slice(0, 3);
+      displaySocials.forEach(([platform, handle], idx) => {
+        const y = socialStartY + idx * 22;
+        const prefix = platform === 'twitter' ? '𝕏' : platform === 'discord' ? '💬' : platform === 'github' ? '🐙' : platform === 'instagram' ? '📸' : platform === 'twitch' ? '🟣' : '▶️';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        const formattedHandle = (platform === 'twitter' || platform === 'instagram')
+          ? (handle.startsWith('@') ? handle : `@${handle}`)
+          : handle;
+        drawFittedText(ctx, `${prefix} ${formattedHandle}`, leftCenterX, y, 320, 13, 'bold', 'center');
+      });
     }
 
     // Left sub-footer label
@@ -325,13 +353,13 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
     return `decoration-${userData.activeDecoration}`;
   };
 
-  return (
+  return createPortal(
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="fixed inset-0 bg-black/80 backdrop-blur-xs z-[100] flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
       onClick={onClose}
     >
       <motion.div 
@@ -422,6 +450,48 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
               >
                 {userData.rank}
               </span>
+
+              {/* User Socials Badges */}
+              {userData.socials && Object.values(userData.socials).some(Boolean) && (
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 max-w-full px-1">
+                  {userData.socials.discord && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#5865F2]/20 text-[#8B93FF] border border-[#5865F2]/30 truncate max-w-[140px]" title={`Discord: ${userData.socials.discord}`}>
+                      <DiscordIcon className="w-2.5 h-2.5 shrink-0" />
+                      <span className="truncate">{userData.socials.discord}</span>
+                    </span>
+                  )}
+                  {userData.socials.twitter && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-white border border-white/20 truncate max-w-[140px]" title={`X: @${userData.socials.twitter}`}>
+                      <TwitterIcon className="w-2.5 h-2.5 shrink-0" />
+                      <span className="truncate">{userData.socials.twitter.startsWith('@') ? userData.socials.twitter : `@${userData.socials.twitter}`}</span>
+                    </span>
+                  )}
+                  {userData.socials.instagram && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E1306C]/20 text-[#FF639B] border border-[#E1306C]/30 truncate max-w-[140px]" title={`Instagram: @${userData.socials.instagram}`}>
+                      <InstagramIcon className="w-2.5 h-2.5 shrink-0" />
+                      <span className="truncate">{userData.socials.instagram.startsWith('@') ? userData.socials.instagram : `@${userData.socials.instagram}`}</span>
+                    </span>
+                  )}
+                  {userData.socials.github && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-gray-200 border border-white/20 truncate max-w-[140px]" title={`GitHub: ${userData.socials.github}`}>
+                      <GithubIcon className="w-2.5 h-2.5 shrink-0" />
+                      <span className="truncate">{userData.socials.github}</span>
+                    </span>
+                  )}
+                  {userData.socials.twitch && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#9146FF]/20 text-[#B788FF] border border-[#9146FF]/30 truncate max-w-[140px]" title={`Twitch: ${userData.socials.twitch}`}>
+                      <TwitchIcon className="w-2.5 h-2.5 shrink-0" />
+                      <span className="truncate">{userData.socials.twitch}</span>
+                    </span>
+                  )}
+                  {userData.socials.youtube && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF0000]/20 text-[#FF6B6B] border border-[#FF0000]/30 truncate max-w-[140px]" title={`YouTube: ${userData.socials.youtube}`}>
+                      <YoutubeIcon className="w-2.5 h-2.5 shrink-0" />
+                      <span className="truncate">{userData.socials.youtube}</span>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right Column: Stats (Stars, Streak, Done) */}
@@ -491,6 +561,7 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
           </button>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

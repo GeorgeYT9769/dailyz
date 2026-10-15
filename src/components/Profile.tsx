@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useAppContext } from '../context/AppContext';
-import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, CheckCircle, ChevronRight, Dices, Sparkles } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { useAppContext, UserSocials } from '../context/AppContext';
+import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, CheckCircle, ChevronRight, Dices, Sparkles, AtSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import StreakModal from './StreakModal';
 import ProfileCardModal from './ProfileCardModal';
+import SocialsModal, { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
 import CategoryDistributionBar from './CategoryDistributionBar';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { triggerHaptic } from '../utils/haptics';
@@ -14,6 +16,7 @@ export default function Profile() {
   const { userData, updateSettings } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCardModal, setShowCardModal] = useState(false);
+  const [showSocialsModal, setShowSocialsModal] = useState(false);
   const [showPfpMenu, setShowPfpMenu] = useState(false);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [isEditingRank, setIsEditingRank] = useState(false);
@@ -244,7 +247,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="flex justify-center mt-4">
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
           <button 
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
@@ -253,19 +256,82 @@ export default function Profile() {
             className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:border-accent hover:text-accent dark:hover:text-accent transition-all cursor-pointer group"
           >
             <Share2 size={14} className="group-hover:scale-110 transition-transform" />
-            <span>Share Profile Card</span>
+            <span>Player Card</span>
+          </button>
+
+          <button 
+            onClick={() => {
+              triggerHaptic('light', userData.vibrationEnabled);
+              setShowSocialsModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:border-blue-400 hover:text-blue-500 transition-all cursor-pointer group"
+          >
+            <AtSign size={14} className="text-blue-500 group-hover:rotate-12 transition-transform" />
+            <span>Socials</span>
+            {userData.socials && Object.values(userData.socials).some(Boolean) && (
+              <span className="w-2 h-2 rounded-full bg-blue-500" />
+            )}
           </button>
         </div>
+
+        {/* Quick Social Badges on Profile */}
+        {userData.socials && Object.values(userData.socials).some(Boolean) && (
+          <div 
+            onClick={() => {
+              triggerHaptic('light', userData.vibrationEnabled);
+              setShowSocialsModal(true);
+            }}
+            className="mt-3 flex flex-wrap items-center justify-center gap-1.5 cursor-pointer max-w-sm px-2 group"
+            title="Click to edit social handles"
+          >
+            {userData.socials.discord && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#5865F2]/10 dark:bg-[#5865F2]/20 text-[#5865F2] dark:text-[#8B93FF] border border-[#5865F2]/30 group-hover:scale-105 transition-transform">
+                <DiscordIcon className="w-3 h-3 shrink-0" />
+                <span>{userData.socials.discord}</span>
+              </span>
+            )}
+            {userData.socials.twitter && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/5 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-200 dark:border-white/20 group-hover:scale-105 transition-transform">
+                <TwitterIcon className="w-2.5 h-2.5 shrink-0" />
+                <span>@{userData.socials.twitter}</span>
+              </span>
+            )}
+            {userData.socials.instagram && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E1306C]/10 dark:bg-[#E1306C]/20 text-[#E1306C] dark:text-[#FF639B] border border-[#E1306C]/30 group-hover:scale-105 transition-transform">
+                <InstagramIcon className="w-2.5 h-2.5 shrink-0" />
+                <span>@{userData.socials.instagram}</span>
+              </span>
+            )}
+            {userData.socials.github && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/5 dark:bg-white/10 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-white/20 group-hover:scale-105 transition-transform">
+                <GithubIcon className="w-2.5 h-2.5 shrink-0" />
+                <span>{userData.socials.github}</span>
+              </span>
+            )}
+            {userData.socials.twitch && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#9146FF]/10 dark:bg-[#9146FF]/20 text-[#9146FF] dark:text-[#B788FF] border border-[#9146FF]/30 group-hover:scale-105 transition-transform">
+                <TwitchIcon className="w-2.5 h-2.5 shrink-0" />
+                <span>{userData.socials.twitch}</span>
+              </span>
+            )}
+            {userData.socials.youtube && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FF0000]/10 dark:bg-[#FF0000]/20 text-[#FF0000] dark:text-[#FF6B6B] border border-[#FF0000]/30 group-hover:scale-105 transition-transform">
+                <YoutubeIcon className="w-2.5 h-2.5 shrink-0" />
+                <span>{userData.socials.youtube}</span>
+              </span>
+            )}
+          </div>
+        )}
       </header>
 
       <AnimatePresence>
-        {showPfpMenu && (
+        {showPfpMenu && createPortal(
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-6"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-hidden"
             onClick={() => setShowPfpMenu(false)}
           >
             <motion.div 
@@ -279,7 +345,7 @@ export default function Profile() {
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-black">Change PFP</h3>
-                <button onClick={() => setShowPfpMenu(false)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full">
+                <button onClick={() => setShowPfpMenu(false)} className="p-2 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer">
                   <X size={20} />
                 </button>
               </div>
@@ -310,14 +376,15 @@ export default function Profile() {
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-4 bg-accent text-white rounded-2xl font-black shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-accent text-white rounded-2xl font-black shadow-lg shadow-accent/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 cursor-pointer"
                 style={{ backgroundColor: 'var(--accent-color)' }}
               >
                 <Camera size={20} />
                 Upload Custom
               </button>
             </motion.div>
-          </motion.div>
+          </motion.div>,
+          document.body
         )}
       </AnimatePresence>
 
@@ -526,6 +593,22 @@ export default function Profile() {
             isOpen={showCardModal}
             onClose={() => setShowCardModal(false)}
             userData={userData}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Socials Handles Modal */}
+      <AnimatePresence>
+        {showSocialsModal && (
+          <SocialsModal
+            isOpen={showSocialsModal}
+            onClose={() => setShowSocialsModal(false)}
+            initialSocials={userData.socials}
+            onSave={(newSocials) => {
+              updateSettings({ socials: newSocials });
+              triggerFeedback("Socials Saved!");
+            }}
+            vibrationEnabled={userData.vibrationEnabled}
           />
         )}
       </AnimatePresence>

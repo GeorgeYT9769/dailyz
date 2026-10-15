@@ -12,12 +12,22 @@ export type Reward = {
   cost: number;
 };
 
+export type UserSocials = {
+  twitter?: string;
+  discord?: string;
+  instagram?: string;
+  github?: string;
+  twitch?: string;
+  youtube?: string;
+};
+
 export type UserData = {
   completedDays: string[];
   points: number;
   streak: number;
   longestStreak: number;
   redeemedRewards: Reward[];
+  socials?: UserSocials;
   theme: "light" | "dark";
   accentColor: string;
   vibrationEnabled: boolean;
@@ -78,6 +88,7 @@ const defaultUserData: UserData = {
   streak: 0,
   longestStreak: 0,
   redeemedRewards: [],
+  socials: {},
   theme: "dark",
   accentColor: "#3b82f6",
   vibrationEnabled: true,

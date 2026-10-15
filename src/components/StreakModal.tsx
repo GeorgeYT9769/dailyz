@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Flame, X, Trophy, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Check, Award, Sparkles, Snowflake, Zap, Shield, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { Flame, X, Trophy, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Award, Sparkles, Snowflake, Zap, Star, Check } from 'lucide-react';
 import { getTodayISO } from '../utils/dateUtils';
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
@@ -31,8 +32,19 @@ export default function StreakModal({
 }: StreakModalProps) {
   const { userData, buyStreakFreeze, recoverStreak } = useAppContext();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'calendar' | 'milestones'>('calendar');
   const todayISO = getTodayISO();
   const [currentDate, setCurrentDate] = useState(() => new Date());
+
+  useEffect(() => {
+    if (isOpen) {
+      const orig = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = orig;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -114,345 +126,359 @@ export default function StreakModal({
     return { iso, dayLabel, isDone, isFrozen, isCurrent, dayNum: d.getDate() };
   });
 
-  return (
+  return createPortal(
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
-      className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[100] flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        exit={{ opacity: 0, scale: 0.96, y: 6 }}
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         style={{ willChange: 'transform, opacity' }}
         onClick={e => e.stopPropagation()}
-        className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 max-w-md w-full shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[90vh] overflow-y-auto"
+        className="bg-white dark:bg-gray-800 rounded-3xl max-w-md w-full shadow-2xl border border-gray-100 dark:border-gray-700/80 max-h-[85vh] sm:max-h-[82vh] flex flex-col overflow-hidden"
       >
-        {/* Header */}
-        <div className="flex justify-between items-center mb-5">
+        {/* Sticky Pinned Header */}
+        <div className="flex justify-between items-center px-5 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700/60 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center text-orange-500 shadow-sm">
-              <Flame size={24} className="fill-orange-500 animate-pulse" />
+            <div className="w-9 h-9 rounded-xl bg-orange-100 dark:bg-orange-950/50 flex items-center justify-center text-orange-500 shadow-xs">
+              <Flame size={20} className="fill-orange-500" />
             </div>
             <div>
-              <h2 className="text-xl font-black tracking-tight">Streak Map</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Activity & habit tracker</p>
+              <h2 className="text-lg font-black tracking-tight text-gray-900 dark:text-white">Streak Map</h2>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">Activity & habit tracker</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-pointer"
             aria-label="Close Streak Map"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Hero Streak Banner */}
-        <div className="bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 rounded-3xl p-5 text-white shadow-lg shadow-orange-500/20 mb-5 relative overflow-hidden">
-          <div className="absolute -right-4 -bottom-6 opacity-20 pointer-events-none">
-            <Flame size={140} className="fill-white" />
-          </div>
-          <div className="relative z-10 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-100 bg-white/20 px-2.5 py-1 rounded-full backdrop-blur-sm">
-                {isTodayCompleted ? 'Active & Protected' : 'Active Streak'}
-              </span>
+        {/* Scrollable Modal Content */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4 space-y-4">
+          {/* Compact Hero Streak Card */}
+          <div className="bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-md shadow-orange-500/20 relative overflow-hidden">
+            <div className="absolute -right-3 -bottom-5 opacity-15 pointer-events-none">
+              <Flame size={110} className="fill-white" />
+            </div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-orange-100 bg-white/20 px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                  {isTodayCompleted ? 'Active & Protected 🔥' : 'Active Streak'}
+                </span>
+                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-md rounded-xl px-2 py-0.5 text-orange-100 text-[11px] font-bold">
+                  <Trophy size={13} className="text-yellow-200" />
+                  <span>Best: {longestStreak}d</span>
+                </div>
+              </div>
+
               <div className="flex items-baseline gap-2 mt-2">
-                <span className="text-4xl font-black">{streak}</span>
-                <span className="text-lg font-bold text-orange-100">{streak === 1 ? 'Day' : 'Days'}</span>
+                <span className="text-3xl font-black">{streak}</span>
+                <span className="text-base font-bold text-orange-100">{streak === 1 ? 'Day' : 'Days'}</span>
+                <span className="text-xs text-orange-100/90 ml-auto">
+                  {isTodayCompleted ? 'Completed today!' : 'Extend it today!'}
+                </span>
               </div>
-              <p className="text-xs text-orange-100 mt-1 max-w-[200px]">
-                {isTodayCompleted
-                  ? "Quest completed today! Your streak is secured! 🔥"
-                  : "Complete today's quest to extend your streak!"}
-              </p>
-            </div>
 
-            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-3 flex flex-col items-center min-w-[80px]">
-              <Trophy size={20} className="text-yellow-200 mb-1" />
-              <span className="text-[10px] uppercase font-bold text-orange-100">Record</span>
-              <span className="text-base font-black">{longestStreak} d</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Streak Recovery Card (if broken streak exists) */}
-        {userData.lastBrokenStreak && (
-          <div className="mb-5 p-4 rounded-3xl bg-gradient-to-r from-orange-500/15 via-amber-500/15 to-orange-500/15 border border-orange-300 dark:border-orange-800/80 animate-pop">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Zap size={18} className="text-orange-500" />
-                <span className="font-bold text-sm text-gray-900 dark:text-white">Streak Recovery Available</span>
-              </div>
-              <span className="text-xs font-black text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/60 px-2.5 py-0.5 rounded-full">
-                {userData.lastBrokenStreak.count} Days Lost
-              </span>
-            </div>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
-              Don't lose your progress! Recover your streak using 15 Stars or 1 Streak Freeze.
-            </p>
-            <button
-              onClick={handleRecover}
-              className="w-full py-2.5 rounded-2xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Zap size={14} />
-              <span>Restore {userData.lastBrokenStreak.count}-Day Streak Now</span>
-            </button>
-          </div>
-        )}
-
-        {/* Streak Freezes Protection Box */}
-        <div className="mb-5 p-3.5 sm:p-4 rounded-3xl bg-cyan-50/80 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-800/60 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-100 dark:bg-cyan-900/60 flex items-center justify-center text-cyan-600 dark:text-cyan-300 shrink-0 shadow-xs">
-              <Snowflake size={20} className="animate-spin-slow" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs text-gray-900 dark:text-white">Streak Protection:</span>
-                <span className="font-black text-xs text-cyan-700 dark:text-cyan-300">{userData.streakFreezes || 0} Freeze{(userData.streakFreezes || 0) === 1 ? '' : 's'}</span>
-              </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                Automatically protects streak if you miss a day
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleBuyFreeze}
-            disabled={userData.points < 25}
-            className={`px-3 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 cursor-pointer flex items-center gap-1 shrink-0 ${
-              userData.points >= 25
-                ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-            }`}
-            title="Buy 1 Streak Freeze for 25 Stars"
-          >
-            <Star size={12} className={userData.points >= 25 ? 'fill-yellow-300 text-yellow-300' : ''} />
-            <span>+1 (25 ⭐)</span>
-          </button>
-        </div>
-
-        {/* 7-Day Quick Strip */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2 px-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Past 7 Days</span>
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-              {recentDays.filter(d => d.isDone || d.isFrozen).length} / 7 Active
-            </span>
-          </div>
-          <div className="grid grid-cols-7 gap-1.5 bg-gray-50 dark:bg-gray-900/60 p-2 rounded-2xl border border-gray-100 dark:border-gray-700/60">
-            {recentDays.map((d, i) => (
-              <div
-                key={i}
-                className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all ${
-                  d.isCurrent
-                    ? 'ring-2 ring-orange-500 bg-white dark:bg-gray-800 shadow-sm'
-                    : 'bg-transparent'
-                }`}
-              >
-                <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mb-1">{d.dayLabel}</span>
-                <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black transition-colors ${
-                    d.isDone
-                      ? 'bg-orange-500 text-white shadow-sm shadow-orange-500/30'
-                      : d.isFrozen
-                      ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
-                  }`}
-                  title={d.isFrozen ? "Streak Protected by Freeze ❄️" : d.isDone ? "Quest Completed" : "Missed"}
-                >
-                  {d.isDone ? (
-                    <Flame size={14} className="fill-white" />
-                  ) : d.isFrozen ? (
-                    <Snowflake size={13} className="text-white" />
-                  ) : (
-                    d.dayNum
-                  )}
+              {/* Integrated Streak Freeze Quick Status */}
+              <div className="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-orange-100 font-medium">
+                  <Snowflake size={14} className="text-cyan-200" />
+                  <span>{userData.streakFreezes || 0} Streak Freeze{(userData.streakFreezes || 0) === 1 ? '' : 's'}</span>
                 </div>
+                <button
+                  onClick={handleBuyFreeze}
+                  disabled={userData.points < 25}
+                  className={`px-2.5 py-1 rounded-lg font-bold text-[11px] transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
+                    userData.points >= 25
+                      ? 'bg-white text-orange-600 hover:bg-orange-50 shadow-xs'
+                      : 'bg-white/20 text-orange-200/60 cursor-not-allowed'
+                  }`}
+                  title="Buy 1 Streak Freeze for 25 Stars"
+                >
+                  <Star size={11} className={userData.points >= 25 ? 'fill-amber-400 text-amber-400' : ''} />
+                  <span>+1 (25 ⭐)</span>
+                </button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Monthly Calendar View */}
-        <div className="bg-gray-50 dark:bg-gray-900/40 rounded-3xl p-4 border border-gray-100 dark:border-gray-700 mb-6">
-          {/* Calendar Month Header */}
-          <div className="flex items-center justify-between mb-4 px-1">
-            <div className="flex items-center gap-2">
-              <CalendarIcon size={16} className="text-orange-500" />
-              <h3 className="font-bold text-sm">
-                {monthNames[month]} {year}
-              </h3>
             </div>
-            <div className="flex items-center gap-1">
+          </div>
+
+          {/* Streak Recovery Banner (if broken streak exists) */}
+          {userData.lastBrokenStreak && (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-orange-500/15 via-amber-500/15 to-orange-500/15 border border-orange-300 dark:border-orange-800/80 animate-pop">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <Zap size={16} className="text-orange-500" />
+                  <span className="font-bold text-xs text-gray-900 dark:text-white">Streak Recovery</span>
+                </div>
+                <span className="text-[11px] font-black text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/60 px-2 py-0.5 rounded-full">
+                  {userData.lastBrokenStreak.count} Days Lost
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-600 dark:text-gray-300 mb-2">
+                Restore your streak using 15 Stars or 1 Streak Freeze.
+              </p>
               <button
-                onClick={prevMonth}
-                className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 transition-colors"
-                aria-label="Previous Month"
+                onClick={handleRecover}
+                className="w-full py-2 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                onClick={nextMonth}
-                className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 transition-colors"
-                aria-label="Next Month"
-              >
-                <ChevronRight size={16} />
+                <Zap size={13} />
+                <span>Restore {userData.lastBrokenStreak.count}-Day Streak</span>
               </button>
             </div>
-          </div>
+          )}
 
-          {/* Days of week */}
-          <div className="grid grid-cols-7 gap-1 text-center mb-2">
-            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day, idx) => (
-              <span key={idx} className="text-[10px] font-bold text-gray-400 uppercase">
-                {day}
+          {/* Past 7 Days Quick Strip */}
+          <div className="bg-gray-50 dark:bg-gray-900/60 p-2.5 rounded-2xl border border-gray-100 dark:border-gray-700/60">
+            <div className="flex justify-between items-center mb-2 px-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Past 7 Days</span>
+              <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                {recentDays.filter(d => d.isDone || d.isFrozen).length}/7 Active
               </span>
-            ))}
-          </div>
-
-          {/* Calendar Grid */}
-          <div className="grid grid-cols-7 gap-1">
-            {/* Blank padding */}
-            {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-              <div key={`blank-${i}`} className="aspect-square" />
-            ))}
-
-            {/* Month days */}
-            {Array.from({ length: daysInMonth }).map((_, i) => {
-              const dayNum = i + 1;
-              const completed = isDayCompleted(dayNum);
-              const frozen = isDayFrozen(dayNum);
-              const current = isToday(dayNum);
-
-              return (
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {recentDays.map((d, i) => (
                 <div
-                  key={`day-${dayNum}`}
-                  className={`aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-bold relative transition-all ${
-                    completed
-                      ? 'bg-orange-500 text-white shadow-sm shadow-orange-500/20'
-                      : frozen
-                      ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/20'
-                      : current
-                      ? 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 ring-2 ring-orange-400 font-black'
-                      : 'bg-white dark:bg-gray-800/80 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
-                  }`}
-                  title={frozen ? "Protected by Streak Freeze ❄️" : completed ? "Quest Done" : current ? "Today" : "Missed"}
-                >
-                  <span>{dayNum}</span>
-                  {completed ? (
-                    <Flame size={10} className="fill-white text-white absolute bottom-1" />
-                  ) : frozen ? (
-                    <Snowflake size={10} className="text-white absolute bottom-1" />
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Legend */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-4 pt-3 border-t border-gray-200 dark:border-gray-700/60 text-[11px] text-gray-500 dark:text-gray-400 font-medium">
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-md bg-orange-500 inline-block shadow-xs" />
-              <span>Done</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-md bg-cyan-500 inline-block shadow-xs" />
-              <span>Frozen ❄️</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-md border-2 border-orange-400 bg-white dark:bg-gray-800 inline-block" />
-              <span>Today</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-md bg-gray-200 dark:bg-gray-700 inline-block" />
-              <span>Missed</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Milestones Roadmap */}
-        <div>
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-              <Award size={14} className="text-orange-500" />
-              Streak Milestones
-            </h3>
-            <span className="text-xs font-semibold text-orange-500">
-              Next: {nextMilestone.days} Days
-            </span>
-          </div>
-
-          {/* Progress to next milestone */}
-          <div className="mb-4 bg-gray-100 dark:bg-gray-700/50 rounded-full h-2 overflow-hidden">
-            <div 
-              className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-
-          <div className="space-y-2">
-            {MILESTONES.map((m) => {
-              const reached = streak >= m.days;
-              return (
-                <div
-                  key={m.days}
-                  className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
-                    reached
-                      ? 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800/40 text-gray-900 dark:text-gray-100'
-                      : 'bg-white dark:bg-gray-800/60 border-gray-100 dark:border-gray-700/60 text-gray-400 opacity-70'
+                  key={i}
+                  className={`flex flex-col items-center py-1.5 px-0.5 rounded-xl transition-all ${
+                    d.isCurrent
+                      ? 'ring-2 ring-orange-500 bg-white dark:bg-gray-800 shadow-xs'
+                      : 'bg-transparent'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{m.icon}</span>
-                    <div>
-                      <p className="text-xs font-bold flex items-center gap-1.5">
-                        {m.title}
-                        {reached && <Sparkles size={12} className="text-orange-500" />}
-                      </p>
-                      <p className="text-[10px] text-gray-500 dark:text-gray-400">{m.desc}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className={`text-xs font-black ${reached ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400'}`}>
-                      {m.days}d
-                    </span>
-                    {reached ? (
-                      <div className="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center">
-                        <Check size={12} strokeWidth={3} />
-                      </div>
+                  <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mb-1">{d.dayLabel}</span>
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black transition-colors ${
+                      d.isDone
+                        ? 'bg-orange-500 text-white shadow-xs shadow-orange-500/30'
+                        : d.isFrozen
+                        ? 'bg-cyan-500 text-white shadow-xs shadow-cyan-500/30'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
+                    }`}
+                    title={d.isFrozen ? "Streak Protected by Freeze ❄️" : d.isDone ? "Quest Completed" : "Missed"}
+                  >
+                    {d.isDone ? (
+                      <Flame size={12} className="fill-white" />
+                    ) : d.isFrozen ? (
+                      <Snowflake size={11} className="text-white" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center text-[10px] font-bold text-gray-400">
-                        🔒
-                      </div>
+                      d.dayNum
                     )}
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
+
+          {/* Segmented Tab Switch: Calendar vs Milestones */}
+          <div className="flex rounded-xl bg-gray-100 dark:bg-gray-900/80 p-1 border border-gray-200 dark:border-gray-700/60">
+            <button
+              onClick={() => setActiveTab('calendar')}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === 'calendar'
+                  ? 'bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 shadow-xs'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+              }`}
+            >
+              <CalendarIcon size={14} />
+              <span>Calendar</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('milestones')}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                activeTab === 'milestones'
+                  ? 'bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 shadow-xs'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+              }`}
+            >
+              <Award size={14} />
+              <span>Milestones ({streak}/{nextMilestone.days}d)</span>
+            </button>
+          </div>
+
+          {/* View Tab 1: Calendar View */}
+          {activeTab === 'calendar' && (
+            <div className="bg-gray-50 dark:bg-gray-900/40 rounded-2xl p-3.5 border border-gray-100 dark:border-gray-700">
+              {/* Calendar Month Header */}
+              <div className="flex items-center justify-between mb-3 px-1">
+                <div className="flex items-center gap-2">
+                  <CalendarIcon size={15} className="text-orange-500" />
+                  <h3 className="font-bold text-xs sm:text-sm text-gray-800 dark:text-gray-200">
+                    {monthNames[month]} {year}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={prevMonth}
+                    className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 transition-colors cursor-pointer"
+                    aria-label="Previous Month"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <button
+                    onClick={nextMonth}
+                    className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 transition-colors cursor-pointer"
+                    aria-label="Next Month"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Days of week */}
+              <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day, idx) => (
+                  <span key={idx} className="text-[10px] font-bold text-gray-400 uppercase">
+                    {day}
+                  </span>
+                ))}
+              </div>
+
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-7 gap-1">
+                {/* Blank padding */}
+                {Array.from({ length: firstDayOfMonth }).map((_, i) => (
+                  <div key={`blank-${i}`} className="aspect-square" />
+                ))}
+
+                {/* Month days */}
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                  const dayNum = i + 1;
+                  const completed = isDayCompleted(dayNum);
+                  const frozen = isDayFrozen(dayNum);
+                  const current = isToday(dayNum);
+
+                  return (
+                    <div
+                      key={`day-${dayNum}`}
+                      className={`aspect-square rounded-lg sm:rounded-xl flex flex-col items-center justify-center text-[11px] font-bold relative transition-all ${
+                        completed
+                          ? 'bg-orange-500 text-white shadow-xs shadow-orange-500/20'
+                          : frozen
+                          ? 'bg-cyan-500 text-white shadow-xs shadow-cyan-500/20'
+                          : current
+                          ? 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 ring-2 ring-orange-400 font-black'
+                          : 'bg-white dark:bg-gray-800/80 text-gray-700 dark:text-gray-300'
+                      }`}
+                      title={frozen ? "Protected by Streak Freeze ❄️" : completed ? "Quest Done" : current ? "Today" : "Missed"}
+                    >
+                      <span>{dayNum}</span>
+                      {completed ? (
+                        <Flame size={8} className="fill-white text-white absolute bottom-0.5" />
+                      ) : frozen ? (
+                        <Snowflake size={8} className="text-white absolute bottom-0.5" />
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Compact Legend */}
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-3 pt-2.5 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-gray-500 dark:text-gray-400 font-medium">
+                <div className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-orange-500 inline-block" />
+                  <span>Done</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-cyan-500 inline-block" />
+                  <span>Frozen ❄️</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-sm border-2 border-orange-400 bg-white dark:bg-gray-800 inline-block" />
+                  <span>Today</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-gray-200 dark:bg-gray-700 inline-block" />
+                  <span>Missed</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View Tab 2: Milestones Roadmap */}
+          {activeTab === 'milestones' && (
+            <div className="space-y-3">
+              {/* Progress to next milestone */}
+              <div className="p-3 bg-gray-50 dark:bg-gray-900/60 rounded-2xl border border-gray-100 dark:border-gray-700/60">
+                <div className="flex items-center justify-between text-xs mb-1.5 font-bold">
+                  <span className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                    <Sparkles size={13} className="text-orange-500" />
+                    Next: {nextMilestone.title} ({nextMilestone.days}d)
+                  </span>
+                  <span className="text-orange-600 dark:text-orange-400">{progressPercent}%</span>
+                </div>
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full transition-all duration-500"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Milestones list */}
+              <div className="space-y-1.5">
+                {MILESTONES.map((m) => {
+                  const reached = streak >= m.days;
+                  return (
+                    <div
+                      key={m.days}
+                      className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+                        reached
+                          ? 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800/40 text-gray-900 dark:text-gray-100'
+                          : 'bg-white dark:bg-gray-800/60 border-gray-100 dark:border-gray-700/60 text-gray-400 opacity-70'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-lg">{m.icon}</span>
+                        <div>
+                          <p className="text-xs font-bold flex items-center gap-1">
+                            {m.title}
+                            {reached && <Sparkles size={11} className="text-orange-500" />}
+                          </p>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400">{m.desc}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-xs font-black ${reached ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400'}`}>
+                          {m.days}d
+                        </span>
+                        {reached ? (
+                          <div className="w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center">
+                            <Check size={10} strokeWidth={3} />
+                          </div>
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center text-[8px] font-bold text-gray-400">
+                            🔒
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Toast Feedback */}
+          {feedback && (
+            <div className="p-2.5 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold text-center shadow-lg animate-pop">
+              {feedback}
+            </div>
+          )}
         </div>
-
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="w-full mt-6 py-3.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-2xl font-bold text-sm transition-colors text-gray-800 dark:text-gray-200"
-        >
-          Close
-        </button>
-
-        {/* Toast Feedback */}
-        {feedback && (
-          <div className="mt-3 p-3 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold text-center shadow-lg animate-pop">
-            {feedback}
-          </div>
-        )}
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Smartphone, Sparkles, Flame, Star, CheckCircle, RefreshCw, LayoutGrid } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
@@ -55,15 +56,25 @@ export default function HomescreenWidgetModal({
     }
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      const orig = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = orig;
+      };
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isOpen && createPortal(
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-hidden"
           onClick={onClose}
         >
           <motion.div
@@ -260,7 +271,8 @@ export default function HomescreenWidgetModal({
             </button>
           </div>
         </motion.div>
-      </motion.div>
+      </motion.div>,
+      document.body
       )}
     </AnimatePresence>
   );
