@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Home, User, Gift, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { triggerHaptic } from '../utils/haptics';
@@ -66,10 +66,55 @@ export default function Layout({
   };
 
   const mainRef = useRef<HTMLElement>(null);
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollTopRef = useRef<number>(0);
+  const scrollAccRef = useRef<number>(0);
 
   React.useEffect(() => {
     mainRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    setIsNavVisible(true);
+    lastScrollTopRef.current = 0;
+    scrollAccRef.current = 0;
   }, [activeTab]);
+
+  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+    const currentScrollTop = e.currentTarget.scrollTop;
+    const delta = currentScrollTop - lastScrollTopRef.current;
+
+    // Keep visible near top of content
+    if (currentScrollTop < 25) {
+      setIsNavVisible(true);
+      scrollAccRef.current = 0;
+      lastScrollTopRef.current = currentScrollTop;
+      return;
+    }
+
+    // Always show if scrolled to the very bottom
+    const isNearBottom = currentScrollTop + e.currentTarget.clientHeight >= e.currentTarget.scrollHeight - 35;
+    if (isNearBottom) {
+      setIsNavVisible(true);
+      lastScrollTopRef.current = currentScrollTop;
+      return;
+    }
+
+    // Accumulate scroll direction
+    if (Math.sign(delta) !== Math.sign(scrollAccRef.current)) {
+      scrollAccRef.current = delta;
+    } else {
+      scrollAccRef.current += delta;
+    }
+
+    // Downward scroll threshold: hide bar
+    if (scrollAccRef.current > 18 && delta > 0) {
+      setIsNavVisible(false);
+    } 
+    // Upward scroll threshold: reveal bar
+    else if (scrollAccRef.current < -14 && delta < 0) {
+      setIsNavVisible(true);
+    }
+
+    lastScrollTopRef.current = currentScrollTop;
+  };
 
   return (
     <div 
@@ -79,6 +124,7 @@ export default function Layout({
     >
       <main 
         ref={mainRef}
+        onScroll={handleScroll}
         className="max-w-md mx-auto px-4 pt-safe pt-8 sm:pt-10 pb-6 flex-1 w-full min-h-0 overflow-y-auto overflow-x-hidden"
       >
         {children}
@@ -86,8 +132,18 @@ export default function Layout({
         <div className="h-28 sm:h-32 shrink-0" aria-hidden="true" />
       </main>
       
-      {/* Floating Bottom Nav Island */}
-      <div className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none pb-safe">
+      {/* Floating Bottom Nav Island (Auto-hides on scroll down, reappears on scroll up) */}
+      <motion.div 
+        className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none pb-safe"
+        animate={{
+          y: isNavVisible ? 0 : 96,
+          opacity: isNavVisible ? 1 : 0,
+        }}
+        transition={{
+          y: { type: 'spring', stiffness: 440, damping: 35 },
+          opacity: { duration: 0.16 },
+        }}
+      >
         <nav 
           className="relative pointer-events-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl border border-gray-200/80 dark:border-gray-800/80 shadow-2xl shadow-gray-950/15 dark:shadow-black/50 p-1.5 rounded-full flex items-center ring-1 ring-black/5 dark:ring-white/5 select-none text-gray-400 dark:text-gray-500 max-w-[calc(100vw-2rem)] isolate"
           aria-label="Main Navigation"
@@ -197,7 +253,7 @@ export default function Layout({
             })}
           </div>
         </nav>
-      </div>
+      </motion.div>
     </div>
   );
 }

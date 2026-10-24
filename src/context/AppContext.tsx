@@ -3,6 +3,7 @@ import { calculateStreaks, getTodayISO, getYesterdayISO } from '../utils/dateUti
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { updateSystemBars } from '../utils/statusBar';
 import { scheduleDailyReminder, sendInstantNotification } from '../utils/notificationUtils';
+import { autoSyncWidget } from '../utils/widgetSync';
 import rewardsData from '../data/rewards.json';
 import questsData from '../data/quests.json';
 
@@ -195,6 +196,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIsLoaded(true);
     }
   }, [userData, isLoaded]);
+
+  useEffect(() => {
+    // Keep native homescreen widget synchronized with current quest, streak, and stars automatically
+    if (isLoaded) {
+      autoSyncWidget(userData);
+    }
+  }, [
+    isLoaded,
+    userData.completedDays,
+    userData.streak,
+    userData.points,
+    userData.currentRolledQuest,
+    userData.nextDayQuest,
+  ]);
 
   useEffect(() => {
     // Schedule or cancel native/web local notification reminder when settings update

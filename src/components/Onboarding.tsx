@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Flame, Star, Sparkles, CheckCircle2, Lock, ArrowRight, 
-  ChevronLeft, Award, Palette, Clock, Dices, X, Compass,
-  Calendar, Check, Zap, Shield, Heart, Bell
+  ChevronLeft, Award, Clock, Dices, Compass,
+  Check, Bell
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
@@ -39,6 +40,15 @@ export default function Onboarding({ onClose }: OnboardingProps) {
   const touchStartY = useRef<number | null>(null);
 
   const TOTAL_SLIDES = 6;
+
+  // Lock background scroll when onboarding is open
+  useEffect(() => {
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = origOverflow;
+    };
+  }, []);
 
   const handleFinish = () => {
     triggerHaptic('success', userData.vibrationEnabled);
@@ -102,7 +112,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
     const diffY = touchStartY.current - e.changedTouches[0].clientY;
 
     // Only swipe if horizontal motion was significant and greater than vertical
-    if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
       if (diffX > 0 && currentSlide < TOTAL_SLIDES - 1) {
         handleNext();
       } else if (diffX < 0 && currentSlide > 0) {
@@ -128,45 +138,37 @@ export default function Onboarding({ onClose }: OnboardingProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSlide]);
 
+  // Snappy, GPU-accelerated slide transitions
   const slideVariants = {
     enter: (dir: number) => ({
-      x: dir > 0 ? 60 : -60,
+      x: dir > 0 ? 28 : -28,
       opacity: 0,
-      scale: 0.98,
     }),
     center: {
       x: 0,
       opacity: 1,
-      scale: 1,
     },
     exit: (dir: number) => ({
-      x: dir > 0 ? -60 : 60,
+      x: dir > 0 ? -28 : 28,
       opacity: 0,
-      scale: 0.98,
     }),
   };
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.18 }}
-      className="fixed inset-0 z-[120] flex flex-col justify-between bg-gray-900/95 dark:bg-gray-950/95 backdrop-blur-2xl text-white select-none overflow-hidden"
+      transition={{ duration: 0.16 }}
+      className="fixed inset-0 z-[120] flex flex-col justify-between bg-gray-950 text-white select-none overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={{
         paddingTop: 'max(1.25rem, env(safe-area-inset-top, 1.25rem))',
         paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))',
+        background: `radial-gradient(circle at 50% 18%, ${selectedColor}22 0%, transparent 60%), #030712`,
       }}
     >
-      {/* Background ambient lighting */}
-      <div 
-        className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-[130px] opacity-25 pointer-events-none transition-colors duration-500"
-        style={{ backgroundColor: selectedColor }}
-      />
-      <div className="absolute bottom-10 right-10 w-72 h-72 rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none" />
-
       {/* Top Header Bar */}
       <header className="px-6 py-2 flex items-center justify-between shrink-0 relative z-10 max-w-lg mx-auto w-full">
         {/* Brand & Step Tag */}
@@ -202,19 +204,16 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            style={{ willChange: 'transform, opacity' }}
             className="w-full flex flex-col items-center text-center"
           >
             {/* SLIDE 1: Welcome & Daily Quests */}
             {currentSlide === 0 && (
               <div className="w-full flex flex-col items-center">
                 {/* Visual Showcase Card */}
-                <div className="relative mb-8 w-full max-w-[300px]">
-                  <motion.div 
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    className="p-5 rounded-3xl bg-gray-800/80 border border-white/10 shadow-2xl backdrop-blur-md relative overflow-hidden text-left"
-                  >
+                <div className="relative mb-7 w-full max-w-[300px]">
+                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <img 
@@ -242,27 +241,22 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                         <span>+20 Stars</span>
                       </div>
                       <div className="flex items-center gap-1 text-orange-400 font-bold">
-                        <Flame size={14} className="fill-orange-400 animate-pulse" />
+                        <Flame size={14} className="fill-orange-400" />
                         <span>Streak Active</span>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
 
-                  {/* Floating floating elements */}
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.15 }}
-                    className="absolute -top-3 -right-3 bg-amber-500 text-gray-950 font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 rotate-6 ring-2 ring-gray-900"
-                  >
+                  {/* Floating elements */}
+                  <div className="absolute -top-3 -right-3 bg-amber-500 text-gray-950 font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 rotate-3 ring-2 ring-gray-900">
                     <Sparkles size={12} />
                     <span>Daily Reset</span>
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* Text Content */}
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
-                  Small Habits. <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">Epic Momentum.</span>
+                  Small Habits. <span className="text-blue-400">Epic Momentum.</span>
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-6">
                   Every 24 hours brings one meaningful micro-quest designed to spark action without overwhelming your schedule.
@@ -287,8 +281,8 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             {currentSlide === 1 && (
               <div className="w-full flex flex-col items-center">
                 {/* Visual Showcase Card */}
-                <div className="relative mb-8 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-800/80 border border-white/10 shadow-2xl backdrop-blur-md relative overflow-hidden text-left">
+                <div className="relative mb-7 w-full max-w-[300px]">
+                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
@@ -306,7 +300,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                         <span>Swaps to Tomorrow's Quest</span>
                       </div>
                       <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 font-mono">
-                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400" />
                         <span>Live countdown to midnight</span>
                       </div>
                     </div>
@@ -319,14 +313,10 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                     </div>
                   </div>
 
-                  <motion.div
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.8 }}
-                    className="absolute -bottom-2.5 right-4 bg-blue-600 text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1"
-                  >
+                  <div className="absolute -bottom-2.5 right-4 bg-blue-600 text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <span>Instant Swap</span>
                     <ArrowRight size={12} />
-                  </motion.div>
+                  </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
@@ -354,8 +344,8 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             {currentSlide === 2 && (
               <div className="w-full flex flex-col items-center">
                 {/* Visual Showcase Card */}
-                <div className="relative mb-8 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-800/80 border border-white/10 shadow-2xl backdrop-blur-md relative overflow-hidden text-left">
+                <div className="relative mb-7 w-full max-w-[300px]">
+                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
@@ -366,13 +356,13 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                       <span className="text-[11px] font-bold text-gray-400">Locked</span>
                     </div>
 
-                    {/* Mystery blurred representation */}
-                    <div className="relative p-3 bg-gray-900/60 rounded-2xl border border-white/5 my-2 overflow-hidden">
-                      <div className="filter blur-sm select-none text-xs text-gray-300">
+                    {/* Mystery representation */}
+                    <div className="relative p-3 bg-gray-950/70 rounded-2xl border border-white/5 my-2 overflow-hidden">
+                      <div className="opacity-40 select-none text-xs text-gray-300">
                         Secret challenge: Read 10 pages of a book before bed...
                       </div>
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-950/40">
-                        <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1 bg-amber-950/80 px-2.5 py-1 rounded-full border border-amber-500/40">
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-950/60">
+                        <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1 bg-amber-950/90 px-2.5 py-1 rounded-full border border-amber-500/40">
                           <Lock size={11} />
                           <span>Mystery Challenge</span>
                         </span>
@@ -388,13 +378,9 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                     </div>
                   </div>
 
-                  <motion.div
-                    animate={{ rotate: [0, 8, -8, 0] }}
-                    transition={{ repeat: Infinity, duration: 2.5 }}
-                    className="absolute -top-3 -right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 ring-2 ring-gray-900"
-                  >
+                  <div className="absolute -top-3 -right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 ring-2 ring-gray-900">
                     <span>Peek Ahead!</span>
-                  </motion.div>
+                  </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
@@ -423,7 +409,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
               <div className="w-full flex flex-col items-center">
                 {/* Visual Showcase Card: Notification preview */}
                 <div className="relative mb-6 w-full max-w-[310px]">
-                  <div className="p-4 sm:p-5 rounded-3xl bg-gray-800/90 border border-white/10 shadow-2xl backdrop-blur-md relative overflow-hidden text-left">
+                  <div className="p-4 sm:p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
@@ -437,7 +423,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                     </div>
 
                     {/* Notification Toast Mockup */}
-                    <div className="p-3 bg-white/10 rounded-2xl border border-white/10 my-2">
+                    <div className="p-3 bg-white/5 rounded-2xl border border-white/10 my-2">
                       <div className="flex items-center gap-2 mb-1">
                         <img 
                           src="/icon.png" 
@@ -547,8 +533,8 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             {currentSlide === 4 && (
               <div className="w-full flex flex-col items-center">
                 {/* Visual Showcase Card */}
-                <div className="relative mb-8 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-800/80 border border-white/10 shadow-2xl backdrop-blur-md relative overflow-hidden text-left">
+                <div className="relative mb-7 w-full max-w-[300px]">
+                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 p-0.5 shadow-lg">
                         <div className="w-full h-full rounded-[14px] bg-gray-900 flex items-center justify-center text-xl">
@@ -584,21 +570,17 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                     </div>
                   </div>
 
-                  <motion.div
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="absolute -top-3 -left-2 bg-purple-600 text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 ring-2 ring-gray-900"
-                  >
+                  <div className="absolute -top-3 -left-2 bg-purple-600 text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 ring-2 ring-gray-900">
                     <Award size={12} />
                     <span>Level Up</span>
-                  </motion.div>
+                  </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
                   Prestige Ranks & <span className="text-purple-400">Shop.</span>
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-6">
-                  Turn your consistency into flair. Spend stars on profile ranks, animated avatar decorations, and personalized titles.
+                  Turn your consistency into flair. Spend stars on profile ranks, avatar decorations, and personalized titles.
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-2">
@@ -619,7 +601,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             {currentSlide === 5 && (
               <div className="w-full flex flex-col items-center">
                 {/* Interactive Personalization Card */}
-                <div className="w-full max-w-[320px] p-5 rounded-3xl bg-gray-800/80 border border-white/10 shadow-2xl backdrop-blur-md mb-6 text-left">
+                <div className="w-full max-w-[320px] p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl mb-6 text-left">
                   {/* Name field */}
                   <div className="mb-4">
                     <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
@@ -632,7 +614,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                         onChange={(e) => setCustomName(e.target.value)}
                         placeholder="e.g. Cosmic Wanderer"
                         maxLength={24}
-                        className="flex-1 bg-gray-900/90 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="flex-1 bg-gray-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                       />
                       <button
                         type="button"
@@ -667,7 +649,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                             className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all cursor-pointer ${
                               isSelected 
                                 ? 'bg-white/15 border-white/40 ring-2 ring-white/30 scale-105' 
-                                : 'bg-gray-900/50 border-white/5 hover:bg-white/10'
+                                : 'bg-gray-950/70 border-white/5 hover:bg-white/10'
                             }`}
                           >
                             <div 
@@ -707,7 +689,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                 key={idx}
                 onClick={() => goToSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className="h-2 rounded-full transition-all duration-300 cursor-pointer"
+                className="h-2 rounded-full transition-all duration-200 cursor-pointer"
                 style={{
                   width: isActive ? '28px' : '8px',
                   backgroundColor: isActive ? (selectedColor || '#3b82f6') : 'rgba(255, 255, 255, 0.2)',
@@ -744,7 +726,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
           ) : (
             <button
               onClick={handleFinish}
-              className="flex-1 py-3.5 px-6 rounded-2xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer animate-pop"
+              className="flex-1 py-3.5 px-6 rounded-2xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
               style={{
                 backgroundColor: selectedColor || '#3b82f6',
                 boxShadow: `0 4px 25px -1px ${selectedColor}88`,
@@ -756,6 +738,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
           )}
         </div>
       </footer>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }

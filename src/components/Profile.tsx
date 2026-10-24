@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import StreakModal from './StreakModal';
 import ProfileCardModal from './ProfileCardModal';
 import SocialsModal, { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
+import ProfileImageModal from './ProfileImageModal';
 import CategoryDistributionBar from './CategoryDistributionBar';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { triggerHaptic } from '../utils/haptics';
@@ -108,8 +109,17 @@ export default function Profile() {
   return (
     <div className="animate-pop pb-8">
       <header className="mb-8 pt-2 sm:pt-3 flex flex-col items-center">
-        <div className="relative mb-4">
-          <div className={`w-32 h-32 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-lg flex items-center justify-center transition-all duration-500 ${getDecorationClass()}`}>
+        <div className="relative mb-4 group">
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('light', userData.vibrationEnabled);
+              setShowPfpMenu(true);
+            }}
+            className={`w-32 h-32 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-lg flex items-center justify-center transition-all duration-300 cursor-pointer relative group-hover:ring-4 group-hover:ring-accent/20 active:scale-95 [-webkit-tap-highlight-color:transparent] ${getDecorationClass()}`}
+            title="Change profile photo"
+            aria-label="Change profile photo"
+          >
             {userData.profileImage ? (
               <img 
                 src={userData.profileImage} 
@@ -125,18 +135,22 @@ export default function Profile() {
             ) : (
               <User size={64} className="text-gray-400" />
             )}
-          </div>
+            {/* Visual tap indicator */}
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+              <Camera size={26} className="drop-shadow-md" />
+            </div>
+          </button>
           
           {/* PFP Tag */}
           {userData.pfpTag && (
-            <div className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border-2 border-white dark:border-gray-800 z-30 animate-pop" style={{ backgroundColor: 'var(--accent-color)' }}>
+            <div className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border-2 border-white dark:border-gray-800 z-30 animate-pop pointer-events-none" style={{ backgroundColor: 'var(--accent-color)' }}>
               {userData.pfpTag}
             </div>
           )}
 
           {/* Avatar Overlay - Bottom Left */}
           {userData.activeAvatar && (
-            <div className="absolute -bottom-1 -left-1 w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center text-2xl border-2 border-gray-100 dark:border-gray-700 z-20 animate-pop overflow-hidden">
+            <div className="absolute -bottom-1 -left-1 w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center text-2xl border-2 border-gray-100 dark:border-gray-700 z-20 animate-pop overflow-hidden pointer-events-none">
               {userData.activeAvatar.startsWith('img:') ? (
                 <img 
                   src={userData.activeAvatar.replace('img:', '')} 
@@ -150,19 +164,19 @@ export default function Profile() {
           )}
 
           <button 
-            onClick={() => setShowPfpMenu(true)}
-            className="absolute bottom-0 right-0 bg-accent p-2 rounded-full text-white shadow-md hover:scale-110 transition-transform z-10"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              triggerHaptic('light', userData.vibrationEnabled);
+              setShowPfpMenu(true);
+            }}
+            className="absolute bottom-0 right-0 bg-accent p-2.5 rounded-full text-white shadow-md hover:scale-110 active:scale-95 transition-transform z-20 cursor-pointer"
             style={{ backgroundColor: 'var(--accent-color)' }}
+            aria-label="Change profile photo"
+            title="Change profile photo"
           >
             <Camera size={20} />
           </button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleImageChange} 
-            accept="image/*" 
-            className="hidden" 
-          />
         </div>
         
         <div className="text-center w-full px-4">
@@ -607,6 +621,22 @@ export default function Profile() {
             onSave={(newSocials) => {
               updateSettings({ socials: newSocials });
               triggerFeedback("Socials Saved!");
+            }}
+            vibrationEnabled={userData.vibrationEnabled}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Profile Image Picker Modal */}
+      <AnimatePresence>
+        {showPfpMenu && (
+          <ProfileImageModal
+            isOpen={showPfpMenu}
+            onClose={() => setShowPfpMenu(false)}
+            currentImage={userData.profileImage}
+            onSelectImage={(img) => {
+              updateSettings({ profileImage: img });
+              triggerFeedback(img ? "Photo Updated!" : "Photo Removed");
             }}
             vibrationEnabled={userData.vibrationEnabled}
           />
