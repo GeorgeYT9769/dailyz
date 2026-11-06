@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Flame, Star, Sparkles, CheckCircle2, Lock, ArrowRight, 
+import {
+  Flame, Star, Sparkles, CheckCircle2, Lock, ArrowRight,
   ChevronLeft, Award, Clock, Dices, Compass,
   Check, Bell
 } from 'lucide-react';
@@ -216,9 +216,9 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <img 
-                          src="/icon.png" 
-                          alt="Dailyz" 
+                        <img
+                          src="/icon.png"
+                          alt="Dailyz"
                           className="w-8 h-8 rounded-xl object-cover ring-1 ring-white/20"
                           onError={(e) => {
                             e.currentTarget.style.display = 'none';
@@ -425,10 +425,10 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                     {/* Notification Toast Mockup */}
                     <div className="p-3 bg-white/5 rounded-2xl border border-white/10 my-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <img 
-                          src="/icon.png" 
-                          alt="Dailyz" 
-                          className="w-4 h-4 rounded-md object-cover" 
+                        <img
+                          src="/icon.png"
+                          alt="Dailyz"
+                          className="w-4 h-4 rounded-md object-cover"
                           onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
                         <span className="text-xs font-bold text-white">Dailyz • Today's Quest 🎯</span>
@@ -647,12 +647,12 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                               setSelectedColor(c.id);
                             }}
                             className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all cursor-pointer ${
-                              isSelected 
-                                ? 'bg-white/15 border-white/40 ring-2 ring-white/30 scale-105' 
+                              isSelected
+                                ? 'bg-white/15 border-white/40 ring-2 ring-white/30 scale-105'
                                 : 'bg-gray-950/70 border-white/5 hover:bg-white/10'
                             }`}
                           >
-                            <div 
+                            <div
                               className="w-5 h-5 rounded-full shadow-sm flex items-center justify-center relative"
                               style={{ backgroundColor: c.color }}
                             >
@@ -670,7 +670,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   You're Ready to Roll! 🚀
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-4">
-                  Welcome to the Dailyz community. Consistency beats intensity every single time. Let's tackle day one!
+                  Remember: no one will check your progress, no one will ever know how you're doing. If you want to cheat, go ahead. But it ruins the fun. The choice is yours. Thank you and have fun!
                 </p>
               </div>
             )}
