@@ -633,7 +633,7 @@ export default function Settings() {
           </div>
 
           {/* The Support Buttons with Raw Links */}
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-3">
             {/* Buy Me a Coffee button */}
             <a
               href={BMAC_URL}

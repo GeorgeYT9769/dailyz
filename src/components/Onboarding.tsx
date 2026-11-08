@@ -326,7 +326,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   No clutter. Focus completely on today's quest. Once completed, your screen smoothly transitions to tomorrow's preview and live countdown!
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                {/* <div className="flex flex-wrap items-center justify-center gap-2">
                   <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
                     🎯 Zero Distractions
                   </span>
@@ -336,7 +336,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
                     🔄 Seamless Swap
                   </span>
-                </div>
+                </div> */}
               </div>
             )}
 
@@ -390,7 +390,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   Can't wait until midnight? Spend 20 earned stars to reveal tomorrow's mystery quest early and get a head start!
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                {/* <div className="flex flex-wrap items-center justify-center gap-2">
                   <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
                     🔮 Early Reveal
                   </span>
@@ -400,7 +400,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
                     🗓️ Plan Ahead
                   </span>
-                </div>
+                </div> */}
               </div>
             )}
 
@@ -524,7 +524,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   Never Miss <span className="text-blue-400">Your Streak.</span>
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-4">
-                  Standard notifications that respect your routine. Pick any custom time that fits your day.
+                  Get reminded to complete your quest before it goes away. Pick any custom time that fits your day.
                 </p>
               </div>
             )}
@@ -583,7 +583,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   Turn your consistency into flair. Spend stars on profile ranks, avatar decorations, and personalized titles.
                 </p>
 
-                <div className="flex flex-wrap items-center justify-center gap-2">
+                {/* <div className="flex flex-wrap items-center justify-center gap-2">
                   <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
                     👑 8+ Prestige Ranks
                   </span>
@@ -593,7 +593,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
                     🏷️ Custom Tags
                   </span>
-                </div>
+                </div> */}
               </div>
             )}
 

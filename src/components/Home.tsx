@@ -137,13 +137,13 @@ export default function Home({ onNavigateTab }: HomeProps) {
   const handleComplete = () => {
     const isDebug = debugQuestIndex !== null;
     completeQuest(todayQuest.reward, todayISO, isDebug);
-    
+
     if (isDebug) {
       setDebugCompleted(true);
     }
 
     triggerHaptic('success', userData.vibrationEnabled);
-    
+
     setShowAnimation(true);
     setTimeout(() => {
       setShowAnimation(false);
@@ -263,14 +263,14 @@ export default function Home({ onNavigateTab }: HomeProps) {
         {/* Celebration Overlay */}
         <AnimatePresence>
           {showAnimation && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
               className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-950/40 flex items-center justify-center z-30 backdrop-blur-xs"
             >
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.92, y: 12 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -435,8 +435,8 @@ export default function Home({ onNavigateTab }: HomeProps) {
                 {/* Quest text styled identical to today's widget */}
                 <div className="relative">
                   <h2 className={`text-2xl sm:text-3xl font-extrabold leading-snug mb-5 ${
-                    !isTomorrowUnlocked 
-                      ? 'filter blur-[5px] select-none opacity-30 dark:opacity-20 transition-all duration-300' 
+                    !isTomorrowUnlocked
+                      ? 'filter blur-[5px] select-none opacity-30 dark:opacity-20 transition-all duration-300'
                       : 'text-gray-900 dark:text-gray-50'
                   }`}>
                     {tomorrowQuest ? tomorrowQuest.quest : "Undertake an intentional mindfulness exercise outdoors and capture a rare moment of clarity."}
@@ -464,7 +464,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
               >
                 <div className="mb-3">
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    {isCompleted ? 'Completed Goal' : 'Action of the day'}
+                    {isCompleted ? 'Completed Goal' : 'Quest of the day'}
                   </span>
                 </div>
 
@@ -495,9 +495,9 @@ export default function Home({ onNavigateTab }: HomeProps) {
                       onClick={handleComplete}
                       disabled={isCompleted || showAnimation}
                       className="flex-1 py-3.5 sm:py-4 px-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 text-white shadow-lg active:scale-95 cursor-pointer transition-all hover:opacity-95"
-                      style={{ 
-                        backgroundColor: 'var(--accent-color)', 
-                        boxShadow: '0 8px 24px -4px var(--accent-color)40' 
+                      style={{
+                        backgroundColor: 'var(--accent-color)',
+                        boxShadow: '0 8px 24px -4px var(--accent-color)40'
                       }}
                     >
                       <CheckCircle size={20} />
