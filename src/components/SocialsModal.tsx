@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { X, Check, AtSign, Sparkles, ExternalLink, Trash2 } from 'lucide-react';
 import { UserSocials } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 
 interface SocialsModalProps {
   isOpen: boolean;
@@ -155,12 +156,14 @@ export default function SocialsModal({
 
   const handleSave = () => {
     triggerHaptic('success', vibrationEnabled);
+    playSound('success', true);
     onSave(socials);
     onClose();
   };
 
   const handleClear = () => {
     triggerHaptic('light', vibrationEnabled);
+    playSound('pop', true);
     const cleared: UserSocials = {};
     setSocials(cleared);
     onSave(cleared);
@@ -174,8 +177,18 @@ export default function SocialsModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
+      role="dialog"
+      aria-modal="true"
+      data-modal="true"
+      data-prevent-swipe="true"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden select-none"
-      onClick={onClose}
+      onClick={() => {
+        playSound('click', true);
+        onClose();
+      }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -184,6 +197,9 @@ export default function SocialsModal({
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         style={{ willChange: 'transform, opacity' }}
         onClick={e => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         className="bg-white dark:bg-gray-800 rounded-3xl max-w-md w-full shadow-2xl border border-gray-100 dark:border-gray-700/80 max-h-[85vh] sm:max-h-[80vh] flex flex-col overflow-hidden"
       >
         {/* Sticky Pinned Header */}
@@ -198,7 +214,10 @@ export default function SocialsModal({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              playSound('click', true);
+              onClose();
+            }}
             className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-pointer"
             aria-label="Close"
           >

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import StreakModal from './StreakModal';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 
 // 💡 CUSTOM LOTTIE ANIMATION:
 // Replace this with your own Lottie JSON for the reward unlock effect
@@ -28,6 +29,7 @@ export default function Rewards() {
     if (reward.type === 'freeze' || reward.type === 'freeze_pack' || reward.type === 'recovery_token') {
       if (userData.points < reward.cost) return;
       triggerHaptic('success', userData.vibrationEnabled);
+      playSound('freeze', userData.soundEnabled ?? true);
       redeemReward(reward.id);
       triggerFeedback(reward.title, 'unlock');
       return;
@@ -36,6 +38,7 @@ export default function Rewards() {
     if (isUnlocked) {
       // Just equip
       triggerHaptic('light', userData.vibrationEnabled);
+      playSound('equip', userData.soundEnabled ?? true);
       if (reward.type === 'rank') updateSettings({ rank: reward.value });
       if (reward.type === 'decoration') updateSettings({ activeDecoration: reward.value });
       if (reward.type === 'avatar') updateSettings({ activeAvatar: reward.value });
@@ -45,6 +48,7 @@ export default function Rewards() {
       if (userData.points < reward.cost) return;
 
       triggerHaptic('success', userData.vibrationEnabled);
+      playSound('levelUp', userData.soundEnabled ?? true);
 
       if (reward.type === 'rank_custom') {
         redeemReward(reward.id);
@@ -92,7 +96,10 @@ export default function Rewards() {
         <div className="flex items-center gap-2">
           {/* Streak pill: flame and number */}
           <button
-            onClick={() => setShowStreakModal(true)}
+            onClick={() => {
+              playSound('click', userData.soundEnabled ?? true);
+              setShowStreakModal(true);
+            }}
             className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
             title="View Streak Map"
             aria-label="View Streak Map"

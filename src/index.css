@@ -36,6 +36,14 @@ button, a, [role="button"], [role="switch"], [role="tab"], input, select {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .decoration-gold {
   border: 4px solid #fbbf24 !important;
   box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);

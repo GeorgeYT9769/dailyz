@@ -24,6 +24,11 @@ export default function ProfilePreview({ data, onClose }: ProfilePreviewProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.16 }}
       className="fixed inset-0 bg-white dark:bg-gray-950 z-[200] flex flex-col items-center overflow-y-auto"
+      data-modal="true"
+      role="dialog"
+      aria-modal="true"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
     >
       {/* Dynamic Background */}
       <div className="absolute inset-0 -z-10 overflow-hidden">

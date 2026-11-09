@@ -7,15 +7,19 @@ import StreakModal from './StreakModal';
 import ProfileCardModal from './ProfileCardModal';
 import SocialsModal, { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
 import ProfileImageModal from './ProfileImageModal';
+import MilestonesScreen from './MilestonesScreen';
 import CategoryDistributionBar from './CategoryDistributionBar';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 import questsData from '../data/quests.json';
 import { getDayOfYear } from '../utils/dateUtils';
+import { ACHIEVEMENTS_TREE } from '../data/achievements';
 
 export default function Profile() {
   const { userData, updateSettings } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeSubView, setActiveSubView] = useState<'profile' | 'milestones'>('profile');
   const [showCardModal, setShowCardModal] = useState(false);
   const [showSocialsModal, setShowSocialsModal] = useState(false);
   const [showPfpMenu, setShowPfpMenu] = useState(false);
@@ -104,16 +108,41 @@ export default function Profile() {
     return `decoration-${userData.activeDecoration}`;
   };
 
+  const unlockedAchievementsCount = ACHIEVEMENTS_TREE.filter((n) => n.isUnlocked(userData)).length;
+
+  const openMilestones = () => {
+    triggerHaptic('medium', userData.vibrationEnabled);
+    playSound('achievement', userData.soundEnabled ?? true);
+    setActiveSubView('milestones');
+    const mainElem = document.querySelector('main');
+    if (mainElem) mainElem.scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  if (activeSubView === 'milestones') {
+    return (
+      <MilestonesScreen
+        onBack={() => {
+          setActiveSubView('profile');
+          const mainElem = document.querySelector('main');
+          if (mainElem) mainElem.scrollTop = 0;
+        }}
+        userData={userData}
+      />
+    );
+  }
+
   const shareUrl = `${window.location.origin}?user=${encodeURIComponent(userData.name)}&rank=${encodeURIComponent(userData.rank)}&points=${userData.points}&streak=${userData.streak}&avatar=${encodeURIComponent(userData.activeAvatar || '')}&dec=${encodeURIComponent(userData.activeDecoration || '')}&tag=${encodeURIComponent(userData.pfpTag || '')}${userData.profileImage && !userData.profileImage.startsWith('data:') ? `&pfp=${encodeURIComponent(userData.profileImage)}` : ''}`;
 
   return (
-    <div className="animate-pop pb-8">
+    <div className="pb-8">
       <header className="mb-8 pt-2 sm:pt-3 flex flex-col items-center">
         <div className="relative mb-4 group">
           <button
             type="button"
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
+              playSound('pop', userData.soundEnabled ?? true);
               setShowPfpMenu(true);
             }}
             className={`w-32 h-32 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 border-4 border-white dark:border-gray-800 shadow-lg flex items-center justify-center transition-all duration-300 cursor-pointer relative group-hover:ring-4 group-hover:ring-accent/20 active:scale-95 [-webkit-tap-highlight-color:transparent] ${getDecorationClass()}`}
@@ -193,6 +222,7 @@ export default function Profile() {
                 const newName = getRandomInterestingName();
                 updateSettings({ name: newName });
                 triggerHaptic('medium', userData.vibrationEnabled);
+                playSound('reroll', userData.soundEnabled ?? true);
               }}
               className="absolute right-0 p-1.5 text-gray-400 hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-all shrink-0 active:rotate-45 cursor-pointer"
               title="Roll a random interesting name"
@@ -263,8 +293,18 @@ export default function Profile() {
 
         <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
           <button 
+            onClick={openMilestones}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-pink-500/15 hover:from-amber-500/25 hover:to-pink-500/25 text-amber-700 dark:text-amber-300 rounded-full shadow-sm border border-amber-300/60 dark:border-amber-700/60 text-xs font-black transition-all cursor-pointer group active:scale-95"
+            title="Quest Milestones Screen"
+          >
+            <span className="text-sm group-hover:scale-125 transition-transform">🏆</span>
+            <span>Milestones ({unlockedAchievementsCount}/{ACHIEVEMENTS_TREE.length})</span>
+          </button>
+
+          <button 
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
+              playSound('click', userData.soundEnabled ?? true);
               setShowCardModal(true);
             }}
             className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:border-accent hover:text-accent dark:hover:text-accent transition-all cursor-pointer group"
@@ -276,6 +316,7 @@ export default function Profile() {
           <button 
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
+              playSound('click', userData.soundEnabled ?? true);
               setShowSocialsModal(true);
             }}
             className="flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm border border-gray-100 dark:border-gray-700 text-xs font-bold text-gray-700 dark:text-gray-200 hover:border-blue-400 hover:text-blue-500 transition-all cursor-pointer group"
@@ -433,6 +474,35 @@ export default function Profile() {
                 </div>
               );
             })}
+
+            {/* Quest Milestones Screen Banner Card */}
+            <div 
+              onClick={openMilestones}
+              className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-pink-500/10 hover:from-amber-500/15 hover:to-pink-500/15 rounded-2xl p-4 shadow-sm border border-amber-200/80 dark:border-amber-800/80 flex items-center gap-4 transition-all cursor-pointer hover:shadow-md group active:scale-[0.99]"
+            >
+              <div 
+                className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-xs"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
+                }}
+              >
+                🏆
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-amber-600 dark:text-amber-400">Milestones</p>
+                  <span className="text-[10px] font-black bg-amber-400/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
+                    {unlockedAchievementsCount}/{ACHIEVEMENTS_TREE.length} Unlocked
+                  </span>
+                </div>
+                <p className="text-base font-black text-gray-900 dark:text-white leading-tight">Quest Milestones</p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">Habit achievements, streaks & Star rewards</p>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                <span>View</span>
+                <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -452,6 +522,7 @@ export default function Profile() {
               <button
                 onClick={() => {
                   triggerHaptic('selection', userData.vibrationEnabled);
+                  playSound('click', userData.soundEnabled ?? true);
                   setCategoryView('completed');
                 }}
                 className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
@@ -465,6 +536,7 @@ export default function Profile() {
               <button
                 onClick={() => {
                   triggerHaptic('selection', userData.vibrationEnabled);
+                  playSound('click', userData.soundEnabled ?? true);
                   setCategoryView('catalog');
                 }}
                 className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
@@ -536,6 +608,7 @@ export default function Profile() {
                     <button
                       key={avatar}
                       onClick={() => {
+                        playSound('equip', userData.soundEnabled ?? true);
                         updateSettings({ activeAvatar: avatar });
                         triggerFeedback("Avatar Equipped!");
                       }}
@@ -564,6 +637,7 @@ export default function Profile() {
                 <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => {
+                      playSound('pop', userData.soundEnabled ?? true);
                       updateSettings({ activeDecoration: null });
                       triggerFeedback("Decoration Removed");
                     }}
@@ -580,6 +654,7 @@ export default function Profile() {
                     <button
                       key={dec}
                       onClick={() => {
+                        playSound('equip', userData.soundEnabled ?? true);
                         updateSettings({ activeDecoration: dec });
                         triggerFeedback("Decoration Equipped!");
                       }}
@@ -599,6 +674,8 @@ export default function Profile() {
           </section>
         )}
       </div>
+
+
 
       {/* Profile Card Modal */}
       <AnimatePresence>

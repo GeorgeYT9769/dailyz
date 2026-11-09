@@ -102,11 +102,13 @@ export default function Onboarding({ onClose }: OnboardingProps) {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
     if (touchStartX.current === null || touchStartY.current === null) return;
     const diffX = touchStartX.current - e.changedTouches[0].clientX;
     const diffY = touchStartY.current - e.changedTouches[0].clientY;

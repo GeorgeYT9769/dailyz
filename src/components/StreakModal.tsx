@@ -5,6 +5,7 @@ import { Flame, X, Trophy, Calendar as CalendarIcon, ChevronLeft, ChevronRight, 
 import { getTodayISO } from '../utils/dateUtils';
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 
 interface StreakModalProps {
   isOpen: boolean;
@@ -61,12 +62,14 @@ export default function StreakModal({
     triggerHaptic('success', userData.vibrationEnabled);
     const success = buyStreakFreeze(1, 25);
     if (success) {
+      playSound('freeze', userData.soundEnabled ?? true);
       triggerToast("❄️ Streak Freeze equipped!");
     }
   };
 
   const handleRecover = () => {
     triggerHaptic('success', userData.vibrationEnabled);
+    playSound('achievement', userData.soundEnabled ?? true);
     const res = recoverStreak();
     triggerToast(res.message);
   };
@@ -83,10 +86,12 @@ export default function StreakModal({
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const prevMonth = () => {
+    playSound('pop', userData.soundEnabled ?? true);
     setCurrentDate(new Date(year, month - 1, 1));
   };
 
   const nextMonth = () => {
+    playSound('pop', userData.soundEnabled ?? true);
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
@@ -132,8 +137,18 @@ export default function StreakModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
+      role="dialog"
+      aria-modal="true"
+      data-modal="true"
+      data-prevent-swipe="true"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
-      onClick={onClose}
+      onClick={() => {
+        playSound('click', userData.soundEnabled ?? true);
+        onClose();
+      }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -142,6 +157,9 @@ export default function StreakModal({
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         style={{ willChange: 'transform, opacity' }}
         onClick={e => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         className="bg-white dark:bg-gray-800 rounded-3xl max-w-md w-full shadow-2xl border border-gray-100 dark:border-gray-700/80 max-h-[85vh] sm:max-h-[82vh] flex flex-col overflow-hidden"
       >
         {/* Sticky Pinned Header */}
@@ -156,7 +174,10 @@ export default function StreakModal({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => {
+              playSound('click', userData.soundEnabled ?? true);
+              onClose();
+            }}
             className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors cursor-pointer"
             aria-label="Close Streak Map"
           >

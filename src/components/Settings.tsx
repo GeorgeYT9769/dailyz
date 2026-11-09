@@ -5,13 +5,15 @@ import {
   Moon, Sun, Palette, Download, Upload, Vibrate, Check,
   Heart, Coffee, Info, ExternalLink, Shield,
   Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award,
-  BookOpen, Compass, LayoutGrid, Bell, Snowflake, Clock
+  BookOpen, Compass, LayoutGrid, Bell, Snowflake, Clock, Volume2
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 import { motion, AnimatePresence } from 'motion/react';
 import HomescreenWidgetModal from './HomescreenWidgetModal';
 import Material3TimePickerModal from './Material3TimePickerModal';
 import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification, formatTimeDisplay } from '../utils/notificationUtils';
+import { exportBackupFile } from '../utils/nativeFileExport';
 
 interface Material3SwitchProps {
   checked: boolean;
@@ -116,14 +118,10 @@ export default function Settings() {
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const handleExport = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userData));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "daily_quests_backup.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  const handleExport = async () => {
+    triggerHaptic('medium', userData.vibrationEnabled);
+    const result = await exportBackupFile(userData, 'daily_quests_backup.json');
+    showToast(result.message);
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,6 +190,7 @@ export default function Settings() {
               checked={userData.theme === 'dark'}
               onChange={() => {
                 triggerHaptic('light', userData.vibrationEnabled);
+                playSound('click', userData.soundEnabled ?? true);
                 updateSettings({ theme: userData.theme === 'dark' ? 'light' : 'dark' });
               }}
               ariaLabel="Toggle dark mode"
@@ -210,9 +209,31 @@ export default function Settings() {
               onChange={() => {
                 const nextVal = !userData.vibrationEnabled;
                 if (nextVal) triggerHaptic('medium', true);
+                playSound('pop', userData.soundEnabled ?? true);
                 updateSettings({ vibrationEnabled: nextVal });
               }}
               ariaLabel="Toggle vibration"
+            />
+          </div>
+
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                <Volume2 size={20} />
+              </div>
+              <div>
+                <span className="font-medium">Playful Sound Effects</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Tactile retro audio for quests & rewards</p>
+              </div>
+            </div>
+            <Material3Switch
+              checked={userData.soundEnabled ?? true}
+              onChange={() => {
+                const nextVal = !(userData.soundEnabled ?? true);
+                if (nextVal) playSound('complete', true);
+                updateSettings({ soundEnabled: nextVal });
+              }}
+              ariaLabel="Toggle sound effects"
             />
           </div>
 
@@ -233,6 +254,7 @@ export default function Settings() {
                 type="button"
                 onClick={() => {
                   triggerHaptic('light', userData.vibrationEnabled);
+                  playSound('pop', userData.soundEnabled ?? true);
                   setIsColorDropdownOpen(prev => !prev);
                 }}
                 className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-all cursor-pointer active:scale-95"
@@ -292,6 +314,7 @@ export default function Settings() {
                           aria-selected={isSelected}
                           onClick={() => {
                             triggerHaptic('selection', userData.vibrationEnabled);
+                            playSound('equip', userData.soundEnabled ?? true);
                             updateSettings({ accentColor: color.id });
                             setIsColorDropdownOpen(false);
                           }}

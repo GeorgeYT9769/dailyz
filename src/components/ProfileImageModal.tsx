@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { X, Upload, Camera, Trash2, Check, Image as ImageIcon, Link2, Sparkles, RefreshCw } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 
 interface ProfileImageModalProps {
   isOpen: boolean;
@@ -129,6 +130,7 @@ export default function ProfileImageModal({
 
   const handleSelectPreset = (url: string) => {
     triggerHaptic('selection', vibrationEnabled);
+    playSound('equip', true);
     onSelectImage(url);
     onClose();
   };
@@ -142,12 +144,14 @@ export default function ProfileImageModal({
     }
     setUrlError(false);
     triggerHaptic('success', vibrationEnabled);
+    playSound('success', true);
     onSelectImage(trimmed);
     onClose();
   };
 
   const handleRemoveImage = () => {
     triggerHaptic('light', vibrationEnabled);
+    playSound('pop', true);
     onSelectImage(null);
     onClose();
   };
@@ -158,8 +162,18 @@ export default function ProfileImageModal({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
+      role="dialog"
+      aria-modal="true"
+      data-modal="true"
+      data-prevent-swipe="true"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden select-none"
-      onClick={onClose}
+      onClick={() => {
+        playSound('click', true);
+        onClose();
+      }}
     >
       <motion.div
         initial={{ scale: 0.94, opacity: 0, y: 16 }}
@@ -168,6 +182,9 @@ export default function ProfileImageModal({
         transition={{ type: 'spring', damping: 28, stiffness: 380 }}
         className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm max-h-[85vh] shadow-2xl border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-700/80 flex items-center justify-between shrink-0">

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Home, User, Gift, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 import { useAppContext } from '../context/AppContext';
 
 interface LayoutProps {
@@ -29,14 +30,33 @@ export default function Layout({
 
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
+  const isModalActive = () => {
+    if (typeof document === 'undefined') return false;
+    return (
+      document.body.style.overflow === 'hidden' ||
+      Boolean(document.querySelector('[role="dialog"], [data-modal="true"], [aria-modal="true"]'))
+    );
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length !== 1) return;
     const target = e.target as HTMLElement | null;
-    // Don't intercept swipe when interacting with form controls or sliders
+
+    // Never intercept swipe when interacting with form controls or sliders
     if (target?.closest('input, textarea, select, [contenteditable="true"], [role="slider"]')) {
       touchStartRef.current = null;
       return;
     }
+
+    // Never intercept swipe when ANY modal, dialog, or interactive canvas is active
+    if (
+      isModalActive() ||
+      Boolean(target?.closest('[role="dialog"], [data-modal="true"], [aria-modal="true"], [data-prevent-swipe="true"], .fixed'))
+    ) {
+      touchStartRef.current = null;
+      return;
+    }
+
     touchStartRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
@@ -48,6 +68,9 @@ export default function Layout({
     if (!touchStartRef.current || e.changedTouches.length === 0) return;
     const start = touchStartRef.current;
     touchStartRef.current = null;
+
+    // Guard: ignore swipe if any modal is active
+    if (isModalActive()) return;
 
     const endX = e.changedTouches[0].clientX;
     const endY = e.changedTouches[0].clientY;
@@ -203,6 +226,7 @@ export default function Layout({
                   onClick={() => {
                     if (activeTab !== tab.id) {
                       triggerHaptic('selection', userData.vibrationEnabled);
+                      playSound('pop', userData.soundEnabled ?? true);
                     }
                     setActiveTab(tab.id);
                   }}

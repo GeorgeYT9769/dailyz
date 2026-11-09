@@ -32,6 +32,7 @@ export type UserData = {
   theme: "light" | "dark";
   accentColor: string;
   vibrationEnabled: boolean;
+  soundEnabled?: boolean;
   profileImage: string | null;
   name: string;
   rank: string;
@@ -93,6 +94,7 @@ const defaultUserData: UserData = {
   theme: "dark",
   accentColor: "#3b82f6",
   vibrationEnabled: true,
+  soundEnabled: true,
   profileImage: null,
   name: "Cosmic Wanderer",
   rank: "Novice",

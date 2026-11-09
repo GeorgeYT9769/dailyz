@@ -1,10 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'motion/react';
-import { X, Download, Share2, Star, Flame, CalendarCheck, User, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { X, Download, Share2, Star, Flame, CalendarCheck, User, Sparkles, Loader2, Check } from 'lucide-react';
 import { UserData } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 import { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
+import { saveImageFile, shareImageCard } from '../utils/nativeFileExport';
 
 interface ProfileCardModalProps {
   isOpen: boolean;
@@ -14,7 +16,13 @@ interface ProfileCardModalProps {
 
 export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileCardModalProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [statusToast, setStatusToast] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const showToast = (msg: string) => {
+    setStatusToast(msg);
+    setTimeout(() => setStatusToast(null), 3200);
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -294,57 +302,65 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
   };
 
   const handleSaveImage = async () => {
+    if (isGenerating) return;
     try {
       setIsGenerating(true);
       triggerHaptic('medium', userData.vibrationEnabled);
+      showToast('Generating card...');
+      
       const canvas = await generateCardCanvas();
       const dataUrl = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.download = `dailyz-card-${userData.name.toLowerCase().replace(/\s+/g, '-')}.png`;
-      link.href = dataUrl;
-      link.click();
-      triggerHaptic('success', userData.vibrationEnabled);
+      const cleanName = userData.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'player';
+      const filename = `dailyz-card-${cleanName}.png`;
+
+      const result = await saveImageFile(dataUrl, filename);
+      showToast(result.message);
+      if (result.success) {
+        triggerHaptic('success', userData.vibrationEnabled);
+        playSound('success', userData.soundEnabled ?? true);
+      } else {
+        triggerHaptic('error', userData.vibrationEnabled);
+      }
     } catch (e) {
       console.error('Failed to save profile card:', e);
+      showToast('Failed to generate player card');
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleShare = async () => {
-    triggerHaptic('light', userData.vibrationEnabled);
+    if (isGenerating) return;
     try {
-      if (navigator.share) {
-        try {
-          const canvas = await generateCardCanvas();
-          canvas.toBlob(async (blob) => {
-            if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], 'dailyz-card.png', { type: 'image/png' })] })) {
-              const file = new File([blob], `dailyz-${userData.name.toLowerCase()}.png`, { type: 'image/png' });
-              await navigator.share({
-                title: `${userData.name}'s Dailyz Player Card`,
-                text: `Check out ${userData.name}'s Dailyz Card! Streak: ${userData.streak} days, ${userData.points} stars, ${userData.completedDays.length} quests done.`,
-                files: [file],
-              });
-              return;
-            }
-            // Standard text share
-            await navigator.share({
-              title: `${userData.name}'s Dailyz Player Card`,
-              text: `Check out ${userData.name}'s Dailyz Card! Streak: ${userData.streak} days, ${userData.points} stars, ${userData.completedDays.length} quests completed.`,
-            });
-          }, 'image/png');
-          return;
-        } catch {
-          await navigator.share({
-            title: `${userData.name}'s Dailyz Player Card`,
-            text: `Check out ${userData.name}'s Dailyz Card! Streak: ${userData.streak} days, ${userData.points} stars, ${userData.completedDays.length} quests completed.`,
-          });
-        }
-      } else {
-        handleSaveImage();
+      setIsGenerating(true);
+      triggerHaptic('light', userData.vibrationEnabled);
+      showToast('Preparing card to share...');
+
+      const canvas = await generateCardCanvas();
+      const dataUrl = canvas.toDataURL('image/png');
+      const cleanName = userData.name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'player';
+      const filename = `dailyz-card-${cleanName}.png`;
+
+      const shareUrl = `${window.location.origin}?user=${encodeURIComponent(userData.name)}&rank=${encodeURIComponent(userData.rank)}&points=${userData.points}&streak=${userData.streak}`;
+
+      const result = await shareImageCard({
+        dataUrl,
+        filename,
+        title: `${userData.name}'s Dailyz Player Card`,
+        text: `Check out ${userData.name}'s Dailyz Player Card! Streak: ${userData.streak} days, ${userData.points} stars, ${userData.completedDays.length} quests done. 🔥`,
+        url: shareUrl,
+      });
+
+      showToast(result.message);
+      if (result.success) {
+        triggerHaptic('success', userData.vibrationEnabled);
+        playSound('success', userData.soundEnabled ?? true);
       }
-    } catch {
-      handleSaveImage();
+    } catch (e) {
+      console.error('Failed to share profile card:', e);
+      showToast('Could not open share menu');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -359,8 +375,18 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.15 }}
+      role="dialog"
+      aria-modal="true"
+      data-modal="true"
+      data-prevent-swipe="true"
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
       className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
-      onClick={onClose}
+      onClick={() => {
+        playSound('click', userData.soundEnabled ?? true);
+        onClose();
+      }}
     >
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 12 }}
@@ -369,11 +395,17 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         style={{ willChange: 'transform, opacity' }}
         onClick={e => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         className="max-w-2xl w-full bg-gray-900 border border-gray-800 text-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col my-auto relative"
       >
         {/* Close Button */}
         <button 
-          onClick={onClose}
+          onClick={() => {
+            playSound('click', userData.soundEnabled ?? true);
+            onClose();
+          }}
           className="absolute top-4 right-4 z-20 p-2.5 bg-white/10 hover:bg-white/20 active:scale-95 text-white/80 rounded-full transition-all cursor-pointer"
           aria-label="Close Profile Card"
         >
@@ -538,26 +570,57 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
           </div>
         </div>
 
+        {/* Status Toast Notification */}
+        <AnimatePresence>
+          {statusToast && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.96 }}
+              transition={{ duration: 0.16 }}
+              className="absolute bottom-20 left-4 right-4 z-30 mx-auto max-w-sm bg-gray-800/95 border border-white/20 text-white px-4 py-2.5 rounded-2xl shadow-2xl flex items-center justify-center gap-2 text-xs font-bold"
+            >
+              <Sparkles size={14} className="text-amber-400 shrink-0" />
+              <span>{statusToast}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Action Buttons: Download Card & Share (Identical sizing on all mobile screens) */}
-        <div className="p-4 bg-gray-950/80 border-t border-white/10 grid grid-cols-2 gap-3">
+        <div className="p-4 bg-gray-950/80 border-t border-white/10 grid grid-cols-2 gap-3 relative">
           {/* Download / Save Image */}
           <button
+            type="button"
             onClick={handleSaveImage}
             disabled={isGenerating}
-            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white font-bold cursor-pointer group"
+            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white font-bold cursor-pointer group disabled:opacity-50 disabled:cursor-wait"
           >
-            <Download size={18} className="shrink-0 group-hover:translate-y-0.5 transition-transform" />
-            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Download Card</span>
+            {isGenerating ? (
+              <Loader2 size={18} className="animate-spin text-white shrink-0" />
+            ) : (
+              <Download size={18} className="shrink-0 group-hover:translate-y-0.5 transition-transform" />
+            )}
+            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">
+              {isGenerating ? 'Saving...' : 'Download Card'}
+            </span>
           </button>
 
           {/* Share */}
           <button
+            type="button"
             onClick={handleShare}
-            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-accent hover:opacity-90 active:scale-95 transition-all text-white font-bold cursor-pointer shadow-lg"
+            disabled={isGenerating}
+            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-accent hover:opacity-90 active:scale-95 transition-all text-white font-bold cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-wait"
             style={{ backgroundColor: userData.accentColor || '#3b82f6' }}
           >
-            <Share2 size={18} className="shrink-0" />
-            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Share Card</span>
+            {isGenerating ? (
+              <Loader2 size={18} className="animate-spin text-white shrink-0" />
+            ) : (
+              <Share2 size={18} className="shrink-0" />
+            )}
+            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">
+              {isGenerating ? 'Sharing...' : 'Share Card'}
+            </span>
           </button>
         </div>
       </motion.div>

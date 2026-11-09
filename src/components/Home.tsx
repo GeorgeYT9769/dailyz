@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import StreakModal from './StreakModal';
 import { triggerHaptic } from '../utils/haptics';
+import { playSound } from '../utils/audioEffects';
 import { syncWidgetWithNative } from '../utils/widgetSync';
 import { getCategoryMeta } from './CategoryDistributionBar';
 
@@ -127,6 +128,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
     };
 
     triggerHaptic('medium', userData.vibrationEnabled);
+    playSound('achievement', userData.soundEnabled ?? true);
 
     updateSettings({
       points: userData.points - 20,
@@ -143,6 +145,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
     }
 
     triggerHaptic('success', userData.vibrationEnabled);
+    playSound('complete', userData.soundEnabled ?? true);
 
     setShowAnimation(true);
     setTimeout(() => {
@@ -153,6 +156,8 @@ export default function Home({ onNavigateTab }: HomeProps) {
   };
 
   const handleReroll = () => {
+    triggerHaptic('medium', userData.vibrationEnabled);
+    playSound('reroll', userData.soundEnabled ?? true);
     const randomIndex = Math.floor(Math.random() * questsData.length);
     setDebugQuestIndex(randomIndex);
     setDebugCompleted(false);
@@ -182,7 +187,10 @@ export default function Home({ onNavigateTab }: HomeProps) {
             {/* Streak Freezes pill */}
             {userData.streakFreezes > 0 && (
               <button
-                onClick={() => setShowStreakModal(true)}
+                onClick={() => {
+                  playSound('click', userData.soundEnabled ?? true);
+                  setShowStreakModal(true);
+                }}
                 className="flex items-center gap-1 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 px-2.5 py-1.5 rounded-full shadow-xs border border-cyan-200 dark:border-cyan-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
                 title={`${userData.streakFreezes} Streak Freeze available`}
                 aria-label="Streak Freezes Available"
@@ -194,7 +202,10 @@ export default function Home({ onNavigateTab }: HomeProps) {
 
             {/* Streak pill */}
             <button
-              onClick={() => setShowStreakModal(true)}
+              onClick={() => {
+                playSound('click', userData.soundEnabled ?? true);
+                setShowStreakModal(true);
+              }}
               className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
               title="View Streak Map"
               aria-label="View Streak Map"
@@ -207,6 +218,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
             <button
               onClick={() => {
                 triggerHaptic('light', userData.vibrationEnabled);
+                playSound('pop', userData.soundEnabled ?? true);
                 onNavigateTab?.('rewards');
               }}
               className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
@@ -316,9 +328,12 @@ export default function Home({ onNavigateTab }: HomeProps) {
                 </>
               ) : (
                 <>
-                  <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80">
-                    <Flame size={12} className="text-orange-500 fill-orange-500" />
-                    <span>Today</span>
+                  <span 
+                    className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[11px] font-bold tracking-wider font-mono bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80"
+                    title="Time remaining until midnight reset"
+                  >
+                    <Clock size={12} className="text-indigo-500" />
+                    <span>{countdown || '24h left'}</span>
                   </span>
                   {isCompleted && (
                     <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80">

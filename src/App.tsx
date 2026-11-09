@@ -14,6 +14,7 @@ import ProfilePreview from './components/ProfilePreview';
 import SplashScreen from './components/SplashScreen';
 import Onboarding from './components/Onboarding';
 import { motion, AnimatePresence } from 'motion/react';
+import { playSound } from './utils/audioEffects';
 
 const TAB_ORDER = ['home', 'profile', 'rewards', 'settings'];
 
@@ -65,15 +66,19 @@ function MainContent() {
   };
 
   const handleSwipeLeft = () => {
+    if (typeof document !== 'undefined' && document.body.style.overflow === 'hidden') return;
     const curIdx = TAB_ORDER.indexOf(activeTab);
     if (curIdx < TAB_ORDER.length - 1) {
+      playSound('pop', true);
       handleTabChange(TAB_ORDER[curIdx + 1]);
     }
   };
 
   const handleSwipeRight = () => {
+    if (typeof document !== 'undefined' && document.body.style.overflow === 'hidden') return;
     const curIdx = TAB_ORDER.indexOf(activeTab);
     if (curIdx > 0) {
+      playSound('pop', true);
       handleTabChange(TAB_ORDER[curIdx - 1]);
     }
   };
