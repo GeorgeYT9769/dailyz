@@ -4,12 +4,50 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Flame, Star, Sparkles, CheckCircle2, Lock, ArrowRight,
   ChevronLeft, Award, Clock, Dices, Compass,
-  Check, Bell
+  Check, Bell, Volume2
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
 import { getRandomInterestingName } from '../utils/nameGenerator';
 import { requestNotificationPermission, scheduleDailyReminder, formatTimeDisplay } from '../utils/notificationUtils';
+import { playSound } from '../utils/audioEffects';
+
+interface Material3SwitchProps {
+  checked: boolean;
+  onChange: () => void;
+  ariaLabel: string;
+}
+
+function Material3Switch({ checked, onChange, ariaLabel }: Material3SwitchProps) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      onClick={onChange}
+      className={`relative inline-flex h-8 w-[52px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-95 ${
+        checked
+          ? 'bg-accent'
+          : 'bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-500'
+      }`}
+      style={checked ? { backgroundColor: 'var(--accent-color)' } : {}}
+    >
+      <span
+        className={`pointer-events-none flex items-center justify-center rounded-full transition-all duration-200 ease-out shadow-sm ${
+          checked
+            ? 'h-6 w-6 translate-x-[24px] bg-white text-accent'
+            : 'h-4 w-4 translate-x-[4px] bg-gray-500 dark:bg-gray-400'
+        }`}
+        style={checked ? { color: 'var(--accent-color)' } : {}}
+      >
+        {checked && (
+          <Check size={14} strokeWidth={3.5} />
+        )}
+      </span>
+    </button>
+  );
+}
 
 interface OnboardingProps {
   onClose?: () => void;
@@ -664,6 +702,23 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                           </button>
                         );
                       })}
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between gap-3 mt-5">
+                        <div>
+                          <span className="font-medium">Sound Effects</span>
+                        </div>
+                      <Material3Switch
+                        checked={userData.soundEnabled ?? true}
+                        onChange={() => {
+                          const nextVal = !(userData.soundEnabled ?? true);
+                          if (nextVal) playSound('complete', true);
+                          updateSettings({ soundEnabled: nextVal });
+                        }}
+                        ariaLabel="Toggle sound effects"
+                      />
+                    </div>
                     </div>
                   </div>
                 </div>

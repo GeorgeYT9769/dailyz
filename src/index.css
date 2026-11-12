@@ -28,6 +28,18 @@ button, a, [role="button"], [role="switch"], [role="tab"], input, select {
   -webkit-tap-highlight-color: transparent;
 }
 
+* {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
 .pt-safe {
   padding-top: env(safe-area-inset-top);
 }

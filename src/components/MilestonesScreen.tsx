@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  ArrowLeft, 
-  Trophy, 
-  Star, 
-  CheckCircle2, 
-  Lock, 
-  Sparkles, 
-  Flame, 
-  Target, 
-  Gift, 
+import {
+  ArrowLeft,
+  Trophy,
+  Star,
+  CheckCircle2,
+  Lock,
+  Sparkles,
+  Flame,
+  Target,
+  Gift,
   LayoutGrid,
   GitCommit,
   Check
@@ -197,8 +197,8 @@ export default function MilestonesScreen({ onBack, userData }: MilestonesScreenP
               <Icon size={13} className={isActive ? 'text-accent' : 'opacity-70'} style={isActive ? { color: 'var(--accent-color)' } : {}} />
               <span>{tab.label}</span>
               <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
-                isActive 
-                  ? 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200' 
+                isActive
+                  ? 'bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200'
                   : 'text-gray-400 dark:text-gray-500'
               }`}>
                 {tab.count}
@@ -321,9 +321,6 @@ export default function MilestonesScreen({ onBack, userData }: MilestonesScreenP
                           <span className="font-bold text-gray-800 dark:text-gray-200">
                             {isUnlocked ? 'Unlocked & Claimed' : `${progress.total - progress.current} steps remaining`}
                           </span>
-                        </div>
-                        <div className="text-[11px] text-gray-500 dark:text-gray-400 italic pt-1">
-                          Tip: Completing daily micro-quests keeps your streak growing and naturally unlocks tier badges.
                         </div>
                       </div>
                     </motion.div>
