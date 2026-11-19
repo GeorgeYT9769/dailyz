@@ -4,6 +4,7 @@ import { useAppContext, UserSocials } from '../context/AppContext';
 import { Trophy, Flame, Star, CalendarCheck, Camera, User, Share2, X, Edit2, CheckCircle, ChevronRight, Dices, Sparkles, AtSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import StreakModal from './StreakModal';
+import Toast from './Toast';
 import ProfileCardModal from './ProfileCardModal';
 import SocialsModal, { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
 import ProfileImageModal from './ProfileImageModal';
@@ -150,9 +151,9 @@ export default function Profile() {
             aria-label="Change profile photo"
           >
             {userData.profileImage ? (
-              <img 
-                src={userData.profileImage} 
-                alt="Profile" 
+              <img
+                src={userData.profileImage}
+                alt="Profile"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
@@ -169,7 +170,7 @@ export default function Profile() {
               <Camera size={26} className="drop-shadow-md" />
             </div>
           </button>
-          
+
           {/* PFP Tag */}
           {userData.pfpTag && (
             <div className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border-2 border-white dark:border-gray-800 z-30 animate-pop pointer-events-none" style={{ backgroundColor: 'var(--accent-color)' }}>
@@ -181,9 +182,9 @@ export default function Profile() {
           {userData.activeAvatar && (
             <div className="absolute -bottom-1 -left-1 w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl shadow-lg flex items-center justify-center text-2xl border-2 border-gray-100 dark:border-gray-700 z-20 animate-pop overflow-hidden pointer-events-none">
               {userData.activeAvatar.startsWith('img:') ? (
-                <img 
-                  src={userData.activeAvatar.replace('img:', '')} 
-                  alt="Avatar" 
+                <img
+                  src={userData.activeAvatar.replace('img:', '')}
+                  alt="Avatar"
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -192,7 +193,7 @@ export default function Profile() {
             </div>
           )}
 
-          <button 
+          <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
@@ -207,7 +208,7 @@ export default function Profile() {
             <Camera size={20} />
           </button>
         </div>
-        
+
         <div className="text-center w-full px-4">
           <div className="relative flex items-center justify-center max-w-sm mx-auto">
             <input
@@ -252,7 +253,7 @@ export default function Profile() {
                     {userData.rank}
                   </span>
                   {userData.hasCustomRankUnlock && (
-                    <button 
+                    <button
                       onClick={() => setIsEditingRank(true)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-accent"
                     >
@@ -278,7 +279,7 @@ export default function Profile() {
                     placeholder="CUSTOM TAG"
                   />
                 ) : (
-                  <button 
+                  <button
                     onClick={() => setIsEditingTag(true)}
                     className="text-[10px] font-black text-gray-400 hover:text-accent uppercase tracking-widest transition-colors flex items-center gap-1"
                   >
@@ -292,7 +293,7 @@ export default function Profile() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-          <button 
+          <button
             onClick={openMilestones}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500/15 via-orange-500/15 to-pink-500/15 hover:from-amber-500/25 hover:to-pink-500/25 text-amber-700 dark:text-amber-300 rounded-full shadow-sm border border-amber-300/60 dark:border-amber-700/60 text-xs font-black transition-all cursor-pointer group active:scale-95"
             title="Quest Milestones Screen"
@@ -301,7 +302,7 @@ export default function Profile() {
             <span>Milestones ({unlockedAchievementsCount}/{ACHIEVEMENTS_TREE.length})</span>
           </button>
 
-          <button 
+          <button
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
               playSound('click', userData.soundEnabled ?? true);
@@ -313,7 +314,7 @@ export default function Profile() {
             <span>Player Card</span>
           </button>
 
-          <button 
+          <button
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
               playSound('click', userData.soundEnabled ?? true);
@@ -331,7 +332,7 @@ export default function Profile() {
 
         {/* Quick Social Badges on Profile */}
         {userData.socials && Object.values(userData.socials).some(Boolean) && (
-          <div 
+          <div
             onClick={() => {
               triggerHaptic('light', userData.vibrationEnabled);
               setShowSocialsModal(true);
@@ -381,7 +382,7 @@ export default function Profile() {
 
       <AnimatePresence>
         {showPfpMenu && createPortal(
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -389,7 +390,7 @@ export default function Profile() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-hidden"
             onClick={() => setShowPfpMenu(false)}
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 8 }}
@@ -417,10 +418,10 @@ export default function Profile() {
                     className={`aspect-square rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 cursor-pointer bg-gray-100 dark:bg-gray-700/50 ${userData.profileImage === pfp ? 'border-accent' : 'border-transparent'}`}
                     style={userData.profileImage === pfp ? { borderColor: 'var(--accent-color)' } : {}}
                   >
-                    <img 
-                      src={pfp} 
-                      alt={`Default ${i+1}`} 
-                      className="w-full h-full object-cover" 
+                    <img
+                      src={pfp}
+                      alt={`Default ${i+1}`}
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = pfp.replace('.svg', '.png');
                       }}
@@ -451,8 +452,8 @@ export default function Profile() {
               const Icon = stat.icon;
               const isStreak = stat.label.includes('Streak');
               return (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   onClick={isStreak ? () => setShowStreakModal(true) : undefined}
                   className={`bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 transition-all ${
                     isStreak ? 'cursor-pointer hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-md' : ''
@@ -476,11 +477,11 @@ export default function Profile() {
             })}
 
             {/* Quest Milestones Screen Banner Card */}
-            <div 
+            <div
               onClick={openMilestones}
               className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-pink-500/10 hover:from-amber-500/15 hover:to-pink-500/15 rounded-2xl p-4 shadow-sm border border-amber-200/80 dark:border-amber-800/80 flex items-center gap-4 transition-all cursor-pointer hover:shadow-md group active:scale-[0.99]"
             >
-              <div 
+              <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-xs"
                 style={{
                   background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
@@ -563,7 +564,7 @@ export default function Profile() {
         {(userData.unlockedAvatars.length > 0 || userData.unlockedDecorations.length > 0 || userData.unlockedRanks.length > 1) && (
           <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
             <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Customization</h2>
-            
+
             {userData.unlockedRanks.length > 1 && (
               <div className="mb-6">
                 <p className="text-xs font-bold text-gray-400 uppercase mb-2">Equipped Rank</p>
@@ -680,7 +681,7 @@ export default function Profile() {
       {/* Profile Card Modal */}
       <AnimatePresence>
         {showCardModal && (
-          <ProfileCardModal 
+          <ProfileCardModal
             isOpen={showCardModal}
             onClose={() => setShowCardModal(false)}
             userData={userData}
@@ -721,22 +722,7 @@ export default function Profile() {
       </AnimatePresence>
 
       {/* Feedback Toast */}
-      <AnimatePresence>
-        {feedback && (
-          <motion.div 
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-24 left-4 right-4 bg-accent text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 z-[60]"
-            style={{ backgroundColor: 'var(--accent-color)' }}
-          >
-            <div className="bg-white/20 p-2 rounded-full">
-              <Star size={20} />
-            </div>
-            <p className="font-bold">{feedback}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Toast show={!!feedback} title={feedback ?? ''} />
 
       <AnimatePresence>
         {showStreakModal && (

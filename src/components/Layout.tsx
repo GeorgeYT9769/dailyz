@@ -100,6 +100,10 @@ export default function Layout({
     scrollAccRef.current = 0;
   }, [activeTab]);
 
+  React.useEffect(() => {
+    document.body.toggleAttribute('data-nav-hidden', !isNavVisible);
+  }, [isNavVisible]);
+
   const handleScroll = (e: React.UIEvent<HTMLElement>) => {
     const currentScrollTop = e.currentTarget.scrollTop;
     const delta = currentScrollTop - lastScrollTopRef.current;

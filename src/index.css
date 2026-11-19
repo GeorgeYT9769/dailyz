@@ -1,8 +1,17 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+  font-family: "Just For Fun";
+  src: url("./assets/fonts/short-stack.regular.ttf") format("truetype");
+  font-weight: lighter;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-accent: var(--accent-color);
+  --font-sans: "Just For Fun", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -16,6 +25,15 @@ html, body {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.app-toast {
+  bottom: 6rem;
+  transition: bottom 0.2s ease-out;
+}
+
+body[data-nav-hidden] .app-toast {
+  bottom: 1rem;
 }
 
 html:not(.dark), html:not(.dark) body {

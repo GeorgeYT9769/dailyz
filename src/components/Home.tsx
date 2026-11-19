@@ -6,6 +6,7 @@ import { Flame, Star, CheckCircle, Gift, RefreshCw, Calendar, Lock, Sparkles, Cl
 import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import StreakModal from './StreakModal';
+import Toast from './Toast';
 import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
 import { syncWidgetWithNative } from '../utils/widgetSync';
@@ -637,18 +638,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
       </AnimatePresence>
 
       {/* Action Feedback Toast */}
-      <AnimatePresence>
-        {actionFeedback && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 dark:bg-gray-100/95 text-white dark:text-gray-900 px-4 py-3 rounded-2xl shadow-2xl z-50 text-center font-bold text-xs flex items-center justify-center gap-2 backdrop-blur-sm"
-          >
-            <span>{actionFeedback}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Toast show={!!actionFeedback} title={actionFeedback ?? ''} icon={<Sparkles size={20} />} />
     </div>
   );
 }

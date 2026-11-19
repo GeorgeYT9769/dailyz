@@ -11,6 +11,7 @@ import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
 import { motion, AnimatePresence } from 'motion/react';
 import HomescreenWidgetModal from './HomescreenWidgetModal';
+import Toast from './Toast';
 import Material3TimePickerModal from './Material3TimePickerModal';
 import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification, formatTimeDisplay } from '../utils/notificationUtils';
 import { exportBackupFile } from '../utils/nativeFileExport';
@@ -705,7 +706,7 @@ export default function Settings() {
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-gray-500 dark:text-gray-400">
-            <Heart size={13} className="text-rose-500 fill-rose-500" />
+            <Heart size={25} className="text-rose-500 fill-rose-500" />
             <span>Every coffee helps create new quests, features, and rewards!</span>
           </div>
         </section>
@@ -819,18 +820,7 @@ export default function Settings() {
       />
 
       {/* Settings Toast Message */}
-      <AnimatePresence>
-        {settingsToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-20 left-4 right-4 max-w-sm mx-auto bg-gray-900/95 dark:bg-gray-100/95 text-white dark:text-gray-900 px-4 py-3 rounded-2xl shadow-2xl z-50 text-center font-bold text-xs flex items-center justify-center gap-2 backdrop-blur-sm"
-          >
-            <span>{settingsToast}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Toast show={!!settingsToast} title={settingsToast ?? ''} icon={<Bell size={20} />} />
     </div>
   );
 }
