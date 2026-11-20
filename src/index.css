@@ -62,72 +62,59 @@ button, a, [role="button"], [role="switch"], [role="tab"], input, select {
 
 /* Tactile Duolingo-inspired 3D push buttons & playful cards */
 .btn-tactile {
-  transition: transform 0.1s ease, border-bottom-width 0.1s ease, box-shadow 0.12s ease, filter 0.15s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
 }
 
 .btn-tactile:active:not(:disabled) {
-  transform: translateY(2px);
+  transform: translateY(3px);
+  box-shadow: 0 0 0 transparent !important;
 }
 
 .btn-tactile-coral {
   background-color: #ff4b5c;
   border: 2px solid #d12134;
-  border-bottom-width: 5px;
+  box-shadow: 0 3px 0 #d12134;
   color: #ffffff;
 }
 .btn-tactile-coral:hover:not(:disabled) {
   filter: brightness(1.05);
 }
-.btn-tactile-coral:active:not(:disabled) {
-  border-bottom-width: 2px;
-  transform: translateY(3px);
-}
 
 .btn-tactile-teal {
   background-color: #067bc2;
   border: 2px solid #045b91;
-  border-bottom-width: 5px;
+  box-shadow: 0 3px 0 #045b91;
   color: #ffffff;
 }
 .btn-tactile-teal:hover:not(:disabled) {
   filter: brightness(1.05);
 }
-.btn-tactile-teal:active:not(:disabled) {
-  border-bottom-width: 2px;
-  transform: translateY(3px);
-}
 
 .btn-tactile-amber {
   background-color: #ecc30b;
   border: 2px solid #b99603;
-  border-bottom-width: 5px;
+  box-shadow: 0 3px 0 #b99603;
   color: #1f2937;
 }
 .btn-tactile-amber:hover:not(:disabled) {
   filter: brightness(1.03);
 }
-.btn-tactile-amber:active:not(:disabled) {
-  border-bottom-width: 2px;
-  transform: translateY(3px);
-}
 
 .btn-tactile-pink {
   background-color: #ff3b5c;
   border: 2px solid #c81438;
-  border-bottom-width: 5px;
+  box-shadow: 0 3px 0 #c81438;
   color: #ffffff;
-}
-.btn-tactile-pink:active:not(:disabled) {
-  border-bottom-width: 2px;
-  transform: translateY(3px);
 }
 
 .btn-tactile-neutral {
   border-width: 2px;
-  border-bottom-width: 4px;
+  box-shadow: 0 3px 0 #e5e7eb;
+}
+.dark .btn-tactile-neutral {
+  box-shadow: 0 3px 0 #374151;
 }
 .btn-tactile-neutral:active:not(:disabled) {
-  border-bottom-width: 2px;
   transform: translateY(2px);
 }
 
@@ -139,7 +126,7 @@ button, a, [role="button"], [role="switch"], [role="tab"], input, select {
 .tab-pill-active {
   background-color: var(--accent-color, #067bc2);
   border: 2px solid color-mix(in srgb, var(--accent-color, #067bc2) 72%, #000000);
-  border-bottom-width: 4px;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--accent-color, #067bc2) 72%, #000000);
   color: #ffffff;
 }
 

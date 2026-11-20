@@ -5,7 +5,7 @@ import {
   Moon, Sun, Palette, Download, Upload, Vibrate, Check,
   Heart, Coffee, ExternalLink, Shield,
   Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award,
-  Compass, LayoutGrid, Bell, Clock, Volume2
+  Compass, LayoutGrid, Bell, Clock, Volume2, Info
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
@@ -14,6 +14,8 @@ import HomescreenWidgetModal from './HomescreenWidgetModal';
 import Toast from './Toast';
 import TactileSwitch from './TactileSwitch';
 import Material3TimePickerModal from './Material3TimePickerModal';
+import DevScreen from './DevScreen';
+import AboutAppScreen from './AboutAppScreen';
 import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification, formatTimeDisplay } from '../utils/notificationUtils';
 import { exportBackupFile } from '../utils/nativeFileExport';
 
@@ -59,6 +61,7 @@ export default function Settings() {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [showWidgetModal, setShowWidgetModal] = useState(false);
   const [showTimePickerModal, setShowTimePickerModal] = useState(false);
+  const [subScreen, setSubScreen] = useState<'none' | 'about' | 'dev'>('none');
   const [showThankYouToast, setShowThankYouToast] = useState(false);
   const [settingsToast, setSettingsToast] = useState<string | null>(null);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
@@ -100,6 +103,32 @@ export default function Settings() {
   const currentColor =
     ACCENT_PALETTE.find((c) => c.id.toLowerCase() === userData.accentColor?.toLowerCase()) ||
     ACCENT_PALETTE[0];
+
+  if (subScreen === 'about') {
+    return (
+      <AboutAppScreen
+        onBack={() => {
+          setSubScreen('none');
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+        onOpenDevTools={() => {
+          setSubScreen('dev');
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+      />
+    );
+  }
+
+  if (subScreen === 'dev') {
+    return (
+      <DevScreen
+        onBack={() => {
+          setSubScreen('about');
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }}
+      />
+    );
+  }
 
   return (
     <div className="pb-16">
@@ -530,6 +559,30 @@ export default function Settings() {
                     Homescreen Widget
                   </div>
                   <div className="text-xs text-gray-400">Widget preview & setup</div>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-gray-400" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic('light', userData.vibrationEnabled);
+                playSound('pop', userData.soundEnabled ?? true);
+                setSubScreen('about');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+              }}
+              className="btn-tactile btn-tactile-neutral w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-[#067bc2] dark:text-[#84bcda]">
+                  <Info size={19} />
+                </div>
+                <div className="text-left">
+                  <div className="font-bold text-sm text-gray-900 dark:text-white">
+                    About App
+                  </div>
+                  <div className="text-xs text-gray-400">Version info &amp; how Dailyz works</div>
                 </div>
               </div>
               <ChevronRight size={18} className="text-gray-400" />

@@ -18,7 +18,6 @@ import {
   Volume2,
   Snowflake,
   RefreshCw,
-  Calendar,
   Zap,
   Footprints,
 } from 'lucide-react';
@@ -351,64 +350,78 @@ export default function Onboarding({ onClose }: OnboardingProps) {
               </div>
             )}
 
-            {/* SLIDE 2: Completion Blur & Instant Swap */}
+            {/* SLIDE 2: Strikethrough Completion & Morphing Button */}
             {currentSlide === 1 && (
               <div className="w-full flex flex-col items-center">
-                {/* Preview Widget matching Home.tsx completion overlay + switcher */}
-                <div className="w-full max-w-[330px] rounded-2xl bg-[#0f172a] border-2 border-b-4 border-gray-700 p-4 mb-6 text-left space-y-3">
-                  {/* Blurred completion showcase */}
-                  <div className="relative rounded-xl overflow-hidden py-4 px-3">
-                    {/* Blurred content underneath */}
-                    <div className="blur-[3px] opacity-25 scale-[0.98] select-none pointer-events-none space-y-2.5">
-                      <div className="text-[10px] font-black uppercase text-[#84bcda]">Mind & Motion</div>
-                      <div className="text-base font-black text-white leading-snug">
-                        Take a 15-minute walk without checking your phone
-                      </div>
-                      <div className="h-9 rounded-xl bg-[#ff4b5c]" />
-                    </div>
-
-                    {/* Crisp Celebration Overlay */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                      <div className="relative flex items-center justify-center mb-1.5">
-                        <div className="w-14 h-14 rounded-2xl border-4 border-[#067bc2]/70 flex items-center justify-center bg-emerald-500 shadow-[0_3px_0_#047857]">
-                          <Check size={28} strokeWidth={3.2} className="text-white" />
-                        </div>
-                      </div>
-                      <div className="font-black text-lg text-white leading-tight">
-                        Quest Completed!
-                      </div>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="px-2.5 py-1 rounded-xl bg-gray-800 border-2 border-gray-700 text-[#f6d84c] font-black text-xs">
-                          +20 PTS
-                        </span>
-                        <span className="px-2.5 py-1 rounded-xl bg-gray-800 border-2 border-gray-700 text-[#84bcda] font-black text-xs">
-                          +35 XP
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-semibold text-gray-300 mt-2">
-                        Loading tomorrow&apos;s quest...
-                      </span>
-                    </div>
+                {/* Preview Widget matching Home.tsx strikethrough completion */}
+                <div className="w-full max-w-[330px] rounded-2xl bg-[#0f172a] border-2 border-b-4 border-gray-700 p-4 mb-6 text-left">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#84bcda]">
+                      <Footprints size={12} />
+                      <span>Mind & Motion</span>
+                    </span>
+                    <DifficultyBars difficulty="medium" compact />
                   </div>
 
-                  {/* Tomorrow | Today (Done) Toggle Bar */}
-                  <div className="flex items-center gap-1.5 bg-gray-800 p-1 rounded-xl border-2 border-gray-700">
-                    <div className="flex-1 py-2 text-[11px] font-extrabold rounded-lg bg-[#067bc2] text-white flex items-center justify-center gap-1.5">
-                      <Calendar size={12} />
-                      <span>Tomorrow</span>
+                  {/* Animated Strikethrough on Quest Title */}
+                  <div className="text-base font-black leading-snug text-gray-400 mb-2">
+                    <span
+                      className="inline"
+                      style={{
+                        backgroundImage: 'linear-gradient(#ff3b5c, #ff3b5c)',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '100% 3px',
+                        backgroundPosition: '0 55%',
+                        WebkitBoxDecorationBreak: 'clone',
+                        boxDecorationBreak: 'clone',
+                      }}
+                    >
+                      Take a 15-minute walk without checking your phone
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[11px] font-extrabold mb-3.5 tabular-nums">
+                    <span className="inline-flex items-center gap-1 text-white">
+                      <Star size={12} className="fill-[#ecc30b] text-[#ecc30b]" />
+                      +20 PTS
+                    </span>
+                    <span className="text-gray-600" aria-hidden="true">·</span>
+                    <span className="inline-flex items-center gap-1 text-[#84bcda]">
+                      <Award size={12} />
+                      +35 XP
+                    </span>
+                    <span className="text-gray-600" aria-hidden="true">·</span>
+                    <span className="inline-flex items-center gap-1 text-emerald-400">
+                      <Check size={11} strokeWidth={3} />
+                      Done
+                    </span>
+                  </div>
+
+                  {/* Morphed Primary Button */}
+                  <div className="btn-tactile-teal w-full py-2.5 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 pointer-events-none">
+                    <span>Continue</span>
+                    <ArrowRight size={14} strokeWidth={2.5} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 mt-2.5">
+                    <div className="bg-gray-800 border-2 border-gray-700 shadow-[0_3px_0_#374151] py-2 px-2.5 rounded-xl text-[11px] font-extrabold text-gray-100 flex items-center justify-center gap-1.5">
+                      <Snowflake size={12} className="text-[#84bcda]" />
+                      <span>Freeze</span>
+                      <span className="text-[#84bcda] font-black">2</span>
                     </div>
-                    <div className="flex-1 py-2 text-[11px] font-extrabold rounded-lg text-gray-400 flex items-center justify-center gap-1.5">
-                      <CheckCircle size={12} />
-                      <span>Today (Done)</span>
+                    <div className="bg-gray-800 border-2 border-gray-700 shadow-[0_3px_0_#374151] py-2 px-2.5 rounded-xl text-[11px] font-extrabold text-gray-500 opacity-50 flex items-center justify-center gap-1.5">
+                      <RefreshCw size={12} />
+                      <span>Reroll</span>
+                      <span className="text-[#84bcda] font-black">FREE</span>
                     </div>
                   </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
-                  Blur Effect. <span className="text-[#84bcda]">Instant Swap.</span>
+                  Strike Through. <span className="text-[#84bcda]">Level Up.</span>
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
-                  Finish today&apos;s quest to trigger your celebratory animation over a smooth blur, then automatically switch to Tomorrow&apos;s tab.
+                  Complete your quest to strike it off smoothly, then tap Continue to transition right into Tomorrow&apos;s Quest.
                 </p>
               </div>
             )}
@@ -416,44 +429,43 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             {/* SLIDE 3: Tomorrow's Mystery Quest */}
             {currentSlide === 2 && (
               <div className="w-full flex flex-col items-center">
-                {/* Preview Widget matching Home.tsx Tomorrow Mystery view */}
+                {/* Preview Widget matching rewritten open-canvas Tomorrow view */}
                 <div className="w-full max-w-[330px] rounded-2xl bg-[#0f172a] border-2 border-b-4 border-gray-700 p-4 mb-6 text-left">
-                  {/* Tab Switcher */}
-                  <div className="flex items-center gap-1.5 bg-gray-800 p-1 rounded-xl border-2 border-gray-700 mb-4">
-                    <div className="flex-1 py-1.5 text-[11px] font-extrabold rounded-lg bg-[#067bc2] text-white flex items-center justify-center gap-1.5">
-                      <Calendar size={12} />
-                      <span>Tomorrow</span>
-                    </div>
-                    <div className="flex-1 py-1.5 text-[11px] font-extrabold rounded-lg text-gray-400 flex items-center justify-center gap-1.5">
-                      <CheckCircle size={12} />
-                      <span>Today (Done)</span>
-                    </div>
-                  </div>
-
                   {/* Tomorrow Mystery Header */}
-                  <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#f6d84c] mb-2">
-                    <Lock size={12} />
-                    <span>Tomorrow Mystery</span>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#f6d84c]">
+                      <Lock size={12} />
+                      <span>Tomorrow Mystery</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-400">Locked</span>
                   </div>
 
-                  {/* Blurred Quest Text + Centered Yellow Badge */}
-                  <div className="relative mb-4">
-                    <div className="text-lg font-black leading-snug filter blur-[5px] select-none opacity-25 text-white">
+                  {/* Blurred Quest Text + Centered Countdown Timer */}
+                  <div className="relative mb-3">
+                    <div className="text-base font-black leading-snug filter blur-[5px] select-none opacity-25 text-white">
                       Write down three things you learned today and sketch one quick idea.
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-800 border-2 border-[#ecc30b]">
-                        <Lock size={13} className="text-[#ecc30b]" />
-                        <span className="text-xs font-extrabold text-gray-100">
-                          Unlock Early with Stars
+                      <div className="flex flex-col items-center gap-0.5 px-3.5 py-1.5 rounded-xl bg-gray-800 border-2 border-gray-700">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-gray-400">
+                          Next Quest In
                         </span>
+                        <div className="flex items-center gap-1 text-xs font-black font-mono text-white">
+                          <Clock size={12} className="text-[#84bcda]" />
+                          <span>12h 26m 32s</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
+                  <div className="flex items-center gap-2 text-[11px] font-extrabold text-gray-300 mb-3.5">
+                    <Star size={12} className="fill-[#ecc30b] text-[#ecc30b]" />
+                    <span>20 PTS to reveal early</span>
+                  </div>
+
                   {/* Tactile Amber Unlock Button */}
-                  <div className="btn-tactile-amber w-full py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 pointer-events-none">
-                    <Star size={15} className="fill-gray-900 text-gray-900" />
+                  <div className="btn-tactile-amber w-full py-2.5 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 pointer-events-none">
+                    <Star size={14} className="fill-gray-900 text-gray-900" />
                     <span>Unlock Tomorrow (20 PTS)</span>
                   </div>
                 </div>
@@ -462,7 +474,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                   Peek Into <span className="text-[#ecc30b]">Tomorrow.</span>
                 </h2>
                 <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
-                  Curious what&apos;s next? Spend 20 earned Stars to reveal tomorrow&apos;s mystery quest early and prep ahead.
+                  Wait for the midnight countdown or spend 20 earned Stars to unblur and reveal tomorrow&apos;s quest early.
                 </p>
               </div>
             )}
@@ -794,12 +806,13 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             <button
               type="button"
               onClick={handleNext}
-              className={`btn-tactile flex-1 py-3.5 px-6 rounded-xl font-black text-sm border-2 border-b-[5px] active:border-b-2 active:translate-y-[3px] flex items-center justify-center gap-2 cursor-pointer group ${
+              className={`btn-tactile flex-1 py-3.5 px-6 rounded-xl font-black text-sm border-2 flex items-center justify-center gap-2 cursor-pointer group ${
                 activeColorMeta.id === '#ecc30b' ? 'text-gray-900' : 'text-white'
               }`}
               style={{
                 backgroundColor: activeColorMeta.color,
                 borderColor: activeColorMeta.dark,
+                boxShadow: `0 3px 0 ${activeColorMeta.dark}`,
               }}
             >
               <span>Continue</span>
@@ -809,12 +822,13 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             <button
               type="button"
               onClick={handleFinish}
-              className={`btn-tactile flex-1 py-3.5 px-6 rounded-xl font-black text-sm border-2 border-b-[5px] active:border-b-2 active:translate-y-[3px] flex items-center justify-center gap-2 cursor-pointer ${
+              className={`btn-tactile flex-1 py-3.5 px-6 rounded-xl font-black text-sm border-2 flex items-center justify-center gap-2 cursor-pointer ${
                 activeColorMeta.id === '#ecc30b' ? 'text-gray-900' : 'text-white'
               }`}
               style={{
                 backgroundColor: activeColorMeta.color,
                 borderColor: activeColorMeta.dark,
+                boxShadow: `0 3px 0 ${activeColorMeta.dark}`,
               }}
             >
               <span>Start My Adventure</span>

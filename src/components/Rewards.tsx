@@ -197,7 +197,7 @@ export default function Rewards() {
                         disabled={!canAfford && !isUnlocked}
                         className={`btn-tactile px-4 py-2 rounded-xl font-extrabold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer ${
                           isEquipped
-                            ? 'bg-emerald-500 border-2 border-emerald-700 border-b-4 text-white active:border-b-2 active:translate-y-[2px]'
+                            ? 'bg-emerald-500 border-2 border-emerald-700 shadow-[0_3px_0_#047857] text-white'
                             : isUnlocked
                             ? 'btn-tactile-teal'
                             : canAfford

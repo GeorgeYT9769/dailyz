@@ -84,6 +84,7 @@ interface AppContextType {
   recoverStreak: () => { success: boolean; message: string };
   buyStreakFreeze: (count?: number, cost?: number) => boolean;
   rerollQuest: () => { success: boolean; isFree: boolean; message: string; quest?: any };
+  resetTodayQuest: () => void;
 }
 
 const defaultUserData: UserData = {
@@ -262,6 +263,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         streak: streaks.current,
         longestStreak: streaks.longest,
         lastBrokenStreak: null, // Clear broken streak once a new day is completed
+      };
+    });
+  };
+
+  const resetTodayQuest = () => {
+    const todayISO = getTodayISO();
+    setUserData(prev => {
+      const newCompleted = prev.completedDays.filter(d => d !== todayISO);
+      const newUsedFreezes = (prev.usedStreakFreezes || []).filter(d => d !== todayISO);
+      const streaks = calculateStreaks(newCompleted, newUsedFreezes);
+      return {
+        ...prev,
+        completedDays: newCompleted,
+        usedStreakFreezes: newUsedFreezes,
+        streak: streaks.current,
+        longestStreak: streaks.longest,
       };
     });
   };
@@ -473,6 +490,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       recoverStreak,
       buyStreakFreeze,
       rerollQuest,
+      resetTodayQuest,
     }}>
       {children}
     </AppContext.Provider>
