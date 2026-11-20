@@ -15,35 +15,132 @@
 }
 
 :root {
-  --accent-color: #3b82f6;
+  --bright-teal-blue: #067bc2;
+  --sky-reflection: #84bcda;
+  --bright-amber: #ecc30b;
+  --coral-glow: #ff5d38;
+  --lobster-pink: #ff3b5c;
+  --accent-color: #067bc2;
+}
+
+html {
+  overflow-x: clip;
+  scrollbar-gutter: stable;
 }
 
 html, body {
-  background-color: #111827;
+  background-color: #0f172a;
   color: #f3f4f6;
   min-height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: clip;
 }
 
 .app-toast {
-  bottom: 6rem;
+  bottom: 5.75rem;
   transition: bottom 0.2s ease-out;
 }
 
+@media (min-width: 768px) {
+  .app-toast {
+    bottom: 1.5rem;
+  }
+}
+
 body[data-nav-hidden] .app-toast {
-  bottom: 1rem;
+  bottom: 1.25rem;
 }
 
 html:not(.dark), html:not(.dark) body {
-  background-color: #f9fafb;
+  background-color: #f6f8fc;
   color: #111827;
 }
 
 button, a, [role="button"], [role="switch"], [role="tab"], input, select {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Tactile Duolingo-inspired 3D push buttons & playful cards */
+.btn-tactile {
+  transition: transform 0.1s ease, border-bottom-width 0.1s ease, box-shadow 0.12s ease, filter 0.15s ease;
+}
+
+.btn-tactile:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+.btn-tactile-coral {
+  background-color: #ff4b5c;
+  border: 2px solid #d12134;
+  border-bottom-width: 5px;
+  color: #ffffff;
+}
+.btn-tactile-coral:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+.btn-tactile-coral:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}
+
+.btn-tactile-teal {
+  background-color: #067bc2;
+  border: 2px solid #045b91;
+  border-bottom-width: 5px;
+  color: #ffffff;
+}
+.btn-tactile-teal:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+.btn-tactile-teal:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}
+
+.btn-tactile-amber {
+  background-color: #ecc30b;
+  border: 2px solid #b99603;
+  border-bottom-width: 5px;
+  color: #1f2937;
+}
+.btn-tactile-amber:hover:not(:disabled) {
+  filter: brightness(1.03);
+}
+.btn-tactile-amber:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}
+
+.btn-tactile-pink {
+  background-color: #ff3b5c;
+  border: 2px solid #c81438;
+  border-bottom-width: 5px;
+  color: #ffffff;
+}
+.btn-tactile-pink:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}
+
+.btn-tactile-neutral {
+  border-width: 2px;
+  border-bottom-width: 4px;
+}
+.btn-tactile-neutral:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+.playful-card {
+  border-width: 2px;
+  border-bottom-width: 4px;
+}
+
+.tab-pill-active {
+  background-color: var(--accent-color, #067bc2);
+  border: 2px solid color-mix(in srgb, var(--accent-color, #067bc2) 72%, #000000);
+  border-bottom-width: 4px;
+  color: #ffffff;
 }
 
 * {

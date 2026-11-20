@@ -169,7 +169,7 @@ export default function ProfileImageModal({
       onTouchStart={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden select-none"
+      className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden select-none"
       onClick={() => {
         playSound('click', true);
         onClose();

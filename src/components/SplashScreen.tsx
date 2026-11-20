@@ -54,10 +54,9 @@ export default function SplashScreen({ isLoading = true, onFinish }: SplashScree
             >
               <h1 className="text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-1">
                 <span>Daily</span>
-                <span 
-                  className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400"
+                <span
                   style={{
-                    backgroundImage: 'linear-gradient(135deg, var(--accent-color, #3b82f6), #818cf8)'
+                    color: 'var(--accent-color, #067bc2)',
                   }}
                 >
                   z

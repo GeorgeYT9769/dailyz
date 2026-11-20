@@ -18,17 +18,25 @@ import { playSound } from './utils/audioEffects';
 
 const TAB_ORDER = ['home', 'profile', 'rewards', 'settings'];
 
+interface PageTransitionCustom {
+  direction: number;
+  isWide: boolean;
+}
+
 const pageVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 24 : direction < 0 ? -24 : 0,
+  enter: ({ direction, isWide }: PageTransitionCustom) => ({
+    x: isWide ? 0 : direction > 0 ? 24 : direction < 0 ? -24 : 0,
+    y: isWide ? (direction > 0 ? 24 : direction < 0 ? -24 : 0) : 0,
     opacity: 0,
   }),
   center: {
     x: 0,
+    y: 0,
     opacity: 1,
   },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -20 : direction < 0 ? 20 : 0,
+  exit: ({ direction, isWide }: PageTransitionCustom) => ({
+    x: isWide ? 0 : direction > 0 ? -20 : direction < 0 ? 20 : 0,
+    y: isWide ? (direction > 0 ? -20 : direction < 0 ? 20 : 0) : 0,
     opacity: 0,
   }),
 };
@@ -38,6 +46,18 @@ function MainContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [tabDirection, setTabDirection] = useState<number>(0);
   const [profilePreview, setProfilePreview] = useState<any>(null);
+  const [isWideScreen, setIsWideScreen] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handleChange = (e: MediaQueryListEvent) => setIsWideScreen(e.matches);
+    setIsWideScreen(mq.matches);
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -63,6 +83,7 @@ function MainContent() {
     const newIdx = TAB_ORDER.indexOf(newTab);
     setTabDirection(newIdx > curIdx ? 1 : -1);
     setActiveTab(newTab);
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const handleSwipeLeft = () => {
@@ -93,6 +114,11 @@ function MainContent() {
     }
   };
 
+  const transitionCustom: PageTransitionCustom = {
+    direction: tabDirection,
+    isWide: isWideScreen,
+  };
+
   return (
     <>
       <SplashScreen isLoading={!isLoaded} />
@@ -102,21 +128,21 @@ function MainContent() {
         onSwipeLeft={handleSwipeLeft}
         onSwipeRight={handleSwipeRight}
       >
-        <div className="relative w-full min-h-full overflow-x-clip">
-          <AnimatePresence mode="popLayout" custom={tabDirection} initial={false}>
+        <div className="relative w-full overflow-x-clip">
+          <AnimatePresence mode="wait" custom={transitionCustom} initial={false}>
             <motion.div
               key={activeTab}
-              custom={tabDirection}
+              custom={transitionCustom}
               variants={pageVariants}
               initial="enter"
               animate="center"
               exit="exit"
               transition={{
-                x: { duration: 0.16, ease: [0.16, 1, 0.3, 1] },
-                opacity: { duration: 0.13, ease: 'easeOut' },
+                x: { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
+                y: { duration: 0.14, ease: [0.16, 1, 0.3, 1] },
+                opacity: { duration: 0.1, ease: 'easeOut' },
               }}
-              style={{ willChange: 'transform, opacity' }}
-              className="w-full min-h-full"
+              className="w-full"
             >
               {renderTab()}
             </motion.div>

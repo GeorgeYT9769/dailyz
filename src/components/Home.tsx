@@ -1,38 +1,317 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { getDayOfYear, getTodayISO, getTomorrowISO } from '../utils/dateUtils';
 import questsData from '../data/quests.json';
-import { Flame, Star, CheckCircle, Gift, RefreshCw, Calendar, Lock, Sparkles, Clock, ArrowRight, Snowflake, Zap } from 'lucide-react';
+import {
+  Flame,
+  Star,
+  CheckCircle,
+  RefreshCw,
+  Calendar,
+  Lock,
+  Sparkles,
+  ArrowRight,
+  Snowflake,
+  Zap,
+  Check,
+  Award,
+  ChevronRight,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Lottie from 'lottie-react';
 import StreakModal from './StreakModal';
 import Toast from './Toast';
+import DifficultyBars from './DifficultyBars';
 import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
 import { syncWidgetWithNative } from '../utils/widgetSync';
 import { getCategoryMeta } from './CategoryDistributionBar';
+import { getLevelProgress, getQuestXp } from '../utils/xpUtils';
 
-// Lottie success checkmark
-const successLottie = {"v":"4.10.1","fr":30,"ip":0,"op":40,"w":80,"h":80,"nm":"Success Checkmark","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"Check Mark","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[40,40,0],"ix":2},"a":{"a":0,"k":[-1.312,6,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"ind":0,"ty":"sh","ix":1,"ks":{"a":0,"k":{"i":[[0,0],[0,0],[0,0]],"o":[[0,0],[0,0],[0,0]],"v":[[-15.75,8],[-8,16],[13.125,-4]],"c":false},"ix":2},"nm":"Path 1","mn":"ADBE Vector Shape - Group","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.667],"y":[1]},"o":{"x":[0.333],"y":[0]},"n":["0p667_1_0p333_0"],"t":25,"s":[0],"e":[100]},{"t":33}],"ix":1},"e":{"a":0,"k":0,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[1,1,1,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3,"ix":5},"lc":2,"lj":2,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Shape 1","np":3,"cix":2,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":40,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":4,"nm":"Circle Flash","sr":1,"ks":{"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"n":["0p833_0p833_0p167_0p167"],"t":25,"s":[0],"e":[98]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"n":["0p833_0p833_0p167_0p167"],"t":30,"s":[98],"e":[0]},{"t":38}],"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[40,40,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":25,"s":[0,0,100],"e":[100,100,100]},{"t":30}],"ix":6}},"ao":0,"shapes":[{"d":1,"ty":"el","s":{"a":0,"k":[64,64],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0.529866635799,0.961458325386,0.448091417551,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false}],"ip":0,"op":40,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":4,"nm":"Circle Stroke","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[39.022,39.022,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":16,"s":[100,100,100],"e":[80,80,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":22,"s":[80,80,100],"e":[120,120,100]},{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":25,"s":[120,120,100],"e":[100,100,100]},{"t":29}],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[60,60],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"tm","s":{"a":1,"k":[{"i":{"x":[0.667],"y":[1]},"o":{"x":[0.333],"y":[0]},"n":["0p667_1_0p333_0"],"t":0,"s":[0],"e":[100]},{"t":16}],"ix":1},"e":{"a":0,"k":0,"ix":2},"o":{"a":0,"k":0,"ix":3},"m":1,"ix":2,"nm":"Trim Paths 1","mn":"ADBE Vector Filter - Trim","hd":false},{"ty":"st","c":{"a":0,"k":[0.427450984716,0.800000011921,0.35686275363,1],"ix":3},"o":{"a":0,"k":100,"ix":4},"w":{"a":0,"k":3,"ix":5},"lc":2,"lj":2,"nm":"Stroke 1","mn":"ADBE Vector Graphic - Stroke","hd":false},{"ty":"tr","p":{"a":0,"k":[0.978,0.978],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":0,"k":0,"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Ellipse 1","np":3,"cix":2,"ix":1,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":40,"st":0,"bm":0},{"ddd":0,"ind":4,"ty":4,"nm":"Circle Green Fill","sr":1,"ks":{"o":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"n":["0p833_0p833_0p167_0p167"],"t":21,"s":[0],"e":[98]},{"t":28}],"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[40,40,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":1,"k":[{"i":{"x":[0.667,0.667,0.667],"y":[1,1,1]},"o":{"x":[0.333,0.333,0.333],"y":[0,0,0]},"n":["0p667_1_0p333_0","0p667_1_0p333_0","0p667_1_0p333_0"],"t":21,"s":[0,0,100],"e":[100,100,100]},{"t":28}],"ix":6}},"ao":0,"shapes":[{"d":1,"ty":"el","s":{"a":0,"k":[64,64],"ix":2},"p":{"a":0,"k":[0,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0.427450984716,0.800000011921,0.35686275363,1],"ix":4},"o":{"a":0,"k":100,"ix":5},"r":1,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false}],"ip":0,"op":40,"st":0,"bm":0}]};
+const successLottie = {
+  v: '4.10.1',
+  fr: 30,
+  ip: 0,
+  op: 40,
+  w: 80,
+  h: 80,
+  nm: 'Success Checkmark',
+  ddd: 0,
+  assets: [],
+  layers: [
+    {
+      ddd: 0,
+      ind: 1,
+      ty: 4,
+      nm: 'Check Mark',
+      sr: 1,
+      ks: {
+        o: { a: 0, k: 100, ix: 11 },
+        r: { a: 0, k: 0, ix: 10 },
+        p: { a: 0, k: [40, 40, 0], ix: 2 },
+        a: { a: 0, k: [-1.312, 6, 0], ix: 1 },
+        s: { a: 0, k: [100, 100, 100], ix: 6 },
+      },
+      ao: 0,
+      shapes: [
+        {
+          ty: 'gr',
+          it: [
+            {
+              ind: 0,
+              ty: 'sh',
+              ix: 1,
+              ks: {
+                a: 0,
+                k: {
+                  i: [[0, 0], [0, 0], [0, 0]],
+                  o: [[0, 0], [0, 0], [0, 0]],
+                  v: [[-15.75, 8], [-8, 16], [13.125, -4]],
+                  c: false,
+                },
+                ix: 2,
+              },
+              nm: 'Path 1',
+              mn: 'ADBE Vector Shape - Group',
+              hd: false,
+            },
+            {
+              ty: 'tm',
+              s: {
+                a: 1,
+                k: [
+                  { i: { x: [0.667], y: [1] }, o: { x: [0.333], y: [0] }, n: ['0p667_1_0p333_0'], t: 25, s: [0], e: [100] },
+                  { t: 33 },
+                ],
+                ix: 1,
+              },
+              e: { a: 0, k: 0, ix: 2 },
+              o: { a: 0, k: 0, ix: 3 },
+              m: 1,
+              ix: 2,
+              nm: 'Trim Paths 1',
+              mn: 'ADBE Vector Filter - Trim',
+              hd: false,
+            },
+            {
+              ty: 'st',
+              c: { a: 0, k: [1, 1, 1, 1], ix: 3 },
+              o: { a: 0, k: 100, ix: 4 },
+              w: { a: 0, k: 3, ix: 5 },
+              lc: 2,
+              lj: 2,
+              nm: 'Stroke 1',
+              mn: 'ADBE Vector Graphic - Stroke',
+              hd: false,
+            },
+            {
+              ty: 'tr',
+              p: { a: 0, k: [0, 0], ix: 2 },
+              a: { a: 0, k: [0, 0], ix: 1 },
+              s: { a: 0, k: [100, 100], ix: 3 },
+              r: { a: 0, k: 0, ix: 6 },
+              o: { a: 0, k: 100, ix: 7 },
+              sk: { a: 0, k: 0, ix: 4 },
+              sa: { a: 0, k: 0, ix: 5 },
+              nm: 'Transform',
+            },
+          ],
+          nm: 'Shape 1',
+          np: 3,
+          cix: 2,
+          ix: 1,
+          mn: 'ADBE Vector Group',
+          hd: false,
+        },
+      ],
+      ip: 0,
+      op: 40,
+      st: 0,
+      bm: 0,
+    },
+    {
+      ddd: 0,
+      ind: 2,
+      ty: 4,
+      nm: 'Circle Flash',
+      sr: 1,
+      ks: {
+        o: {
+          a: 1,
+          k: [
+            { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, n: ['0p833_0p833_0p167_0p167'], t: 25, s: [0], e: [98] },
+            { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, n: ['0p833_0p833_0p167_0p167'], t: 30, s: [98], e: [0] },
+            { t: 38 },
+          ],
+          ix: 11,
+        },
+        r: { a: 0, k: 0, ix: 10 },
+        p: { a: 0, k: [40, 40, 0], ix: 2 },
+        a: { a: 0, k: [0, 0, 0], ix: 1 },
+        s: {
+          a: 1,
+          k: [
+            { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] }, n: ['0p667_1_0p333_0', '0p667_1_0p333_0', '0p667_1_0p333_0'], t: 25, s: [0, 0, 100], e: [100, 100, 100] },
+            { t: 30 },
+          ],
+          ix: 6,
+        },
+      },
+      ao: 0,
+      shapes: [
+        { d: 1, ty: 'el', s: { a: 0, k: [64, 64], ix: 2 }, p: { a: 0, k: [0, 0], ix: 3 }, nm: 'Ellipse Path 1', mn: 'ADBE Vector Shape - Ellipse', hd: false },
+        { ty: 'fl', c: { a: 0, k: [0.529866635799, 0.961458325386, 0.448091417551, 1], ix: 4 }, o: { a: 0, k: 100, ix: 5 }, r: 1, nm: 'Fill 1', mn: 'ADBE Vector Graphic - Fill', hd: false },
+      ],
+      ip: 0,
+      op: 40,
+      st: 0,
+      bm: 0,
+    },
+    {
+      ddd: 0,
+      ind: 3,
+      ty: 4,
+      nm: 'Circle Stroke',
+      sr: 1,
+      ks: {
+        o: { a: 0, k: 100, ix: 11 },
+        r: { a: 0, k: 0, ix: 10 },
+        p: { a: 0, k: [39.022, 39.022, 0], ix: 2 },
+        a: { a: 0, k: [0, 0, 0], ix: 1 },
+        s: {
+          a: 1,
+          k: [
+            { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] }, n: ['0p667_1_0p333_0', '0p667_1_0p333_0', '0p667_1_0p333_0'], t: 16, s: [100, 100, 100], e: [80, 80, 100] },
+            { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] }, n: ['0p667_1_0p333_0', '0p667_1_0p333_0', '0p667_1_0p333_0'], t: 22, s: [80, 80, 100], e: [120, 120, 100] },
+            { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] }, n: ['0p667_1_0p333_0', '0p667_1_0p333_0', '0p667_1_0p333_0'], t: 25, s: [120, 120, 100], e: [100, 100, 100] },
+            { t: 29 },
+          ],
+          ix: 6,
+        },
+      },
+      ao: 0,
+      shapes: [
+        {
+          ty: 'gr',
+          it: [
+            { d: 1, ty: 'el', s: { a: 0, k: [60, 60], ix: 2 }, p: { a: 0, k: [0, 0], ix: 3 }, nm: 'Ellipse Path 1', mn: 'ADBE Vector Shape - Ellipse', hd: false },
+            {
+              ty: 'tm',
+              s: {
+                a: 1,
+                k: [
+                  { i: { x: [0.667], y: [1] }, o: { x: [0.333], y: [0] }, n: ['0p667_1_0p333_0'], t: 0, s: [0], e: [100] },
+                  { t: 16 },
+                ],
+                ix: 1,
+              },
+              e: { a: 0, k: 0, ix: 2 },
+              o: { a: 0, k: 0, ix: 3 },
+              m: 1,
+              ix: 2,
+              nm: 'Trim Paths 1',
+              mn: 'ADBE Vector Filter - Trim',
+              hd: false,
+            },
+            { ty: 'st', c: { a: 0, k: [0.427450984716, 0.800000011921, 0.35686275363, 1], ix: 3 }, o: { a: 0, k: 100, ix: 4 }, w: { a: 0, k: 3, ix: 5 }, lc: 2, lj: 2, nm: 'Stroke 1', mn: 'ADBE Vector Graphic - Stroke', hd: false },
+            { ty: 'tr', p: { a: 0, k: [0.978, 0.978], ix: 2 }, a: { a: 0, k: [0, 0], ix: 1 }, s: { a: 0, k: [100, 100], ix: 3 }, r: { a: 0, k: 0, ix: 6 }, o: { a: 0, k: 100, ix: 7 }, sk: { a: 0, k: 0, ix: 4 }, sa: { a: 0, k: 0, ix: 5 }, nm: 'Transform' },
+          ],
+          nm: 'Ellipse 1',
+          np: 3,
+          cix: 2,
+          ix: 1,
+          mn: 'ADBE Vector Group',
+          hd: false,
+        },
+      ],
+      ip: 0,
+      op: 40,
+      st: 0,
+      bm: 0,
+    },
+    {
+      ddd: 0,
+      ind: 4,
+      ty: 4,
+      nm: 'Circle Green Fill',
+      sr: 1,
+      ks: {
+        o: {
+          a: 1,
+          k: [
+            { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, n: ['0p833_0p833_0p167_0p167'], t: 21, s: [0], e: [98] },
+            { t: 28 },
+          ],
+          ix: 11,
+        },
+        r: { a: 0, k: 0, ix: 10 },
+        p: { a: 0, k: [40, 40, 0], ix: 2 },
+        a: { a: 0, k: [0, 0, 0], ix: 1 },
+        s: {
+          a: 1,
+          k: [
+            { i: { x: [0.667, 0.667, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] }, n: ['0p667_1_0p333_0', '0p667_1_0p333_0', '0p667_1_0p333_0'], t: 21, s: [0, 0, 100], e: [100, 100, 100] },
+            { t: 28 },
+          ],
+          ix: 6,
+        },
+      },
+      ao: 0,
+      shapes: [
+        { d: 1, ty: 'el', s: { a: 0, k: [64, 64], ix: 2 }, p: { a: 0, k: [0, 0], ix: 3 }, nm: 'Ellipse Path 1', mn: 'ADBE Vector Shape - Ellipse', hd: false },
+        { ty: 'fl', c: { a: 0, k: [0.427450984716, 0.800000011921, 0.35686275363, 1], ix: 4 }, o: { a: 0, k: 100, ix: 5 }, r: 1, nm: 'Fill 1', mn: 'ADBE Vector Graphic - Fill', hd: false },
+      ],
+      ip: 0,
+      op: 40,
+      st: 0,
+      bm: 0,
+    },
+  ],
+};
 
 interface HomeProps {
   onNavigateTab?: (tab: string) => void;
 }
 
+function toLocalISO(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export default function Home({ onNavigateTab }: HomeProps) {
-  const { userData, completeQuest, updateSettings, rerollQuest, recoverStreak } = useAppContext();
+  const { userData, completeQuest, updateSettings, rerollQuest, recoverStreak, useStreakFreeze } = useAppContext();
+
   const [showAnimation, setShowAnimation] = useState(false);
+  const [celebrationMeta, setCelebrationMeta] = useState<{
+    points: number;
+    xp: number;
+    leveledUpTo: number | null;
+  } | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [debugQuestIndex, setDebugQuestIndex] = useState<number | null>(null);
   const [debugCompleted, setDebugCompleted] = useState(false);
   const [showDebugTools, setShowDebugTools] = useState(false);
-  const [countdown, setCountdown] = useState('');
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+
+  const swapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
+      if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      const isDebug = params.get('debug') === 'true' || params.get('dev') === 'true' || localStorage.getItem('dailyz_debug') === 'true';
+      const isDebug =
+        params.get('debug') === 'true' ||
+        params.get('dev') === 'true' ||
+        localStorage.getItem('dailyz_debug') === 'true';
       setShowDebugTools(isDebug);
     }
   }, []);
@@ -41,65 +320,35 @@ export default function Home({ onNavigateTab }: HomeProps) {
   const todayISO = getTodayISO();
   const tomorrowISO = getTomorrowISO();
 
-  // Calculate live countdown to tomorrow midnight
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const midnight = new Date();
-      midnight.setHours(24, 0, 0, 0);
-      const diff = midnight.getTime() - now.getTime();
-      if (diff <= 0) {
-        setCountdown('0h 00m');
-        return;
-      }
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const secs = Math.floor((diff % (1000 * 60)) / 1000);
-      setCountdown(`${hours}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`);
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Base and active quests
   const calculatedIndex = (dayOfYear - 1) % questsData.length;
   const scheduledTodayQuest = questsData[calculatedIndex];
-  const savedTodayQuest = (userData.nextDayQuest && userData.nextDayQuest.dateIso === todayISO)
-    ? userData.nextDayQuest
-    : null;
-  const activeRolledQuest = (userData.currentRolledQuest && userData.currentRolledQuest.dateIso === todayISO)
-    ? userData.currentRolledQuest
-    : null;
+  const savedTodayQuest =
+    userData.nextDayQuest && userData.nextDayQuest.dateIso === todayISO ? userData.nextDayQuest : null;
+  const activeRolledQuest =
+    userData.currentRolledQuest && userData.currentRolledQuest.dateIso === todayISO
+      ? userData.currentRolledQuest
+      : null;
+
   const baseTodayQuest = activeRolledQuest || savedTodayQuest || scheduledTodayQuest;
   const todayQuest = debugQuestIndex !== null ? questsData[debugQuestIndex] : baseTodayQuest;
 
-  // Tomorrow's quest state
   const isTomorrowUnlocked = Boolean(
     userData.nextDayQuest && userData.nextDayQuest.dateIso === tomorrowISO
   );
   const tomorrowQuest = isTomorrowUnlocked ? userData.nextDayQuest : null;
-
-  // Completion check
   const isCompleted = debugQuestIndex !== null ? debugCompleted : userData.completedDays.includes(todayISO);
+  const isFrozenToday = (userData.usedStreakFreezes || []).includes(todayISO);
 
-  // View state: strictly 'today' when today's quest is not completed.
-  // When completed, it swaps to 'tomorrow'!
-  const [activeQuestView, setActiveQuestView] = useState<'today' | 'tomorrow'>(() => isCompleted ? 'tomorrow' : 'today');
+  const [activeQuestView, setActiveQuestView] = useState<'today' | 'tomorrow'>(() =>
+    isCompleted ? 'tomorrow' : 'today'
+  );
 
-  // Keep synced when completed changes (only swap when not actively playing completion animation)
   useEffect(() => {
     if (!showAnimation) {
-      if (isCompleted) {
-        setActiveQuestView('tomorrow');
-      } else {
-        setActiveQuestView('today');
-      }
+      setActiveQuestView(isCompleted ? 'tomorrow' : 'today');
     }
   }, [isCompleted, showAnimation]);
 
-  // Keep native Android Homescreen Widget in sync
   useEffect(() => {
     if (todayQuest) {
       syncWidgetWithNative({
@@ -108,23 +357,125 @@ export default function Home({ onNavigateTab }: HomeProps) {
         reward: todayQuest.reward,
         streak: userData.streak,
         stars: userData.points,
-        isCompleted: isCompleted,
+        isCompleted,
       });
     }
   }, [todayQuest, userData.streak, userData.points, isCompleted]);
 
+  const weekDays = useMemo(() => {
+    const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const now = new Date();
+    const jsDay = now.getDay();
+    const mondayOffset = jsDay === 0 ? -6 : 1 - jsDay;
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
+
+    return labels.map((label, idx) => {
+      const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + idx);
+      const iso = toLocalISO(d);
+      return {
+        label,
+        iso,
+        isToday: iso === todayISO,
+        isDone: userData.completedDays.includes(iso),
+        isFrozen: (userData.usedStreakFreezes || []).includes(iso),
+      };
+    });
+  }, [todayISO, userData.completedDays, userData.usedStreakFreezes]);
+
+  const todayXpReward = getQuestXp(todayQuest.difficulty);
+  const streakWeekNumber = Math.max(1, Math.ceil(Math.max(1, userData.streak || 1) / 7));
+  const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow' && !showAnimation;
+
+  const showToastMessage = (msg: string) => {
+    setActionFeedback(msg);
+    setTimeout(() => setActionFeedback(null), 2600);
+  };
+
+  const handleComplete = () => {
+    const isDebug = debugQuestIndex !== null;
+    const prevLevel = getLevelProgress(userData.xp || 0).level;
+    const nextLevel = getLevelProgress((userData.xp || 0) + todayXpReward).level;
+    const didLevelUp = nextLevel > prevLevel;
+
+    completeQuest(todayQuest.reward, todayISO, isDebug, todayXpReward);
+
+    if (isDebug) {
+      setDebugCompleted(true);
+    }
+
+    setCelebrationMeta({
+      points: todayQuest.reward,
+      xp: todayXpReward,
+      leveledUpTo: didLevelUp ? nextLevel : null,
+    });
+
+    triggerHaptic('success', userData.vibrationEnabled);
+    playSound(didLevelUp ? 'levelUp' : 'complete', userData.soundEnabled ?? true);
+
+    if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
+    if (doneTimerRef.current) clearTimeout(doneTimerRef.current);
+
+    setShowAnimation(true);
+    swapTimerRef.current = setTimeout(() => {
+      setActiveQuestView('tomorrow');
+    }, 1550);
+    doneTimerRef.current = setTimeout(() => {
+      setShowAnimation(false);
+    }, 1750);
+  };
+
+  const handleFreeze = () => {
+    if (isCompleted) {
+      triggerHaptic('light', userData.vibrationEnabled);
+      playSound('pop', userData.soundEnabled ?? true);
+      showToastMessage("Today's quest is already completed!");
+      return;
+    }
+
+    if (isFrozenToday) {
+      triggerHaptic('light', userData.vibrationEnabled);
+      playSound('pop', userData.soundEnabled ?? true);
+      showToastMessage('Today is already protected by a Freeze!');
+      return;
+    }
+
+    if (userData.lastBrokenStreak && userData.streak === 0) {
+      triggerHaptic('success', userData.vibrationEnabled);
+      playSound('freeze', userData.soundEnabled ?? true);
+      const res = recoverStreak();
+      showToastMessage(res.message);
+      return;
+    }
+
+    if (userData.streakFreezes > 0) {
+      const success = useStreakFreeze(todayISO);
+      if (success) {
+        triggerHaptic('success', userData.vibrationEnabled);
+        playSound('freeze', userData.soundEnabled ?? true);
+        showToastMessage('Today frozen! Your streak stays safe.');
+        return;
+      }
+    }
+
+    triggerHaptic('light', userData.vibrationEnabled);
+    playSound('click', userData.soundEnabled ?? true);
+    setShowStreakModal(true);
+  };
+
   const handleUnlockTomorrow = () => {
     if (userData.points < 20 || isTomorrowUnlocked) return;
 
-    // Pick a fresh exciting quest from the pool that isn't today's quest
-    const candidatePool = questsData.filter(q => q.id !== todayQuest.id);
-    const chosen = candidatePool[Math.floor(Math.random() * candidatePool.length)] || questsData[(calculatedIndex + 1) % questsData.length];
+    const candidatePool = questsData.filter((q) => q.id !== todayQuest.id);
+    const chosen =
+      candidatePool[Math.floor(Math.random() * candidatePool.length)] ||
+      questsData[(calculatedIndex + 1) % questsData.length];
 
     const generatedQuest = {
       id: chosen.id,
       quest: chosen.quest.replace(/\(Day \d+\)/, '').trim(),
       difficulty: chosen.difficulty,
       reward: chosen.reward,
+      category: (chosen as any).category || 'Mind & Focus',
       dateIso: tomorrowISO,
     };
 
@@ -137,26 +488,7 @@ export default function Home({ onNavigateTab }: HomeProps) {
     });
   };
 
-  const handleComplete = () => {
-    const isDebug = debugQuestIndex !== null;
-    completeQuest(todayQuest.reward, todayISO, isDebug);
-
-    if (isDebug) {
-      setDebugCompleted(true);
-    }
-
-    triggerHaptic('success', userData.vibrationEnabled);
-    playSound('complete', userData.soundEnabled ?? true);
-
-    setShowAnimation(true);
-    setTimeout(() => {
-      setShowAnimation(false);
-      // Seamlessly swap to tomorrow's quest once celebration ends
-      setActiveQuestView('tomorrow');
-    }, 1800);
-  };
-
-  const handleReroll = () => {
+  const handleDebugReroll = () => {
     triggerHaptic('medium', userData.vibrationEnabled);
     playSound('reroll', userData.soundEnabled ?? true);
     const randomIndex = Math.floor(Math.random() * questsData.length);
@@ -165,466 +497,486 @@ export default function Home({ onNavigateTab }: HomeProps) {
     setActiveQuestView('today');
   };
 
-  const difficultyColors: Record<string, string> = {
-    easy: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/70',
-    medium: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200/70 dark:border-amber-800/70',
-    hard: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200/70 dark:border-rose-800/70',
-  };
-
-  const isShowingTomorrow = isCompleted && activeQuestView === 'tomorrow' && !showAnimation;
+  const todayMeta = getCategoryMeta((todayQuest as any).category || 'Daily Focus');
+  const TodayCatIcon = todayMeta.icon;
 
   return (
-    <div className="flex flex-col gap-4 pb-20 w-full">
-      {/* Top Header App Bar: Split into Resources Status Row + Full-Width Dedicated Greeting */}
-      <header className="flex flex-col gap-2.5 mb-1 pt-1 sm:pt-2 shrink-0">
-        {/* Top Resource Bar: Date / Status on left, Resources neatly grouped on right */}
-        <div className="flex items-center justify-between gap-2 w-full">
-          <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-wider">
-            <Calendar size={13} />
-            <span>{new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-          </div>
+    <div className="pb-8">
+      {/* Header: Dailyz + Streak & Stars */}
+      <header className="flex justify-between items-center gap-3 mb-12 sm:mb-14 lg:mb-16 pt-1">
+        <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-gray-950 dark:text-white">
+          Dailyz
+        </h1>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Streak Freezes pill */}
-            {userData.streakFreezes > 0 && (
-              <button
-                onClick={() => {
-                  playSound('click', userData.soundEnabled ?? true);
-                  setShowStreakModal(true);
-                }}
-                className="flex items-center gap-1 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 px-2.5 py-1.5 rounded-full shadow-xs border border-cyan-200 dark:border-cyan-800 hover:scale-105 active:scale-95 transition-all cursor-pointer shrink-0"
-                title={`${userData.streakFreezes} Streak Freeze available`}
-                aria-label="Streak Freezes Available"
-              >
-                <Snowflake size={14} className="text-cyan-500" />
-                <span className="font-bold text-xs">{userData.streakFreezes}</span>
-              </button>
-            )}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('light', userData.vibrationEnabled);
+              playSound('click', userData.soundEnabled ?? true);
+              setShowStreakModal(true);
+            }}
+            className="flex items-center gap-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:brightness-98 active:scale-95 transition-all cursor-pointer tabular-nums"
+            title="View Streak Map"
+            aria-label="View Streak Map"
+          >
+            <Flame className="fill-[#ff3b5c] text-[#ff3b5c]" size={15} />
+            <span className="font-extrabold text-xs">{userData.streak}</span>
+          </button>
 
-            {/* Streak pill */}
-            <button
-              onClick={() => {
-                playSound('click', userData.soundEnabled ?? true);
-                setShowStreakModal(true);
-              }}
-              className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
-              title="View Streak Map"
-              aria-label="View Streak Map"
-            >
-              <Flame className="text-orange-500 fill-orange-500 group-hover:scale-110 transition-transform" size={16} />
-              <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.streak}</span>
-            </button>
-
-            {/* Stars pill - clickable, leads to rewards tab */}
-            <button
-              onClick={() => {
-                triggerHaptic('light', userData.vibrationEnabled);
-                playSound('pop', userData.soundEnabled ?? true);
-                onNavigateTab?.('rewards');
-              }}
-              className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-100 dark:border-gray-700 hover:scale-105 active:scale-95 transition-all cursor-pointer group shrink-0"
-              title="Rewards Shop"
-              aria-label="Rewards Shop"
-            >
-              <Star className="text-yellow-400 fill-yellow-400 group-hover:scale-110 transition-transform" size={16} />
-              <span className="font-bold text-sm text-gray-800 dark:text-gray-100">{userData.points}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Dedicated Full-Width Greeting - Never squished or overlapped */}
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-            Hey, {userData.name}!
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mt-0.5">
-            {isCompleted ? 'Daily goal crushed! Ready for tomorrow?' : 'Your daily quest awaits'}
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic('light', userData.vibrationEnabled);
+              playSound('pop', userData.soundEnabled ?? true);
+              onNavigateTab?.('rewards');
+            }}
+            className="flex items-center gap-1.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-1.5 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:brightness-98 active:scale-95 transition-all cursor-pointer tabular-nums"
+            title="Rewards Shop"
+            aria-label="Rewards Shop"
+          >
+            <Star className="fill-[#ecc30b] text-[#ecc30b]" size={15} />
+            <span className="font-extrabold text-xs">{userData.points.toLocaleString()}</span>
+          </button>
         </div>
       </header>
 
-      {/* Broken Streak Recovery Alert Banner */}
-      {userData.lastBrokenStreak && userData.streak === 0 && (
-        <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/10 border border-orange-200 dark:border-orange-800/80 flex items-center justify-between gap-3 animate-pop shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shadow-sm shrink-0">
-              <Zap size={16} />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-gray-900 dark:text-white">Recover Your Streak!</div>
-              <div className="text-[11px] text-gray-500 dark:text-gray-400">
-                Restore your lost {userData.lastBrokenStreak.count}-day streak for 15 ⭐ or 1 ❄️
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              triggerHaptic('success', userData.vibrationEnabled);
-              const res = recoverStreak();
-              setActionFeedback(res.message);
-              setTimeout(() => setActionFeedback(null), 3000);
-            }}
-            className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer shrink-0"
-          >
-            Recover
-          </button>
-        </div>
-      )}
-
-      {/* Merged Quest Card - comfortable natural height well above bottom nav bar */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl p-5 sm:p-7 shadow-sm border border-gray-100 dark:border-gray-700 relative transition-colors duration-200 flex flex-col">
-        {/* Celebration Overlay */}
-        <AnimatePresence>
-          {showAnimation && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              className="absolute inset-0 rounded-3xl overflow-hidden bg-gray-950/40 flex items-center justify-center z-30 backdrop-blur-xs"
-            >
+      <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
+        {/* Quest Area Directly on Background */}
+        <section className="relative overflow-hidden rounded-2xl lg:col-span-7">
+          {/* Custom Completion Animation over Blurred Container */}
+          <AnimatePresence>
+            {showAnimation && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 12 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                style={{ willChange: 'transform, opacity' }}
-                className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl flex flex-col items-center mx-4 border border-gray-100 dark:border-gray-700"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="absolute inset-0 z-30 flex flex-col items-center justify-center p-4 text-center"
               >
-                <div className="w-24 h-24 mb-2">
-                  <Lottie animationData={successLottie} loop={false} />
-                </div>
-                <span className="font-extrabold text-2xl text-gray-900 dark:text-white">Quest Completed!</span>
-                <span className="text-accent font-bold text-lg mt-1" style={{ color: 'var(--accent-color)' }}>
-                  +{todayQuest.reward} Points Earned
-                </span>
-                <span className="text-xs text-gray-400 mt-2">Swapping to tomorrow's quest...</span>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <motion.div
+                  initial={{ scale: 0.6, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, type: 'spring', stiffness: 420, damping: 22 }}
+                  className="relative flex items-center justify-center mb-2"
+                >
+                  <motion.div
+                    initial={{ scale: 0.7, opacity: 0.7 }}
+                    animate={{ scale: 1.55, opacity: 0 }}
+                    transition={{ delay: 0.15, duration: 0.8, ease: 'easeOut' }}
+                    className="absolute w-20 h-20 rounded-2xl border-4 border-[#067bc2]"
+                  />
+                  <div className="w-20 h-20">
+                    <Lottie animationData={successLottie} loop={false} />
+                  </div>
+                </motion.div>
 
-        {/* Quest Card Header Bar - Standardized Badges */}
-        <div className="shrink-0 mb-4">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            {/* Left: Quest Scope & Completion Status */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {isShowingTomorrow ? (
-                <>
-                  <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80">
-                    <Calendar size={12} />
-                    <span>Tomorrow</span>
+                <motion.span
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.22 }}
+                  className="font-black text-2xl text-gray-950 dark:text-white"
+                >
+                  Quest Completed!
+                </motion.span>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.28, duration: 0.22 }}
+                  className="flex items-center gap-2 mt-2.5"
+                >
+                  <span className="px-3 py-1 rounded-xl bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-[#8a6d00] dark:text-[#f6d84c] font-black text-sm shadow-xs">
+                    +{celebrationMeta?.points ?? todayQuest.reward} PTS
                   </span>
-                  {isTomorrowUnlocked ? (
-                    <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80">
-                      <Sparkles size={11} className="text-emerald-500" />
-                      <span>Unlocked</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold bg-gray-100 dark:bg-gray-700/70 text-gray-500 dark:text-gray-400 border border-gray-200/60 dark:border-gray-700">
-                      <Lock size={11} />
-                      <span>Locked</span>
-                    </span>
-                  )}
-                </>
-              ) : (
-                <>
-                  <span 
-                    className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[11px] font-bold tracking-wider font-mono bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80"
-                    title="Time remaining until midnight reset"
+                  <span className="px-3 py-1 rounded-xl bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 text-[#067bc2] dark:text-[#84bcda] font-black text-sm shadow-xs">
+                    +{celebrationMeta?.xp ?? todayXpReward} XP
+                  </span>
+                </motion.div>
+
+                {celebrationMeta?.leveledUpTo && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.36, type: 'spring', stiffness: 450, damping: 24 }}
+                    className="mt-3 px-4 py-1.5 rounded-xl bg-[#ff4b5c] text-white font-black text-xs border-2 border-b-4 border-[#d12134] flex items-center gap-1.5"
                   >
-                    <Clock size={12} className="text-indigo-500" />
-                    <span>{countdown || '24h left'}</span>
-                  </span>
-                  {isCompleted && (
-                    <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80">
-                      <CheckCircle size={11} className="text-emerald-500" />
-                      <span>Completed</span>
-                    </span>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Right: Category & Difficulty */}
-            <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-              {isShowingTomorrow ? (
-                isTomorrowUnlocked && tomorrowQuest ? (
-                  <>
-                    {(tomorrowQuest as any).category && (() => {
-                      const meta = getCategoryMeta((tomorrowQuest as any).category);
-                      const Icon = meta.icon;
-                      return (
-                        <span className={`inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold border max-w-[130px] sm:max-w-none ${meta.bg} ${meta.border} ${meta.text}`}>
-                          <Icon size={12} className="shrink-0" />
-                          <span className="truncate">{(tomorrowQuest as any).category}</span>
-                        </span>
-                      );
-                    })()}
-                    <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ${difficultyColors[tomorrowQuest.difficulty as keyof typeof difficultyColors]}`}>
-                      {tomorrowQuest.difficulty}
-                    </span>
-                  </>
-                ) : null
-              ) : (
-                <>
-                  {(todayQuest as any).category && (() => {
-                    const meta = getCategoryMeta((todayQuest as any).category);
-                    const Icon = meta.icon;
-                    return (
-                      <span className={`inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-bold border max-w-[130px] sm:max-w-none ${meta.bg} ${meta.border} ${meta.text}`}>
-                        <Icon size={12} className="shrink-0" />
-                        <span className="truncate">{(todayQuest as any).category}</span>
-                      </span>
-                    );
-                  })()}
-                  <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ${difficultyColors[todayQuest.difficulty as keyof typeof difficultyColors]}`}>
-                    {todayQuest.difficulty}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Quick toggle tab shown only if Today is completed */}
-          {isCompleted && (
-            <div className="mt-3 flex items-center gap-2 bg-gray-100 dark:bg-gray-900/80 p-1 rounded-2xl w-full">
-              <button
-                onClick={() => {
-                  triggerHaptic('selection', userData.vibrationEnabled);
-                  setActiveQuestView('tomorrow');
-                }}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeQuestView === 'tomorrow'
-                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                }`}
-              >
-                <Calendar size={13} className={activeQuestView === 'tomorrow' ? 'text-accent' : ''} style={activeQuestView === 'tomorrow' ? { color: 'var(--accent-color)' } : {}} />
-                <span>Tomorrow's Quest</span>
-                {isTomorrowUnlocked && <Sparkles size={11} className="text-amber-500" />}
-              </button>
-
-              <button
-                onClick={() => {
-                  triggerHaptic('selection', userData.vibrationEnabled);
-                  setActiveQuestView('today');
-                }}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                  activeQuestView === 'today'
-                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-                }`}
-              >
-                <CheckCircle size={13} className="text-emerald-500" />
-                <span>Today (Done ✓)</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Central Content Section */}
-        <div className="flex-1 flex flex-col justify-center my-2">
-          <AnimatePresence mode="wait">
-            {isShowingTomorrow ? (
-              // TOMORROW'S QUEST VIEW - Identical widget layout to today's quest
-              <motion.div
-                key="tomorrow-view"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col justify-center"
-              >
-                {/* On top of the quest text: text Unlock tomorrow's quest ahead with countdown */}
-                <div className="mb-3 flex items-center justify-between flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/80">
-                    <Sparkles size={12} />
-                    <span>{isTomorrowUnlocked ? "Tomorrow • Unlocked" : "Unlock Ahead"}</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[11px] font-mono font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/60 border border-gray-200/60 dark:border-gray-700">
-                    <Clock size={11} />
-                    <span>In {countdown}</span>
-                  </span>
-                </div>
-
-                {/* Quest text styled identical to today's widget */}
-                <div className="relative">
-                  <h2 className={`text-2xl sm:text-3xl font-extrabold leading-snug mb-5 ${
-                    !isTomorrowUnlocked
-                      ? 'filter blur-[5px] select-none opacity-30 dark:opacity-20 transition-all duration-300'
-                      : 'text-gray-900 dark:text-gray-50'
-                  }`}>
-                    {tomorrowQuest ? tomorrowQuest.quest : "Undertake an intentional mindfulness exercise outdoors and capture a rare moment of clarity."}
-                  </h2>
-
-                  {!isTomorrowUnlocked && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 dark:bg-gray-800/95 shadow-md border border-gray-200/80 dark:border-gray-700 backdrop-blur-sm">
-                        <Lock size={14} className="text-amber-500" />
-                        <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Quest Preview Hidden</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ) : (
-              // TODAY'S QUEST VIEW
-              <motion.div
-                key="today-view"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.2 }}
-                className="flex flex-col justify-center"
-              >
-                <div className="mb-3">
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                    {isCompleted ? 'Completed Goal' : 'Quest of the day'}
-                  </span>
-                </div>
-
-                <h2 className={`text-2xl sm:text-3xl font-extrabold leading-snug mb-4 ${isCompleted ? 'text-gray-500 dark:text-gray-400 line-through decoration-emerald-500/50' : 'text-gray-900 dark:text-gray-50'}`}>
-                  {todayQuest.quest}
-                </h2>
-
-                {/* Reward & Streak Chips */}
-                <div className="flex flex-wrap items-center gap-2 text-gray-600 dark:text-gray-300 font-medium mb-1">
-                  <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-200/60 dark:border-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200">
-                    <Gift size={14} className="text-accent" style={{ color: 'var(--accent-color)' }} />
-                    <span>Reward: +{todayQuest.reward} {todayQuest.reward === 1 ? 'Star' : 'Stars'}</span>
-                  </div>
-
-                  {!isCompleted && (
-                    <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl bg-orange-50 dark:bg-orange-950/40 border border-orange-200/60 dark:border-orange-800/60 text-xs font-semibold text-orange-600 dark:text-orange-400">
-                      <Flame size={14} className="fill-orange-500 text-orange-500" />
-                      <span>Keeps streak active</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Integrated Action Section: Complete Quest & Reroll Button Positioned Together */}
-                {!isCompleted ? (
-                  <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex items-stretch gap-2.5">
-                    {/* Primary Complete Quest Button */}
-                    <button
-                      onClick={handleComplete}
-                      disabled={isCompleted || showAnimation}
-                      className="flex-1 py-3.5 sm:py-4 px-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 text-white shadow-lg active:scale-95 cursor-pointer transition-all hover:opacity-95"
-                      style={{
-                        backgroundColor: 'var(--accent-color)',
-                        boxShadow: '0 8px 24px -4px var(--accent-color)40'
-                      }}
-                    >
-                      <CheckCircle size={20} />
-                      <span>Complete Quest</span>
-                    </button>
-
-                    {/* Integrated Reroll Button */}
-                    <button
-                      onClick={() => {
-                        triggerHaptic('medium', userData.vibrationEnabled);
-                        const res = rerollQuest();
-                        setActionFeedback(res.message);
-                        setTimeout(() => setActionFeedback(null), 2500);
-                      }}
-                      className={`px-3.5 sm:px-4 py-3 rounded-2xl border font-bold text-xs flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs ${
-                        userData.lastFreeRerollDate !== todayISO
-                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/80 dark:border-emerald-800/80 hover:bg-emerald-100'
-                          : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-200 border-gray-200/60 dark:border-gray-700 hover:border-amber-400'
-                      }`}
-                      title={userData.lastFreeRerollDate !== todayISO ? "Free daily reroll available" : "Reroll quest for 5 stars"}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <RefreshCw size={13} className={userData.lastFreeRerollDate !== todayISO ? "text-emerald-500" : "text-amber-500"} />
-                        <span>Reroll</span>
-                      </div>
-                      {userData.lastFreeRerollDate !== todayISO ? (
-                        <span className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 leading-none">
-                          Free
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-500 leading-none">
-                          <Star size={10} className="fill-amber-400 text-amber-400" />
-                          <span>5 Stars</span>
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex flex-col gap-2.5">
-                    <div className="w-full py-3.5 rounded-2xl font-bold text-base bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-xs">
-                      <CheckCircle size={20} className="text-emerald-500" />
-                      <span>Quest Completed Today!</span>
-                    </div>
-                    <button
-                      onClick={() => setActiveQuestView('tomorrow')}
-                      className="w-full py-3 px-4 rounded-2xl font-bold text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                    >
-                      <span>Preview Tomorrow's Quest</span>
-                      <ArrowRight size={14} />
-                    </button>
-                  </div>
+                    <Award size={14} />
+                    <span>LEVEL UP! Level {celebrationMeta.leveledUpTo}</span>
+                  </motion.div>
                 )}
+
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.45, duration: 0.25 }}
+                  className="text-xs font-semibold text-gray-600 dark:text-gray-300 mt-3"
+                >
+                  Loading tomorrow&apos;s quest...
+                </motion.span>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
 
-        {/* Tomorrow Actions Section (Only for tomorrow's quest view) */}
-        {isShowingTomorrow && (
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60">
-            {isTomorrowUnlocked && tomorrowQuest ? (
-              <div className="w-full py-3.5 sm:py-4 rounded-2xl font-bold text-base bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center gap-2 shadow-xs">
-                <CheckCircle size={20} />
-                <span>Ready for Tomorrow • Unlocked</span>
-              </div>
-            ) : (
-              <button
-                onClick={handleUnlockTomorrow}
-                disabled={userData.points < 20}
-                className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-lg ${
-                  userData.points >= 20
-                    ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/25'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none'
-                }`}
-              >
-                <Star size={20} className={userData.points >= 20 ? 'text-yellow-200 fill-yellow-200' : ''} />
-                <span>{userData.points >= 20 ? 'Unlock Tomorrow (20 Stars)' : `Need 20 Stars to Unlock (${userData.points}/20)`}</span>
-              </button>
-            )}
-          </div>
-        )}
-
-          {/* Dev Debug Tools */}
-          {showDebugTools && (
-            <div className="mt-4 pt-3 border-t border-dashed border-gray-200 dark:border-gray-700 flex gap-2">
-              <button
-                onClick={handleReroll}
-                className="flex-1 py-2.5 rounded-xl font-medium text-xs text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1.5"
-                title="Debug: Reroll Daily Quest"
-              >
-                <RefreshCw size={13} />
-                Reroll (Dev)
-              </button>
-              {debugQuestIndex !== null && (
+          {/* Blurred Container Content Wrapper during completion */}
+          <div
+            className={`transition-all duration-300 ease-out ${
+              showAnimation ? 'blur-md opacity-30 scale-[0.98] pointer-events-none select-none' : ''
+            }`}
+          >
+            {isCompleted && (
+              <div className="mb-5 flex items-center gap-1.5 bg-white dark:bg-gray-800 p-1 rounded-2xl border-2 border-gray-200 dark:border-gray-700">
                 <button
+                  type="button"
                   onClick={() => {
-                    setDebugQuestIndex(null);
-                    setDebugCompleted(false);
+                    triggerHaptic('selection', userData.vibrationEnabled);
+                    playSound('pop', userData.soundEnabled ?? true);
+                    setActiveQuestView('tomorrow');
+                  }}
+                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    activeQuestView === 'tomorrow'
+                      ? 'bg-[#067bc2] text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
+                >
+                  <Calendar size={13} />
+                  <span>Tomorrow</span>
+                  {isTomorrowUnlocked && <Sparkles size={11} className="text-[#ecc30b]" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('selection', userData.vibrationEnabled);
+                    playSound('pop', userData.soundEnabled ?? true);
                     setActiveQuestView('today');
                   }}
-                  className="px-3 py-2.5 rounded-xl font-medium text-xs text-red-500 border border-dashed border-red-200 hover:bg-red-50 transition-colors"
-                  title="Debug: Reset to active quest"
+                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    activeQuestView === 'today'
+                      ? 'bg-[#067bc2] text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                  }`}
                 >
-                  Reset
+                  <CheckCircle size={13} />
+                  <span>Today (Done)</span>
                 </button>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
 
-        {/* Streak Modal */}
+            <AnimatePresence mode="wait" initial={false}>
+              {isShowingTomorrow ? (
+                <motion.div
+                  key="tomorrow-view"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.16 }}
+                >
+                  {/* Metadata Line on Background */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {isTomorrowUnlocked && (tomorrowQuest as any)?.category ? (() => {
+                        const meta = getCategoryMeta((tomorrowQuest as any).category);
+                        const Icon = meta.icon;
+                        return (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#067bc2] dark:text-[#84bcda] truncate">
+                            <Icon size={14} className="shrink-0" />
+                            <span className="truncate">{(tomorrowQuest as any).category}</span>
+                          </span>
+                        );
+                      })() : (
+                        <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#8a6d00] dark:text-[#f6d84c]">
+                          <Lock size={13} />
+                          <span>Tomorrow Mystery</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {isTomorrowUnlocked && tomorrowQuest && (
+                      <DifficultyBars difficulty={tomorrowQuest.difficulty} compact />
+                    )}
+                  </div>
+
+                  {/* Quest Prompt directly on Background */}
+                  <div className="relative mb-3">
+                    <h2
+                      className={`text-2xl sm:text-[1.65rem] lg:text-[1.85rem] font-black leading-snug tracking-tight text-balance ${
+                        !isTomorrowUnlocked
+                          ? 'filter blur-[6px] select-none opacity-30 dark:opacity-20'
+                          : 'text-gray-950 dark:text-white'
+                      }`}
+                    >
+                      {tomorrowQuest
+                        ? tomorrowQuest.quest
+                        : 'Undertake an intentional mindfulness challenge outdoors and capture a fresh moment of focus.'}
+                    </h2>
+
+                    {!isTomorrowUnlocked && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-gray-800 shadow-sm border-2 border-[#ecc30b]">
+                          <Lock size={14} className="text-[#ecc30b]" />
+                          <span className="text-xs font-extrabold text-gray-800 dark:text-gray-100">
+                            Unlock Early with Stars
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {isTomorrowUnlocked && tomorrowQuest && (
+                    <div className="flex items-center gap-3 mb-5 text-xs font-extrabold tabular-nums">
+                      <span className="inline-flex items-center gap-1 text-gray-900 dark:text-white">
+                        <Star size={14} className="fill-[#ecc30b] text-[#ecc30b]" />
+                        +{tomorrowQuest.reward} PTS
+                      </span>
+                      <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">·</span>
+                      <span className="inline-flex items-center gap-1 text-[#067bc2] dark:text-[#84bcda]">
+                        <Award size={14} />
+                        +{getQuestXp(tomorrowQuest.difficulty)} XP
+                      </span>
+                    </div>
+                  )}
+
+                  {isTomorrowUnlocked && tomorrowQuest ? (
+                    <div className="w-full py-3.5 rounded-2xl font-extrabold text-sm bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-2 border-emerald-500/30 flex items-center justify-center gap-2 mt-4">
+                      <CheckCircle size={18} />
+                      <span>Ready for Tomorrow · Unlocks at Midnight</span>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleUnlockTomorrow}
+                      disabled={userData.points < 20}
+                      className={`w-full py-3.5 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer mt-4 ${
+                        userData.points >= 20
+                          ? 'btn-tactile btn-tactile-amber'
+                          : 'btn-tactile btn-tactile-neutral bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      <Star size={17} className={userData.points >= 20 ? 'fill-gray-900 text-gray-900' : ''} />
+                      <span>
+                        {userData.points >= 20
+                          ? 'Unlock Tomorrow (20 PTS)'
+                          : `Need 20 PTS to Unlock (${userData.points}/20)`}
+                      </span>
+                    </button>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="today-view"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.16 }}
+                >
+                  {/* Metadata Line on Background */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-[#067bc2] dark:text-[#84bcda] min-w-0">
+                      <TodayCatIcon size={14} className="shrink-0" />
+                      <span className="truncate">{(todayQuest as any).category || 'Daily Quest'}</span>
+                    </div>
+
+                    <DifficultyBars difficulty={todayQuest.difficulty} compact />
+                  </div>
+
+                  {/* Quest Title Directly on Background */}
+                  <h2
+                    className={`text-2xl sm:text-[1.65rem] lg:text-[1.85rem] font-black leading-snug tracking-tight text-balance mb-3 ${
+                      isCompleted
+                        ? 'text-gray-400 dark:text-gray-500 line-through decoration-[#ff3b5c]/60'
+                        : 'text-gray-950 dark:text-white'
+                    }`}
+                  >
+                    {todayQuest.quest}
+                  </h2>
+
+                  {/* Quiet Inline Reward Line */}
+                  <div className="flex items-center gap-3 text-xs font-extrabold mb-5 tabular-nums">
+                    <span className="inline-flex items-center gap-1 text-gray-900 dark:text-white">
+                      <Star size={14} className="fill-[#ecc30b] text-[#ecc30b]" />
+                      +{todayQuest.reward} PTS
+                    </span>
+                    <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">·</span>
+                    <span className="inline-flex items-center gap-1 text-[#067bc2] dark:text-[#84bcda]">
+                      <Award size={14} />
+                      +{todayXpReward} XP
+                    </span>
+                  </div>
+
+                  {/* Complete Button Under Today's Quest */}
+                  {!isCompleted ? (
+                    <button
+                      type="button"
+                      onClick={handleComplete}
+                      disabled={isCompleted || showAnimation}
+                      className="btn-tactile btn-tactile-coral w-full py-3.5 sm:py-4 px-5 rounded-2xl font-black text-base sm:text-lg flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <CheckCircle size={20} strokeWidth={2.5} />
+                      <span>Complete Quest</span>
+                    </button>
+                  ) : (
+                    <div className="space-y-2.5">
+                      <div className="w-full py-3 rounded-2xl font-extrabold text-sm bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-2 border-emerald-500/30 flex items-center justify-center gap-2">
+                        <CheckCircle size={17} />
+                        <span>Quest Completed Today!</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('selection', userData.vibrationEnabled);
+                          playSound('pop', userData.soundEnabled ?? true);
+                          setActiveQuestView('tomorrow');
+                        }}
+                        className="btn-tactile btn-tactile-teal w-full py-3.5 px-4 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <span>Preview Tomorrow&apos;s Quest</span>
+                        <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Freeze & Reroll Buttons Side-by-Side Under Complete Button */}
+                  <div className="grid grid-cols-2 gap-2.5 mt-2.5">
+                    <button
+                      type="button"
+                      onClick={handleFreeze}
+                      className="btn-tactile btn-tactile-neutral py-3 px-4 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 cursor-pointer bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-200 dark:border-gray-700"
+                      title={
+                        isFrozenToday
+                          ? 'Streak frozen for today'
+                          : userData.streakFreezes > 0
+                          ? `Use 1 Streak Freeze (${userData.streakFreezes} available)`
+                          : 'Get Streak Freezes'
+                      }
+                    >
+                      <Snowflake size={15} className="text-[#067bc2] dark:text-[#84bcda] shrink-0" />
+                      <span>Freeze</span>
+                      <span className="text-[11px] font-black text-[#067bc2] dark:text-[#84bcda] tabular-nums">
+                        {isFrozenToday ? 'ACTIVE' : `${userData.streakFreezes}`}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic('medium', userData.vibrationEnabled);
+                        playSound('reroll', userData.soundEnabled ?? true);
+                        const res = rerollQuest();
+                        showToastMessage(res.message);
+                      }}
+                      disabled={isCompleted}
+                      className={`btn-tactile btn-tactile-neutral py-3 px-4 rounded-2xl font-extrabold text-xs flex items-center justify-center gap-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${
+                        isCompleted
+                          ? 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-500'
+                          : 'cursor-pointer text-gray-800 dark:text-gray-100'
+                      }`}
+                      title={
+                        userData.lastFreeRerollDate !== todayISO
+                          ? 'Free daily reroll available'
+                          : 'Reroll quest for 5 Stars'
+                      }
+                    >
+                      <RefreshCw size={14} className="shrink-0" />
+                      <span>Reroll</span>
+                      <span className="text-[11px] font-black text-[#067bc2] dark:text-[#84bcda]">
+                        {userData.lastFreeRerollDate !== todayISO ? 'FREE' : '5 PTS'}
+                      </span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {showDebugTools && (
+              <div className="mt-4 pt-3 border-t border-dashed border-gray-200 dark:border-gray-700 flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleDebugReroll}
+                  className="flex-1 py-2 rounded-xl font-bold text-xs text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw size={13} />
+                  Reroll (Dev)
+                </button>
+                {debugQuestIndex !== null && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDebugQuestIndex(null);
+                      setDebugCompleted(false);
+                      setActiveQuestView('today');
+                    }}
+                    className="px-3 py-2 rounded-xl font-bold text-xs text-[#ff3b5c] border border-dashed border-[#ff3b5c]/40 hover:bg-[#ff3b5c]/10 transition-colors cursor-pointer"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Weekly 7-Day Streak Widget */}
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic('light', userData.vibrationEnabled);
+            playSound('click', userData.soundEnabled ?? true);
+            setShowStreakModal(true);
+          }}
+          className="w-full lg:col-span-5 lg:sticky lg:top-8 text-left bg-white dark:bg-gray-800 rounded-2xl p-4 lg:p-5 playful-card border-gray-200 dark:border-gray-700 transition-all cursor-pointer active:translate-y-[1px]"
+        >
+          <div className="flex items-center justify-between gap-2 mb-3.5">
+            <div className="flex items-center gap-2">
+              <div className="bg-gray-100 dark:bg-gray-700 p-1.5 rounded-lg">
+                <Flame size={15} className="fill-[#ff3b5c] text-[#ff3b5c]" />
+              </div>
+              <span className="font-black text-sm text-gray-950 dark:text-white tabular-nums">
+                {userData.streak}-Day Streak
+              </span>
+            </div>
+            <span className="inline-flex items-center gap-0.5 text-xs font-bold text-gray-400 dark:text-gray-500 tabular-nums">
+              Week {streakWeekNumber}
+              <ChevronRight size={14} />
+            </span>
+          </div>
+
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+            {weekDays.map((day) => (
+              <div key={day.iso} className="flex flex-col items-center gap-1.5">
+                <span
+                  className={`text-[11px] font-extrabold ${
+                    day.isToday ? 'text-[#ff4b5c]' : 'text-gray-400 dark:text-gray-500'
+                  }`}
+                >
+                  {day.label}
+                </span>
+                <div
+                  className={`w-9 h-9 lg:w-8 lg:h-8 xl:w-9 xl:h-9 rounded-full flex items-center justify-center transition-all ${
+                    day.isDone
+                      ? 'bg-[#ff3b5c] text-white shadow-[0_3px_0_#c81438]'
+                      : day.isFrozen
+                      ? 'bg-[#84bcda] text-white shadow-[0_3px_0_#067bc2]'
+                      : day.isToday
+                      ? 'bg-[#ff4b5c] text-white ring-4 ring-[#ff4b5c]/20 shadow-[0_3px_0_#d12134]'
+                      : 'bg-gray-100 dark:bg-gray-900/60 border-2 border-gray-200 dark:border-gray-700 text-gray-300 dark:text-gray-600'
+                  }`}
+                >
+                  {day.isDone ? (
+                    <Check size={16} strokeWidth={3.2} />
+                  ) : day.isFrozen ? (
+                    <Snowflake size={15} />
+                  ) : day.isToday ? (
+                    <Zap size={16} className="fill-white" />
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </button>
+      </div>
+
+      {/* Streak Modal */}
       <AnimatePresence>
         {showStreakModal && (
           <StreakModal

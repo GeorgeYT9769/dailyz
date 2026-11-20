@@ -2,66 +2,51 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  Flame, Star, Sparkles, CheckCircle2, Lock, ArrowRight,
-  ChevronLeft, Award, Clock, Dices, Compass,
-  Check, Bell, Volume2
+  Flame,
+  Star,
+  Sparkles,
+  CheckCircle,
+  Lock,
+  ArrowRight,
+  ChevronLeft,
+  Award,
+  Clock,
+  Dices,
+  Compass,
+  Check,
+  Bell,
+  Volume2,
+  Snowflake,
+  RefreshCw,
+  Calendar,
+  Zap,
+  Footprints,
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { triggerHaptic } from '../utils/haptics';
 import { getRandomInterestingName } from '../utils/nameGenerator';
-import { requestNotificationPermission, scheduleDailyReminder, formatTimeDisplay } from '../utils/notificationUtils';
+import {
+  requestNotificationPermission,
+  scheduleDailyReminder,
+  formatTimeDisplay,
+} from '../utils/notificationUtils';
 import { playSound } from '../utils/audioEffects';
-
-interface Material3SwitchProps {
-  checked: boolean;
-  onChange: () => void;
-  ariaLabel: string;
-}
-
-function Material3Switch({ checked, onChange, ariaLabel }: Material3SwitchProps) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={ariaLabel}
-      onClick={onChange}
-      className={`relative inline-flex h-8 w-[52px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-95 ${
-        checked
-          ? 'bg-accent'
-          : 'bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-500'
-      }`}
-      style={checked ? { backgroundColor: 'var(--accent-color)' } : {}}
-    >
-      <span
-        className={`pointer-events-none flex items-center justify-center rounded-full transition-all duration-200 ease-out shadow-sm ${
-          checked
-            ? 'h-6 w-6 translate-x-[24px] bg-white text-accent'
-            : 'h-4 w-4 translate-x-[4px] bg-gray-500 dark:bg-gray-400'
-        }`}
-        style={checked ? { color: 'var(--accent-color)' } : {}}
-      >
-        {checked && (
-          <Check size={14} strokeWidth={3.5} />
-        )}
-      </span>
-    </button>
-  );
-}
+import TactileSwitch from './TactileSwitch';
+import DifficultyBars from './DifficultyBars';
 
 interface OnboardingProps {
   onClose?: () => void;
 }
 
 const BASIC_COLORS = [
-  { id: '#3b82f6', name: 'Blue', color: '#3b82f6' },
-  { id: '#10b981', name: 'Green', color: '#10b981' },
-  { id: '#8b5cf6', name: 'Purple', color: '#8b5cf6' },
-  { id: '#ef4444', name: 'Red', color: '#ef4444' },
-  { id: '#f97316', name: 'Orange', color: '#f97316' },
-  { id: '#eab308', name: 'Yellow', color: '#eab308' },
-  { id: '#ec4899', name: 'Pink', color: '#ec4899' },
-  { id: '#06b6d4', name: 'Cyan', color: '#06b6d4' },
+  { id: '#067bc2', name: 'Teal Blue', color: '#067bc2', dark: '#04598c' },
+  { id: '#ff5d38', name: 'Coral Glow', color: '#ff5d38', dark: '#cc3412' },
+  { id: '#ff3b5c', name: 'Vibrant Pink', color: '#ff3b5c', dark: '#c81438' },
+  { id: '#ecc30b', name: 'Amber', color: '#ecc30b', dark: '#b99603' },
+  { id: '#84bcda', name: 'Sky Blue', color: '#84bcda', dark: '#4e91b5' },
+  { id: '#10b981', name: 'Emerald', color: '#10b981', dark: '#047857' },
+  { id: '#8b5cf6', name: 'Purple', color: '#8b5cf6', dark: '#6d28d9' },
+  { id: '#3b82f6', name: 'Classic Blue', color: '#3b82f6', dark: '#1d4ed8' },
 ];
 
 export default function Onboarding({ onClose }: OnboardingProps) {
@@ -69,17 +54,18 @@ export default function Onboarding({ onClose }: OnboardingProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [customName, setCustomName] = useState(userData.name || 'Cosmic Wanderer');
-  const [selectedColor, setSelectedColor] = useState(userData.accentColor || '#3b82f6');
+  const [selectedColor, setSelectedColor] = useState(userData.accentColor || '#067bc2');
   const [remindersEnabled, setRemindersEnabled] = useState(userData.notificationsEnabled ?? false);
   const [reminderTime, setReminderTime] = useState(userData.notificationTime || '09:00');
 
-  // Swipe handling
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
   const TOTAL_SLIDES = 6;
 
-  // Lock background scroll when onboarding is open
+  const activeColorMeta =
+    BASIC_COLORS.find((c) => c.id.toLowerCase() === selectedColor.toLowerCase()) || BASIC_COLORS[0];
+
   useEffect(() => {
     const origOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -90,10 +76,10 @@ export default function Onboarding({ onClose }: OnboardingProps) {
 
   const handleFinish = () => {
     triggerHaptic('success', userData.vibrationEnabled);
+    playSound('complete', userData.soundEnabled ?? true);
     if (remindersEnabled) {
       scheduleDailyReminder(reminderTime, true);
     }
-    // Persist customized name, accent color, and notifications settings
     updateSettings({
       name: customName.trim() || userData.name || 'Cosmic Wanderer',
       accentColor: selectedColor,
@@ -110,6 +96,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
 
   const handleSkip = () => {
     triggerHaptic('light', userData.vibrationEnabled);
+    playSound('click', userData.soundEnabled ?? true);
     updateSettings({ hasSeenOnboarding: true });
     if (onClose) {
       onClose();
@@ -123,6 +110,7 @@ export default function Onboarding({ onClose }: OnboardingProps) {
     setDirection(newIndex > currentSlide ? 1 : -1);
     setCurrentSlide(newIndex);
     triggerHaptic('selection', userData.vibrationEnabled);
+    playSound('pop', userData.soundEnabled ?? true);
   };
 
   const handleNext = () => {
@@ -151,7 +139,6 @@ export default function Onboarding({ onClose }: OnboardingProps) {
     const diffX = touchStartX.current - e.changedTouches[0].clientX;
     const diffY = touchStartY.current - e.changedTouches[0].clientY;
 
-    // Only swipe if horizontal motion was significant and greater than vertical
     if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
       if (diffX > 0 && currentSlide < TOTAL_SLIDES - 1) {
         handleNext();
@@ -163,7 +150,6 @@ export default function Onboarding({ onClose }: OnboardingProps) {
     touchStartY.current = null;
   };
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' && currentSlide < TOTAL_SLIDES - 1) {
@@ -178,7 +164,6 @@ export default function Onboarding({ onClose }: OnboardingProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSlide]);
 
-  // Snappy, GPU-accelerated slide transitions
   const slideVariants = {
     enter: (dir: number) => ({
       x: dir > 0 ? 28 : -28,
@@ -200,42 +185,41 @@ export default function Onboarding({ onClose }: OnboardingProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.16 }}
-      className="fixed inset-0 z-[120] flex flex-col justify-between bg-gray-950 text-white select-none overflow-hidden"
+      className="dark fixed inset-0 z-[120] flex flex-col justify-between bg-[#0f172a] text-white select-none overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={{
         paddingTop: 'max(1.25rem, env(safe-area-inset-top, 1.25rem))',
         paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))',
-        background: `radial-gradient(circle at 50% 18%, ${selectedColor}22 0%, transparent 60%), #030712`,
       }}
     >
       {/* Top Header Bar */}
       <header className="px-6 py-2 flex items-center justify-between shrink-0 relative z-10 max-w-lg mx-auto w-full">
-        {/* Brand & Step Tag */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center p-1.5 ring-1 ring-white/15">
-            <Compass size={18} className="text-white" />
+          <div className="w-9 h-9 rounded-xl bg-gray-800 border-2 border-b-[3px] border-gray-700 flex items-center justify-center">
+            <Compass size={18} className="text-[#84bcda]" />
           </div>
-          <div>
-            <div className="text-xs font-bold tracking-wider uppercase text-gray-300 flex items-center gap-1.5">
-              <span>Dailyz Tour</span>
-              <span className="w-1 h-1 rounded-full bg-gray-400" />
-              <span className="text-[11px] font-mono text-gray-400">{currentSlide + 1}/{TOTAL_SLIDES}</span>
-            </div>
+          <div className="text-xs font-black tracking-wider uppercase text-gray-200 flex items-center gap-1.5">
+            <span>Dailyz Tour</span>
+            <span className="text-gray-500" aria-hidden="true">·</span>
+            <span className="text-[11px] font-mono text-gray-400">
+              {currentSlide + 1}/{TOTAL_SLIDES}
+            </span>
           </div>
         </div>
 
-        {/* Skip button */}
         <button
+          type="button"
           onClick={handleSkip}
-          className="text-xs font-semibold px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gray-300 hover:text-white transition-all cursor-pointer ring-1 ring-white/10"
+          className="btn-tactile btn-tactile-neutral text-xs font-extrabold px-3.5 py-1.5 rounded-xl bg-gray-800 border-gray-700 text-gray-200 hover:text-white cursor-pointer"
         >
           Skip
         </button>
       </header>
 
       {/* Slide Carousel Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 max-w-md mx-auto w-full relative z-10 my-auto">
+      <main className="flex-1 w-full overflow-y-auto no-scrollbar relative z-10 flex flex-col">
+        <div className="my-auto px-5 py-2 max-w-md md:max-w-lg mx-auto w-full flex flex-col items-center">
         <AnimatePresence mode="wait" custom={direction} initial={false}>
           <motion.div
             key={currentSlide}
@@ -248,299 +232,262 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             style={{ willChange: 'transform, opacity' }}
             className="w-full flex flex-col items-center text-center"
           >
-            {/* SLIDE 1: Welcome & Daily Quests */}
+            {/* SLIDE 1: Minimal Homescreen Quest & Weekly Streak */}
             {currentSlide === 0 && (
               <div className="w-full flex flex-col items-center">
-                {/* Visual Showcase Card */}
-                <div className="relative mb-7 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <img
-                          src="/icon.png"
-                          alt="Dailyz"
-                          className="w-8 h-8 rounded-xl object-cover ring-1 ring-white/20"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                        <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">Today's Quest</span>
-                      </div>
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                        Easy
+                {/* Preview Widget matching Home.tsx */}
+                <div className="w-full max-w-[330px] rounded-2xl bg-[#0f172a] border-2 border-b-4 border-gray-700 p-4 mb-6 text-left space-y-3.5">
+                  {/* Mini Dailyz Header */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-base font-black tracking-tight text-white">Dailyz</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center gap-1 bg-gray-800 text-white px-2.5 py-1 rounded-xl border-2 border-gray-700 text-[11px] font-extrabold tabular-nums">
+                        <Flame size={12} className="fill-[#ff3b5c] text-[#ff3b5c]" />
+                        <span>7</span>
+                      </span>
+                      <span className="flex items-center gap-1 bg-gray-800 text-white px-2.5 py-1 rounded-xl border-2 border-gray-700 text-[11px] font-extrabold tabular-nums">
+                        <Star size={12} className="fill-[#ecc30b] text-[#ecc30b]" />
+                        <span>1,450</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Quest Directly on Background */}
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#84bcda]">
+                        <Footprints size={12} />
+                        <span>Mind & Motion</span>
+                      </span>
+                      <DifficultyBars difficulty="medium" compact />
+                    </div>
+
+                    <div className="text-base font-black leading-snug text-white mb-2">
+                      Take a 15-minute walk without checking your phone
+                    </div>
+
+                    <div className="flex items-center gap-2.5 text-[11px] font-extrabold mb-3 tabular-nums">
+                      <span className="inline-flex items-center gap-1 text-white">
+                        <Star size={12} className="fill-[#ecc30b] text-[#ecc30b]" />
+                        +20 PTS
+                      </span>
+                      <span className="text-gray-600" aria-hidden="true">·</span>
+                      <span className="inline-flex items-center gap-1 text-[#84bcda]">
+                        <Award size={12} />
+                        +35 XP
                       </span>
                     </div>
 
-                    <div className="text-sm font-semibold text-white mb-2 line-clamp-2">
-                      Take a 15-minute nature walk without checking your phone
+                    {/* Vibrant Complete Button + Side-by-Side Freeze & Reroll */}
+                    <div className="btn-tactile-coral w-full py-2.5 px-4 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 pointer-events-none">
+                      <CheckCircle size={15} strokeWidth={2.5} />
+                      <span>Complete Quest</span>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
-                      <div className="flex items-center gap-1 text-amber-400 font-bold">
-                        <Star size={14} className="fill-amber-400" />
-                        <span>+20 Stars</span>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="bg-gray-800 border-2 border-b-[3px] border-gray-700 py-2 px-2.5 rounded-xl text-[11px] font-extrabold text-gray-100 flex items-center justify-center gap-1.5">
+                        <Snowflake size={12} className="text-[#84bcda]" />
+                        <span>Freeze</span>
+                        <span className="text-[#84bcda] font-black">2</span>
                       </div>
-                      <div className="flex items-center gap-1 text-orange-400 font-bold">
-                        <Flame size={14} className="fill-orange-400" />
-                        <span>Streak Active</span>
+                      <div className="bg-gray-800 border-2 border-b-[3px] border-gray-700 py-2 px-2.5 rounded-xl text-[11px] font-extrabold text-gray-100 flex items-center justify-center gap-1.5">
+                        <RefreshCw size={12} />
+                        <span>Reroll</span>
+                        <span className="text-[#84bcda] font-black">FREE</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Floating elements */}
-                  <div className="absolute -top-3 -right-3 bg-amber-500 text-gray-950 font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 rotate-3 ring-2 ring-gray-900">
-                    <Sparkles size={12} />
-                    <span>Daily Reset</span>
+                  {/* Mini Weekly Streak Widget */}
+                  <div className="bg-gray-800 rounded-xl p-3 playful-card border-gray-700">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5">
+                        <Flame size={13} className="fill-[#ff3b5c] text-[#ff3b5c]" />
+                        <span className="text-xs font-black text-white">7-Day Streak</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-400">Week 2</span>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => {
+                        const isDone = i < 5;
+                        const isToday = i === 5;
+                        return (
+                          <div key={i} className="flex flex-col items-center gap-1">
+                            <span
+                              className={`text-[9px] font-extrabold ${
+                                isToday ? 'text-[#ff4b5c]' : 'text-gray-400'
+                              }`}
+                            >
+                              {d}
+                            </span>
+                            <div
+                              className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                                isDone
+                                  ? 'bg-[#ff3b5c] text-white shadow-[0_2px_0_#c81438]'
+                                  : isToday
+                                  ? 'bg-[#ff4b5c] text-white ring-2 ring-[#ff4b5c]/30 shadow-[0_2px_0_#d12134]'
+                                  : 'bg-gray-900/70 border border-gray-700'
+                              }`}
+                            >
+                              {isDone ? (
+                                <Check size={11} strokeWidth={3.5} />
+                              ) : isToday ? (
+                                <Zap size={11} className="fill-white" />
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 
-                {/* Text Content */}
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
-                  Small Habits. <span className="text-blue-400">Epic Momentum.</span>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                  One Quest. <span className="text-[#ff4b5c]">Pure Momentum.</span>
                 </h2>
-                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-6">
-                  Every 24 hours brings one meaningful micro-quest designed to spark action without overwhelming your schedule.
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
+                  Zero clutter. Every day gives you one clear quest on the home canvas, freeze protection, a daily reroll, and your weekly streak.
                 </p>
-
-                {/* Quick feature tags */}
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    ⚡ 1 Quest Daily
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    🔥 Unbroken Streaks
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    ⭐ Earn Stars
-                  </span>
-                </div>
               </div>
             )}
 
-            {/* SLIDE 2: Merged Full-Page Quests & Midnight Swap */}
+            {/* SLIDE 2: Completion Blur & Instant Swap */}
             {currentSlide === 1 && (
               <div className="w-full flex flex-col items-center">
-                {/* Visual Showcase Card */}
-                <div className="relative mb-7 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                          <CheckCircle2 size={15} />
+                {/* Preview Widget matching Home.tsx completion overlay + switcher */}
+                <div className="w-full max-w-[330px] rounded-2xl bg-[#0f172a] border-2 border-b-4 border-gray-700 p-4 mb-6 text-left space-y-3">
+                  {/* Blurred completion showcase */}
+                  <div className="relative rounded-xl overflow-hidden py-4 px-3">
+                    {/* Blurred content underneath */}
+                    <div className="blur-[3px] opacity-25 scale-[0.98] select-none pointer-events-none space-y-2.5">
+                      <div className="text-[10px] font-black uppercase text-[#84bcda]">Mind & Motion</div>
+                      <div className="text-base font-black text-white leading-snug">
+                        Take a 15-minute walk without checking your phone
+                      </div>
+                      <div className="h-9 rounded-xl bg-[#ff4b5c]" />
+                    </div>
+
+                    {/* Crisp Celebration Overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <div className="relative flex items-center justify-center mb-1.5">
+                        <div className="w-14 h-14 rounded-2xl border-4 border-[#067bc2]/70 flex items-center justify-center bg-emerald-500 shadow-[0_3px_0_#047857]">
+                          <Check size={28} strokeWidth={3.2} className="text-white" />
                         </div>
-                        <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Completed Today</span>
                       </div>
-                      <span className="text-[11px] font-mono text-gray-400">Done</span>
-                    </div>
-
-                    {/* Transition arrow box */}
-                    <div className="p-3 bg-white/5 rounded-2xl border border-white/10 my-2">
-                      <div className="flex items-center gap-2 text-xs font-semibold text-gray-300">
-                        <Clock size={13} className="text-blue-400" />
-                        <span>Swaps to Tomorrow's Quest</span>
+                      <div className="font-black text-lg text-white leading-tight">
+                        Quest Completed!
                       </div>
-                      <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 font-mono">
-                        <span className="inline-block w-2 h-2 rounded-full bg-amber-400" />
-                        <span>Live countdown to midnight</span>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="px-2.5 py-1 rounded-xl bg-gray-800 border-2 border-gray-700 text-[#f6d84c] font-black text-xs">
+                          +20 PTS
+                        </span>
+                        <span className="px-2.5 py-1 rounded-xl bg-gray-800 border-2 border-gray-700 text-[#84bcda] font-black text-xs">
+                          +35 XP
+                        </span>
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs pt-1 text-gray-400">
-                      <span>Tomorrow unlocks in:</span>
-                      <span className="font-mono font-bold text-white bg-white/10 px-2 py-0.5 rounded-md">
-                        14h 28m
+                      <span className="text-[11px] font-semibold text-gray-300 mt-2">
+                        Loading tomorrow&apos;s quest...
                       </span>
                     </div>
                   </div>
 
-                  <div className="absolute -bottom-2.5 right-4 bg-blue-600 text-white font-bold text-[11px] px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-                    <span>Instant Swap</span>
-                    <ArrowRight size={12} />
+                  {/* Tomorrow | Today (Done) Toggle Bar */}
+                  <div className="flex items-center gap-1.5 bg-gray-800 p-1 rounded-xl border-2 border-gray-700">
+                    <div className="flex-1 py-2 text-[11px] font-extrabold rounded-lg bg-[#067bc2] text-white flex items-center justify-center gap-1.5">
+                      <Calendar size={12} />
+                      <span>Tomorrow</span>
+                    </div>
+                    <div className="flex-1 py-2 text-[11px] font-extrabold rounded-lg text-gray-400 flex items-center justify-center gap-1.5">
+                      <CheckCircle size={12} />
+                      <span>Today (Done)</span>
+                    </div>
                   </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
-                  Single-Card Focus. <span className="text-blue-400">Midnight Swap.</span>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                  Blur Effect. <span className="text-[#84bcda]">Instant Swap.</span>
                 </h2>
-                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-6">
-                  No clutter. Focus completely on today's quest. Once completed, your screen smoothly transitions to tomorrow's preview and live countdown!
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
+                  Finish today&apos;s quest to trigger your celebratory animation over a smooth blur, then automatically switch to Tomorrow&apos;s tab.
                 </p>
-
-                {/* <div className="flex flex-wrap items-center justify-center gap-2">
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    🎯 Zero Distractions
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    ⏳ Live Countdown
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    🔄 Seamless Swap
-                  </span>
-                </div> */}
               </div>
             )}
 
             {/* SLIDE 3: Tomorrow's Mystery Quest */}
             {currentSlide === 2 && (
               <div className="w-full flex flex-col items-center">
-                {/* Visual Showcase Card */}
-                <div className="relative mb-7 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
-                          <Lock size={13} />
-                        </div>
-                        <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Tomorrow's Quest</span>
-                      </div>
-                      <span className="text-[11px] font-bold text-gray-400">Locked</span>
+                {/* Preview Widget matching Home.tsx Tomorrow Mystery view */}
+                <div className="w-full max-w-[330px] rounded-2xl bg-[#0f172a] border-2 border-b-4 border-gray-700 p-4 mb-6 text-left">
+                  {/* Tab Switcher */}
+                  <div className="flex items-center gap-1.5 bg-gray-800 p-1 rounded-xl border-2 border-gray-700 mb-4">
+                    <div className="flex-1 py-1.5 text-[11px] font-extrabold rounded-lg bg-[#067bc2] text-white flex items-center justify-center gap-1.5">
+                      <Calendar size={12} />
+                      <span>Tomorrow</span>
                     </div>
+                    <div className="flex-1 py-1.5 text-[11px] font-extrabold rounded-lg text-gray-400 flex items-center justify-center gap-1.5">
+                      <CheckCircle size={12} />
+                      <span>Today (Done)</span>
+                    </div>
+                  </div>
 
-                    {/* Mystery representation */}
-                    <div className="relative p-3 bg-gray-950/70 rounded-2xl border border-white/5 my-2 overflow-hidden">
-                      <div className="opacity-40 select-none text-xs text-gray-300">
-                        Secret challenge: Read 10 pages of a book before bed...
-                      </div>
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-950/60">
-                        <span className="text-[11px] font-bold text-amber-300 flex items-center gap-1 bg-amber-950/90 px-2.5 py-1 rounded-full border border-amber-500/40">
-                          <Lock size={11} />
-                          <span>Mystery Challenge</span>
+                  {/* Tomorrow Mystery Header */}
+                  <div className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#f6d84c] mb-2">
+                    <Lock size={12} />
+                    <span>Tomorrow Mystery</span>
+                  </div>
+
+                  {/* Blurred Quest Text + Centered Yellow Badge */}
+                  <div className="relative mb-4">
+                    <div className="text-lg font-black leading-snug filter blur-[5px] select-none opacity-25 text-white">
+                      Write down three things you learned today and sketch one quick idea.
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-800 border-2 border-[#ecc30b]">
+                        <Lock size={13} className="text-[#ecc30b]" />
+                        <span className="text-xs font-extrabold text-gray-100">
+                          Unlock Early with Stars
                         </span>
                       </div>
                     </div>
-
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-xs text-gray-300">Unlock early:</span>
-                      <div className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold">
-                        <Star size={12} className="fill-amber-400 text-amber-400" />
-                        <span>20 Stars</span>
-                      </div>
-                    </div>
                   </div>
 
-                  <div className="absolute -top-3 -right-2 bg-gradient-to-r from-amber-500 to-orange-500 text-gray-950 font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 ring-2 ring-gray-900">
-                    <span>Peek Ahead!</span>
+                  {/* Tactile Amber Unlock Button */}
+                  <div className="btn-tactile-amber w-full py-3 rounded-xl font-extrabold text-xs flex items-center justify-center gap-2 pointer-events-none">
+                    <Star size={15} className="fill-gray-900 text-gray-900" />
+                    <span>Unlock Tomorrow (20 PTS)</span>
                   </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
-                  Peek Into <span className="text-amber-400">Tomorrow.</span>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                  Peek Into <span className="text-[#ecc30b]">Tomorrow.</span>
                 </h2>
-                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-6">
-                  Can't wait until midnight? Spend 20 earned stars to reveal tomorrow's mystery quest early and get a head start!
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
+                  Curious what&apos;s next? Spend 20 earned Stars to reveal tomorrow&apos;s mystery quest early and prep ahead.
                 </p>
-
-                {/* <div className="flex flex-wrap items-center justify-center gap-2">
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    🔮 Early Reveal
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    ⭐ Star Powered
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    🗓️ Plan Ahead
-                  </span>
-                </div> */}
               </div>
             )}
 
             {/* SLIDE 4: Daily Reminders & Local Notifications */}
             {currentSlide === 3 && (
               <div className="w-full flex flex-col items-center">
-                {/* Visual Showcase Card: Notification preview */}
-                <div className="relative mb-6 w-full max-w-[310px]">
-                  <div className="p-4 sm:p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                          <Bell size={14} />
-                        </div>
-                        <span className="text-xs font-bold text-gray-200">Daily Reminder</span>
+                {/* Preview Widget matching Settings.tsx Notification Card */}
+                <div className="w-full max-w-[330px] rounded-2xl bg-gray-800 playful-card border-gray-700 p-4 mb-5 text-left">
+                  <div className="flex items-center justify-between gap-2 mb-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-gray-700 text-gray-100">
+                        <Bell size={18} />
                       </div>
-                      <span className="text-xs font-mono font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-800/60">
-                        {formatTimeDisplay(reminderTime)}
-                      </span>
-                    </div>
-
-                    {/* Notification Toast Mockup */}
-                    <div className="p-3 bg-white/5 rounded-2xl border border-white/10 my-2">
-                      <div className="flex items-center gap-2 mb-1">
-                        <img
-                          src="/icon.png"
-                          alt="Dailyz"
-                          className="w-4 h-4 rounded-md object-cover"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <span className="text-xs font-bold text-white">Dailyz • Today's Quest 🎯</span>
-                      </div>
-                      <p className="text-[11px] text-gray-300 leading-snug">
-                        Your daily micro-quest is ready. Take a moment to complete it!
-                      </p>
-                    </div>
-
-                    {/* Custom Time Picker */}
-                    <div className="mt-3">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
-                          Reminder Time
-                        </span>
-                        <span className="text-[10px] text-gray-400">Standard banner</span>
-                      </div>
-
-                      {/* Native Time Input Field */}
-                      <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          <Clock size={15} className="text-blue-400" />
-                          <span className="text-xs font-semibold text-gray-200">Custom Time:</span>
-                        </div>
-                        <input
-                          type="time"
-                          value={reminderTime}
-                          onChange={(e) => {
-                            if (!e.target.value) return;
-                            triggerHaptic('selection', userData.vibrationEnabled);
-                            setReminderTime(e.target.value);
-                          }}
-                          className="px-2.5 py-1 rounded-xl text-xs font-bold bg-white/10 border border-white/15 text-white focus:outline-none focus:ring-1 focus:ring-blue-400 cursor-pointer"
-                          aria-label="Pick custom reminder time"
-                        />
-                      </div>
-
-                      {/* Presets */}
-                      <div className="grid grid-cols-2 gap-1.5 text-xs">
-                        {[
-                          { time: '08:00', label: '08:00 AM', desc: 'Early Bird' },
-                          { time: '09:00', label: '09:00 AM', desc: 'Morning' },
-                          { time: '13:00', label: '01:00 PM', desc: 'Midday' },
-                          { time: '20:00', label: '08:00 PM', desc: 'Evening' },
-                        ].map((t) => (
-                          <button
-                            key={t.time}
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic('selection', userData.vibrationEnabled);
-                              setReminderTime(t.time);
-                            }}
-                            className={`p-1.5 px-2 rounded-xl text-left border transition-all cursor-pointer ${
-                              reminderTime === t.time
-                                ? 'bg-blue-600/30 border-blue-400 text-white font-bold ring-1 ring-blue-400/50'
-                                : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'
-                            }`}
-                          >
-                            <div className="font-semibold text-[11px]">{t.label}</div>
-                            <div className="text-[9px] text-gray-400">{t.desc}</div>
-                          </button>
-                        ))}
+                      <div>
+                        <div className="text-sm font-black text-white leading-tight">Daily Reminders</div>
+                        <div className="text-[11px] text-gray-400">Stay consistent before midnight</div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Enable reminder toggle button */}
-                  <div className="mt-3 flex justify-center">
-                    <button
-                      type="button"
-                      onClick={async () => {
+                    <TactileSwitch
+                      checked={remindersEnabled}
+                      activeColor={selectedColor}
+                      onChange={async () => {
                         triggerHaptic('medium', userData.vibrationEnabled);
+                        playSound('pop', userData.soundEnabled ?? true);
                         if (!remindersEnabled) {
                           const granted = await requestNotificationPermission();
                           setRemindersEnabled(granted);
@@ -548,103 +495,169 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                           setRemindersEnabled(false);
                         }
                       }}
-                      className={`w-full py-2.5 px-4 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 border transition-all cursor-pointer ${
-                        remindersEnabled
-                          ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300 ring-1 ring-emerald-500/30'
-                          : 'bg-white/10 border-white/15 text-white hover:bg-white/20'
-                      }`}
-                    >
-                      <Bell size={14} className={remindersEnabled ? "text-emerald-400 fill-emerald-400" : ""} />
-                      <span>{remindersEnabled ? "Daily Reminders Active ✓" : "Enable Daily Reminders"}</span>
-                    </button>
+                      ariaLabel="Toggle daily reminders"
+                    />
+                  </div>
+
+                  {/* Notification Preview Banner */}
+                  <div className="p-3 bg-gray-900 rounded-xl border-2 border-gray-700 mb-3">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-black text-white">Dailyz · Today&apos;s Quest 🎯</span>
+                      <span className="text-[10px] font-black font-mono text-[#84bcda]">
+                        {formatTimeDisplay(reminderTime)}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-300 leading-snug">
+                      Your daily micro-quest is waiting. Keep your streak alive!
+                    </p>
+                  </div>
+
+                  {/* Presets matching Settings.tsx */}
+                  <div className="grid grid-cols-2 gap-2 mb-2.5">
+                    {[
+                      { time: '08:00', label: '08:00 AM', desc: 'Morning' },
+                      { time: '09:00', label: '09:00 AM', desc: 'Start Day' },
+                      { time: '13:00', label: '01:00 PM', desc: 'Midday' },
+                      { time: '20:00', label: '08:00 PM', desc: 'Evening' },
+                    ].map((t) => {
+                      const isActive = reminderTime === t.time;
+                      return (
+                        <button
+                          key={t.time}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic('selection', userData.vibrationEnabled);
+                            playSound('pop', userData.soundEnabled ?? true);
+                            setReminderTime(t.time);
+                          }}
+                          className={`btn-tactile py-2 px-2.5 rounded-xl text-left cursor-pointer ${
+                            isActive
+                              ? 'btn-tactile-teal'
+                              : 'btn-tactile-neutral bg-gray-900 border-gray-700 text-gray-200'
+                          }`}
+                        >
+                          <div className="font-extrabold text-[11px]">{t.label}</div>
+                          <div className={`text-[9px] ${isActive ? 'text-white/85' : 'text-gray-400'}`}>
+                            {t.desc}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Custom Time Row */}
+                  <div className="px-3 py-2 rounded-xl bg-gray-900 border-2 border-gray-700 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Clock size={14} className="text-[#84bcda]" />
+                      <span className="text-xs font-bold text-gray-200">Custom Time</span>
+                    </div>
+                    <input
+                      type="time"
+                      value={reminderTime}
+                      onChange={(e) => {
+                        if (!e.target.value) return;
+                        triggerHaptic('selection', userData.vibrationEnabled);
+                        setReminderTime(e.target.value);
+                      }}
+                      className="px-2.5 py-1 rounded-xl text-xs font-black bg-gray-800 border-2 border-gray-700 text-white focus:outline-none focus:border-[#067bc2] cursor-pointer"
+                      aria-label="Pick custom reminder time"
+                    />
                   </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
-                  Never Miss <span className="text-blue-400">Your Streak.</span>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                  Never Miss <span className="text-[#84bcda]">Your Streak.</span>
                 </h2>
-                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-4">
-                  Get reminded to complete your quest before it goes away. Pick any custom time that fits your day.
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
+                  Pick a daily reminder time that fits your routine so you never lose your streak before midnight.
                 </p>
               </div>
             )}
 
-            {/* SLIDE 5: Profile & Rewards Shop */}
+            {/* SLIDE 5: XP Levels, Milestones & Rewards Shop */}
             {currentSlide === 4 && (
               <div className="w-full flex flex-col items-center">
-                {/* Visual Showcase Card */}
-                <div className="relative mb-7 w-full max-w-[300px]">
-                  <div className="p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl relative overflow-hidden text-left">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-pink-500 p-0.5 shadow-lg">
-                        <div className="w-full h-full rounded-[14px] bg-gray-900 flex items-center justify-center text-xl">
-                          🚀
+                {/* Preview Stack matching Profile.tsx & Rewards.tsx */}
+                <div className="w-full max-w-[330px] space-y-3 mb-6 text-left">
+                  {/* Profile XP Level Card */}
+                  <div className="bg-gray-800 rounded-2xl p-4 playful-card border-gray-700">
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-[#067bc2] text-white flex flex-col items-center justify-center shadow-[0_3px_0_#045b91] shrink-0">
+                          <span className="text-[8px] font-black uppercase leading-none opacity-85">LV</span>
+                          <span className="text-base font-black leading-none">5</span>
                         </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-gray-950 flex items-center justify-center text-[10px] font-black">
-                          ★
+                        <div>
+                          <div className="text-[10px] font-black uppercase tracking-wider text-[#84bcda]">
+                            Experience Level
+                          </div>
+                          <div className="text-sm font-black text-white leading-tight">
+                            Trailblazer
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div className="font-bold text-sm text-white">Grandmaster</div>
-                        <div className="text-[11px] text-purple-400 font-semibold flex items-center gap-1">
-                          <Award size={12} />
-                          <span>Prestige Rank</span>
-                        </div>
-                      </div>
+                      <span className="px-2.5 py-1 rounded-xl bg-[#84bcda]/20 text-[#84bcda] text-[11px] font-black">
+                        1,240 XP
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-center text-xs my-2">
-                      <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                        <div className="text-gray-400 text-[10px] uppercase">Unlocked Ranks</div>
-                        <div className="font-bold text-white mt-0.5">8 Available</div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-gray-400">
+                        <span>Level Progress</span>
+                        <span>240 / 350 XP (68%)</span>
                       </div>
-                      <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                        <div className="text-gray-400 text-[10px] uppercase">Profile Frames</div>
-                        <div className="font-bold text-white mt-0.5">Neon & Gold</div>
+                      <div className="h-2.5 w-full rounded-full bg-gray-900 border border-gray-700 overflow-hidden">
+                        <div className="h-full rounded-full bg-[#067bc2] w-[68%]" />
                       </div>
-                    </div>
-
-                    <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-gray-300">
-                      <span>Rewards Shop:</span>
-                      <span className="text-amber-400 font-bold">100% Free via Stars</span>
                     </div>
                   </div>
 
-                  <div className="absolute -top-3 -left-2 bg-purple-600 text-white font-bold text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1 ring-2 ring-gray-900">
-                    <Award size={12} />
-                    <span>Level Up</span>
+                  {/* Rewards Shop Row Previews */}
+                  <div className="space-y-2">
+                    <div className="bg-gray-800 rounded-2xl p-3 playful-card border-gray-700 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-extrabold text-xs text-white truncate">Streak Freeze</div>
+                        <div className="flex items-center gap-1 text-[11px] font-bold text-gray-300 mt-0.5">
+                          <Star size={11} className="fill-[#ecc30b] text-[#ecc30b]" />
+                          <span>50 PTS</span>
+                        </div>
+                      </div>
+                      <div className="btn-tactile-amber px-3.5 py-1.5 rounded-xl font-extrabold text-[11px] shrink-0">
+                        Get
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-800 rounded-2xl p-3 playful-card border-gray-700 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-extrabold text-xs text-white truncate">Gold PFP Border</div>
+                        <span className="inline-block text-[9px] font-black bg-gray-700 text-gray-200 px-2 py-0.5 rounded-lg uppercase tracking-wider mt-0.5">
+                          Unlocked
+                        </span>
+                      </div>
+                      <div className="btn-tactile-teal px-3.5 py-1.5 rounded-xl font-extrabold text-[11px] shrink-0">
+                        Equip
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2.5">
-                  Prestige Ranks & <span className="text-purple-400">Shop.</span>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                  XP Levels & <span className="text-[#ecc30b]">Rewards Shop.</span>
                 </h2>
-                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-6">
-                  Turn your consistency into flair. Spend stars on profile ranks, avatar decorations, and personalized titles.
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
+                  Level up with every quest, unlock Milestones, and spend your Stars on Streak Freezes, custom ranks, avatars, and profile borders.
                 </p>
-
-                {/* <div className="flex flex-wrap items-center justify-center gap-2">
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    👑 8+ Prestige Ranks
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    ✨ Avatar Borders
-                  </span>
-                  <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-gray-200 border border-white/10">
-                    🏷️ Custom Tags
-                  </span>
-                </div> */}
               </div>
             )}
 
             {/* SLIDE 6: Personalize & Launch */}
             {currentSlide === 5 && (
               <div className="w-full flex flex-col items-center">
-                {/* Interactive Personalization Card */}
-                <div className="w-full max-w-[320px] p-5 rounded-3xl bg-gray-900 border border-white/10 shadow-xl mb-6 text-left">
+                {/* Interactive Personalization Card matching Settings.tsx */}
+                <div className="w-full max-w-[330px] p-4 rounded-2xl bg-gray-800 playful-card border-gray-700 mb-5 text-left">
                   {/* Name field */}
                   <div className="mb-4">
-                    <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1.5">
+                    <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider mb-1.5">
                       Your Adventurer Name
                     </label>
                     <div className="flex items-center gap-2">
@@ -654,16 +667,17 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                         onChange={(e) => setCustomName(e.target.value)}
                         placeholder="e.g. Cosmic Wanderer"
                         maxLength={24}
-                        className="flex-1 bg-gray-950 border border-white/15 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="flex-1 bg-gray-900 border-2 border-gray-700 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-[#067bc2] transition-colors"
                       />
                       <button
                         type="button"
                         onClick={() => {
                           triggerHaptic('light', userData.vibrationEnabled);
+                          playSound('reroll', userData.soundEnabled ?? true);
                           setCustomName(getRandomInterestingName());
                         }}
                         title="Generate random name"
-                        className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-gray-300 hover:text-white cursor-pointer ring-1 ring-white/10"
+                        className="btn-tactile btn-tactile-neutral p-2.5 rounded-xl bg-gray-700 border-gray-600 text-gray-200 hover:text-white cursor-pointer"
                       >
                         <Dices size={18} />
                       </button>
@@ -672,10 +686,10 @@ export default function Onboarding({ onClose }: OnboardingProps) {
 
                   {/* Starter Accent Color Picker */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
-                      Choose Your Theme Accent
+                    <label className="block text-[11px] font-black text-gray-400 uppercase tracking-wider mb-2">
+                      Accent Color
                     </label>
-                    <div className="grid grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-4 gap-2">
                       {BASIC_COLORS.map((c) => {
                         const isSelected = selectedColor.toLowerCase() === c.id.toLowerCase();
                         return (
@@ -684,33 +698,39 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                             type="button"
                             onClick={() => {
                               triggerHaptic('selection', userData.vibrationEnabled);
+                              playSound('equip', userData.soundEnabled ?? true);
                               setSelectedColor(c.id);
                             }}
-                            className={`flex flex-col items-center gap-1 p-2 rounded-xl border transition-all cursor-pointer ${
+                            className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all cursor-pointer ${
                               isSelected
-                                ? 'bg-white/15 border-white/40 ring-2 ring-white/30 scale-105'
-                                : 'bg-gray-950/70 border-white/5 hover:bg-white/10'
+                                ? 'bg-gray-700 border-white/80'
+                                : 'bg-gray-900 border-gray-700 hover:bg-gray-700/60'
                             }`}
                           >
                             <div
-                              className="w-5 h-5 rounded-full shadow-sm flex items-center justify-center relative"
+                              className="w-5 h-5 rounded-full border border-black/20 flex items-center justify-center"
                               style={{ backgroundColor: c.color }}
                             >
-                              {isSelected && <Check size={12} className="text-white" strokeWidth={3} />}
+                              {isSelected && <Check size={11} className="text-white" strokeWidth={3.5} />}
                             </div>
-                            <span className="text-[10px] font-medium text-gray-300">{c.name}</span>
+                            <span className="text-[10px] font-bold text-gray-200 truncate w-full text-center">
+                              {c.name.split(' ')[0]}
+                            </span>
                           </button>
                         );
                       })}
                     </div>
 
-                    <div>
-                      <div className="flex items-center justify-between gap-3 mt-5">
-                        <div>
-                          <span className="font-medium">Sound Effects</span>
+                    <div className="flex items-center justify-between gap-3 mt-4 pt-3.5 border-t border-gray-700">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-xl bg-gray-700 text-[#ecc30b]">
+                          <Volume2 size={16} />
                         </div>
-                      <Material3Switch
+                        <span className="font-bold text-sm text-white">Sound Effects</span>
+                      </div>
+                      <TactileSwitch
                         checked={userData.soundEnabled ?? true}
+                        activeColor={selectedColor}
                         onChange={() => {
                           const nextVal = !(userData.soundEnabled ?? true);
                           if (nextVal) playSound('complete', true);
@@ -719,24 +739,24 @@ export default function Onboarding({ onClose }: OnboardingProps) {
                         ariaLabel="Toggle sound effects"
                       />
                     </div>
-                    </div>
                   </div>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
-                  You're Ready to Roll! 🚀
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
+                  You&apos;re Ready to Roll! 🚀
                 </h2>
-                <p className="text-sm text-gray-300 leading-relaxed max-w-xs mb-4">
-                  Remember: no one will check your progress, no one will ever know how you're doing. If you want to cheat, go ahead. But it ruins the fun. The choice is yours. Thank you and have fun!
+                <p className="text-sm text-gray-300 leading-relaxed max-w-xs">
+                  No one checks your progress—only you know how you&apos;re doing. Stay honest, keep it playful, and enjoy building momentum!
                 </p>
               </div>
             )}
           </motion.div>
         </AnimatePresence>
+        </div>
       </main>
 
       {/* Bottom Navigation & Controls */}
-      <footer className="px-6 pt-3 pb-2 flex flex-col gap-4 shrink-0 max-w-md mx-auto w-full relative z-10">
+      <footer className="px-6 pt-3 pb-2 flex flex-col gap-3.5 shrink-0 max-w-md mx-auto w-full relative z-10">
         {/* Step indicators */}
         <div className="flex items-center justify-center gap-2">
           {Array.from({ length: TOTAL_SLIDES }).map((_, idx) => {
@@ -744,12 +764,13 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             return (
               <button
                 key={idx}
+                type="button"
                 onClick={() => goToSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className="h-2 rounded-full transition-all duration-200 cursor-pointer"
+                className="h-2 rounded-md transition-all duration-200 cursor-pointer"
                 style={{
-                  width: isActive ? '28px' : '8px',
-                  backgroundColor: isActive ? (selectedColor || '#3b82f6') : 'rgba(255, 255, 255, 0.2)',
+                  width: isActive ? '26px' : '8px',
+                  backgroundColor: isActive ? activeColorMeta.color : 'rgba(255, 255, 255, 0.2)',
                 }}
               />
             );
@@ -757,11 +778,12 @@ export default function Onboarding({ onClose }: OnboardingProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {currentSlide > 0 && (
             <button
+              type="button"
               onClick={handleBack}
-              className="px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-gray-300 font-bold text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer ring-1 ring-white/10 shrink-0"
+              className="btn-tactile btn-tactile-neutral px-4 py-3.5 rounded-xl bg-gray-800 border-gray-700 text-gray-100 font-extrabold text-sm flex items-center justify-center gap-1 cursor-pointer shrink-0"
             >
               <ChevronLeft size={18} />
               <span>Back</span>
@@ -770,11 +792,14 @@ export default function Onboarding({ onClose }: OnboardingProps) {
 
           {currentSlide < TOTAL_SLIDES - 1 ? (
             <button
+              type="button"
               onClick={handleNext}
-              className="flex-1 py-3.5 px-6 rounded-2xl font-bold text-sm text-white shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer group"
+              className={`btn-tactile flex-1 py-3.5 px-6 rounded-xl font-black text-sm border-2 border-b-[5px] active:border-b-2 active:translate-y-[3px] flex items-center justify-center gap-2 cursor-pointer group ${
+                activeColorMeta.id === '#ecc30b' ? 'text-gray-900' : 'text-white'
+              }`}
               style={{
-                backgroundColor: selectedColor || '#3b82f6',
-                boxShadow: `0 4px 20px -2px ${selectedColor}66`,
+                backgroundColor: activeColorMeta.color,
+                borderColor: activeColorMeta.dark,
               }}
             >
               <span>Continue</span>
@@ -782,15 +807,18 @@ export default function Onboarding({ onClose }: OnboardingProps) {
             </button>
           ) : (
             <button
+              type="button"
               onClick={handleFinish}
-              className="flex-1 py-3.5 px-6 rounded-2xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+              className={`btn-tactile flex-1 py-3.5 px-6 rounded-xl font-black text-sm border-2 border-b-[5px] active:border-b-2 active:translate-y-[3px] flex items-center justify-center gap-2 cursor-pointer ${
+                activeColorMeta.id === '#ecc30b' ? 'text-gray-900' : 'text-white'
+              }`}
               style={{
-                backgroundColor: selectedColor || '#3b82f6',
-                boxShadow: `0 4px 25px -1px ${selectedColor}88`,
+                backgroundColor: activeColorMeta.color,
+                borderColor: activeColorMeta.dark,
               }}
             >
               <span>Start My Adventure</span>
-              <Sparkles size={18} className="fill-white" />
+              <Sparkles size={18} className="fill-current" />
             </button>
           )}
         </div>

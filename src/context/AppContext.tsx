@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { calculateStreaks, getTodayISO, getYesterdayISO } from '../utils/dateUtils';
 import { getRandomInterestingName } from '../utils/nameGenerator';
+import { getQuestXp, getBackfillXp } from '../utils/xpUtils';
 import { updateSystemBars } from '../utils/statusBar';
 import { scheduleDailyReminder, sendInstantNotification } from '../utils/notificationUtils';
 import { autoSyncWidget } from '../utils/widgetSync';
@@ -25,6 +26,7 @@ export type UserSocials = {
 export type UserData = {
   completedDays: string[];
   points: number;
+  xp: number;
   streak: number;
   longestStreak: number;
   redeemedRewards: Reward[];
@@ -74,7 +76,7 @@ interface AppContextType {
   isOnboardingOpen: boolean;
   openOnboarding: () => void;
   closeOnboarding: () => void;
-  completeQuest: (reward: number, dateIso: string, force?: boolean) => void;
+  completeQuest: (reward: number, dateIso: string, force?: boolean, xpReward?: number) => void;
   redeemReward: (id: string, customValue?: string) => void;
   updateSettings: (settings: Partial<UserData>) => void;
   importData: (data: UserData) => void;
@@ -87,12 +89,13 @@ interface AppContextType {
 const defaultUserData: UserData = {
   completedDays: [],
   points: 0,
+  xp: 0,
   streak: 0,
   longestStreak: 0,
   redeemedRewards: [],
   socials: {},
   theme: "dark",
-  accentColor: "#3b82f6",
+  accentColor: "#067bc2",
   vibrationEnabled: true,
   soundEnabled: true,
   profileImage: null,
@@ -137,6 +140,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...defaultUserData, 
           ...parsed, 
           name: initialName, 
+          xp: typeof parsed.xp === 'number' ? parsed.xp : getBackfillXp((parsed.completedDays || []).length),
           streak: streaks.current, 
           longestStreak: streaks.longest,
           streakFreezes: streakFreezesCount,
@@ -177,16 +181,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const isDark = userData.theme === 'dark';
     if (isDark) {
       document.documentElement.classList.add('dark');
-      document.documentElement.style.backgroundColor = '#111827';
+      document.documentElement.style.backgroundColor = '#0f172a';
       document.documentElement.style.colorScheme = 'dark';
     } else {
       document.documentElement.classList.remove('dark');
-      document.documentElement.style.backgroundColor = '#f9fafb';
+      document.documentElement.style.backgroundColor = '#f6f8fc';
       document.documentElement.style.colorScheme = 'light';
     }
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', isDark ? '#111827' : '#f9fafb');
+      meta.setAttribute('content', isDark ? '#0f172a' : '#f6f8fc');
     }
     document.documentElement.style.setProperty('--accent-color', userData.accentColor);
 
@@ -242,17 +246,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => clearInterval(interval);
   }, [userData.notificationsEnabled, userData.notificationTime, userData.completedDays, isLoaded]);
 
-  const completeQuest = (reward: number, dateIso: string, force: boolean = false) => {
+  const completeQuest = (reward: number, dateIso: string, force: boolean = false, xpReward?: number) => {
     setUserData(prev => {
       const isAlreadyCompleted = prev.completedDays.includes(dateIso);
       if (isAlreadyCompleted && !force) return prev;
       
       const newCompleted = isAlreadyCompleted ? prev.completedDays : [...prev.completedDays, dateIso];
       const streaks = calculateStreaks(newCompleted, prev.usedStreakFreezes || []);
+      const earnedXp = typeof xpReward === 'number' ? xpReward : getQuestXp('medium');
       return {
         ...prev,
         completedDays: newCompleted,
         points: prev.points + reward,
+        xp: (prev.xp || 0) + earnedXp,
         streak: streaks.current,
         longestStreak: streaks.longest,
         lastBrokenStreak: null, // Clear broken streak once a new day is completed
@@ -443,7 +449,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const importData = (data: UserData) => {
     const streaks = calculateStreaks(data.completedDays || [], data.usedStreakFreezes || []);
-    setUserData({ ...defaultUserData, ...data, streak: streaks.current, longestStreak: streaks.longest });
+    setUserData({
+      ...defaultUserData,
+      ...data,
+      xp: typeof data.xp === 'number' ? data.xp : getBackfillXp((data.completedDays || []).length),
+      streak: streaks.current,
+      longestStreak: streaks.longest,
+    });
   };
 
   return (

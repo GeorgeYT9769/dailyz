@@ -7,6 +7,7 @@ import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
 import { TwitterIcon, DiscordIcon, InstagramIcon, GithubIcon, TwitchIcon, YoutubeIcon } from './SocialsModal';
 import { saveImageFile, shareImageCard } from '../utils/nativeFileExport';
+import { getLevelProgress } from '../utils/xpUtils';
 
 interface ProfileCardModalProps {
   isOpen: boolean;
@@ -87,7 +88,7 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
     ctx.fill();
 
     // Outer Glow / Border in user's accent color
-    const accentColor = userData.accentColor || '#3b82f6';
+    const accentColor = userData.accentColor || '#067bc2';
     ctx.strokeStyle = accentColor;
     ctx.lineWidth = 6;
     ctx.beginPath();
@@ -175,10 +176,14 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
     ctx.fillStyle = accentColor;
     drawFittedText(ctx, rankText, leftCenterX, 400, rankWidth - 16, 16, 'bold', 'center');
 
-    // Tag if provided
+    const levelInfo = getLevelProgress(userData.xp || 0);
+    // Tag & Level if provided
     if (userData.pfpTag) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      drawFittedText(ctx, `TAG: ${userData.pfpTag}`, leftCenterX, 442, 340, 14, '600', 'center');
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      drawFittedText(ctx, `LV. ${levelInfo.level} • ${userData.pfpTag}`, leftCenterX, 442, 340, 14, '600', 'center');
+    } else {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      drawFittedText(ctx, `LEVEL ${levelInfo.level} • ${levelInfo.title.toUpperCase()}`, leftCenterX, 442, 340, 14, '600', 'center');
     }
 
     // Render Social Handles on Canvas if provided
@@ -382,7 +387,7 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
       onTouchStart={(e) => e.stopPropagation()}
       onTouchEnd={(e) => e.stopPropagation()}
       onTouchMove={(e) => e.stopPropagation()}
-      className="fixed inset-0 bg-black/75 backdrop-blur-sm z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
+      className="fixed inset-0 bg-black/75 z-[100] flex items-center justify-center p-3 sm:p-4 overflow-hidden"
       onClick={() => {
         playSound('click', userData.soundEnabled ?? true);
         onClose();
@@ -414,11 +419,6 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
 
         {/* Wide Ratio Player Card Content (Profile left, Stats right, No QR) */}
         <div ref={cardRef} className="p-5 sm:p-7 relative overflow-hidden">
-          {/* Subtle Ambient Accent Glow */}
-          <div 
-            className="absolute -top-20 -left-20 w-64 h-64 rounded-full blur-[100px] opacity-35 pointer-events-none"
-            style={{ backgroundColor: userData.accentColor || '#3b82f6' }}
-          />
 
           {/* Top Pass Header */}
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
@@ -471,17 +471,22 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
                 {userData.name}
               </h3>
 
-              {/* Rank Badge */}
-              <span 
-                className="inline-block font-bold text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-1 border"
-                style={{ 
-                  color: userData.accentColor || '#3b82f6',
-                  borderColor: `${userData.accentColor || '#3b82f6'}40`,
-                  backgroundColor: `${userData.accentColor || '#3b82f6'}15`,
-                }}
-              >
-                {userData.rank}
-              </span>
+              {/* Rank Badge & Level */}
+              <div className="flex flex-wrap items-center justify-center gap-1.5 mb-1">
+                <span
+                  className="inline-block font-bold text-xs uppercase tracking-widest px-3 py-1 rounded-full border"
+                  style={{
+                    color: userData.accentColor || '#067bc2',
+                    borderColor: `${userData.accentColor || '#067bc2'}40`,
+                    backgroundColor: `${userData.accentColor || '#067bc2'}15`,
+                  }}
+                >
+                  {userData.rank}
+                </span>
+                <span className="inline-block font-black text-xs px-2.5 py-1 rounded-full bg-[#84bcda]/20 text-[#84bcda] border border-[#84bcda]/30">
+                  Lv. {getLevelProgress(userData.xp || 0).level}
+                </span>
+              </div>
 
               {/* User Socials Badges */}
               {userData.socials && Object.values(userData.socials).some(Boolean) && (
@@ -578,7 +583,7 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.96 }}
               transition={{ duration: 0.16 }}
-              className="absolute bottom-20 left-4 right-4 z-30 mx-auto max-w-sm bg-gray-800/95 border border-white/20 text-white px-4 py-2.5 rounded-2xl shadow-2xl flex items-center justify-center gap-2 text-xs font-bold"
+              className="absolute bottom-20 left-4 right-4 z-30 mx-auto max-w-sm bg-gray-800 border border-white/20 text-white px-4 py-2.5 rounded-2xl shadow-2xl flex items-center justify-center gap-2 text-xs font-bold"
             >
               <Sparkles size={14} className="text-amber-400 shrink-0" />
               <span>{statusToast}</span>
@@ -586,39 +591,36 @@ export default function ProfileCardModal({ isOpen, onClose, userData }: ProfileC
           )}
         </AnimatePresence>
 
-        {/* Action Buttons: Download Card & Share (Identical sizing on all mobile screens) */}
-        <div className="p-4 bg-gray-950/80 border-t border-white/10 grid grid-cols-2 gap-3 relative">
-          {/* Download / Save Image */}
+        <div className="p-4 bg-gray-950 border-t border-white/10 grid grid-cols-2 gap-3 relative">
           <button
             type="button"
             onClick={handleSaveImage}
             disabled={isGenerating}
-            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 transition-all text-white font-bold cursor-pointer group disabled:opacity-50 disabled:cursor-wait"
+            className="btn-tactile btn-tactile-neutral w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-white/10 hover:bg-white/20 border-white/20 text-white font-bold cursor-pointer group disabled:opacity-50 disabled:cursor-wait"
           >
             {isGenerating ? (
               <Loader2 size={18} className="animate-spin text-white shrink-0" />
             ) : (
               <Download size={18} className="shrink-0 group-hover:translate-y-0.5 transition-transform" />
             )}
-            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">
+            <span className="text-xs sm:text-sm font-bold whitespace-nowrap">
               {isGenerating ? 'Saving...' : 'Download Card'}
             </span>
           </button>
 
-          {/* Share */}
           <button
             type="button"
             onClick={handleShare}
             disabled={isGenerating}
-            className="w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl bg-accent hover:opacity-90 active:scale-95 transition-all text-white font-bold cursor-pointer shadow-lg disabled:opacity-50 disabled:cursor-wait"
-            style={{ backgroundColor: userData.accentColor || '#3b82f6' }}
+            className="btn-tactile w-full h-12 flex items-center justify-center gap-2 px-3 rounded-2xl border-2 border-b-4 border-black/30 active:border-b-2 active:translate-y-[2px] text-white font-extrabold cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+            style={{ backgroundColor: userData.accentColor || '#067bc2' }}
           >
             {isGenerating ? (
               <Loader2 size={18} className="animate-spin text-white shrink-0" />
             ) : (
               <Share2 size={18} className="shrink-0" />
             )}
-            <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">
+            <span className="text-xs sm:text-sm font-extrabold whitespace-nowrap">
               {isGenerating ? 'Sharing...' : 'Share Card'}
             </span>
           </button>

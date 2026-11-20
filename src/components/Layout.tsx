@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { Home, User, Gift, Settings } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Zap, User, Gift, Settings as SettingsIcon } from 'lucide-react';
+import { motion, LayoutGroup } from 'motion/react';
 import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
 import { useAppContext } from '../context/AppContext';
@@ -13,275 +13,257 @@ interface LayoutProps {
   onSwipeRight?: () => void;
 }
 
-export default function Layout({ 
-  children, 
-  activeTab, 
-  setActiveTab,
-  onSwipeLeft,
-  onSwipeRight
-}: LayoutProps) {
+export default function Layout({ children, activeTab, setActiveTab, onSwipeLeft, onSwipeRight }: LayoutProps) {
   const { userData } = useAppContext();
-  const tabs = [
-    { id: 'home', icon: Home, label: 'Home' },
-    { id: 'profile', icon: User, label: 'Profile' },
-    { id: 'rewards', icon: Gift, label: 'Rewards' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
-  ];
+  const [navVisible, setNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const scrollTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  // Scroll detection for hiding/showing floating bottom nav
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const diff = currentScrollY - lastScrollY.current;
 
-  const isModalActive = () => {
-    if (typeof document === 'undefined') return false;
-    return (
-      document.body.style.overflow === 'hidden' ||
-      Boolean(document.querySelector('[role="dialog"], [data-modal="true"], [aria-modal="true"]'))
-    );
-  };
+      if (Math.abs(diff) > 6) {
+        if (diff > 0 && currentScrollY > 48) {
+          setNavVisible(false);
+        } else if (diff < 0) {
+          setNavVisible(true);
+        }
+      }
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length !== 1) return;
-    const target = e.target as HTMLElement | null;
+      if (currentScrollY <= 20) {
+        setNavVisible(true);
+      }
 
-    // Never intercept swipe when interacting with form controls or sliders
-    if (target?.closest('input, textarea, select, [contenteditable="true"], [role="slider"]')) {
-      touchStartRef.current = null;
-      return;
-    }
+      lastScrollY.current = currentScrollY;
 
-    // Never intercept swipe when ANY modal, dialog, or interactive canvas is active
-    if (
-      isModalActive() ||
-      Boolean(target?.closest('[role="dialog"], [data-modal="true"], [aria-modal="true"], [data-prevent-swipe="true"], .fixed'))
-    ) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    touchStartRef.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-      time: Date.now(),
+      if (scrollTimer.current) clearTimeout(scrollTimer.current);
+      scrollTimer.current = setTimeout(() => {
+        setNavVisible(true);
+      }, 650);
     };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimer.current) clearTimeout(scrollTimer.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!navVisible) {
+      document.body.setAttribute('data-nav-hidden', 'true');
+    } else {
+      document.body.removeAttribute('data-nav-hidden');
+    }
+    return () => {
+      document.body.removeAttribute('data-nav-hidden');
+    };
+  }, [navVisible]);
+
+  // Swipe handling
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('[data-prevent-swipe="true"], [data-modal="true"], [role="dialog"]')) {
+      touchStartX.current = null;
+      touchStartY.current = null;
+      return;
+    }
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartRef.current || e.changedTouches.length === 0) return;
-    const start = touchStartRef.current;
-    touchStartRef.current = null;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('[data-prevent-swipe="true"], [data-modal="true"], [role="dialog"]')) {
+      touchStartX.current = null;
+      touchStartY.current = null;
+      return;
+    }
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
 
-    // Guard: ignore swipe if any modal is active
-    if (isModalActive()) return;
+    const diffX = touchStartX.current - touchEndX;
+    const diffY = touchStartY.current - touchEndY;
 
-    const endX = e.changedTouches[0].clientX;
-    const endY = e.changedTouches[0].clientY;
-    const deltaX = endX - start.x;
-    const deltaY = endY - start.y;
-    const elapsed = Date.now() - start.time;
-
-    // A valid horizontal swipe: fast (< 500ms), > 45px distance, and predominantly horizontal
-    if (elapsed < 500 && Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
-      if (deltaX < 0 && onSwipeLeft) {
+    if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.4) {
+      if (diffX > 0 && onSwipeLeft) {
+        triggerHaptic('selection', userData.vibrationEnabled);
         onSwipeLeft();
-      } else if (deltaX > 0 && onSwipeRight) {
+      } else if (diffX < 0 && onSwipeRight) {
+        triggerHaptic('selection', userData.vibrationEnabled);
         onSwipeRight();
       }
     }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
   };
 
-  const mainRef = useRef<HTMLElement>(null);
-  const [isNavVisible, setIsNavVisible] = useState(true);
-  const lastScrollTopRef = useRef<number>(0);
-  const scrollAccRef = useRef<number>(0);
+  const navItems = [
+    { id: 'home', label: 'Quests', icon: Zap },
+    { id: 'profile', label: 'Profile', icon: User },
+    { id: 'rewards', label: 'Rewards', icon: Gift },
+    { id: 'settings', label: 'Settings', icon: SettingsIcon },
+  ];
 
-  React.useEffect(() => {
-    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    setIsNavVisible(true);
-    lastScrollTopRef.current = 0;
-    scrollAccRef.current = 0;
-  }, [activeTab]);
-
-  React.useEffect(() => {
-    document.body.toggleAttribute('data-nav-hidden', !isNavVisible);
-  }, [isNavVisible]);
-
-  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
-    const currentScrollTop = e.currentTarget.scrollTop;
-    const delta = currentScrollTop - lastScrollTopRef.current;
-
-    // Keep visible near top of content
-    if (currentScrollTop < 25) {
-      setIsNavVisible(true);
-      scrollAccRef.current = 0;
-      lastScrollTopRef.current = currentScrollTop;
-      return;
-    }
-
-    // Always show if scrolled to the very bottom
-    const isNearBottom = currentScrollTop + e.currentTarget.clientHeight >= e.currentTarget.scrollHeight - 35;
-    if (isNearBottom) {
-      setIsNavVisible(true);
-      lastScrollTopRef.current = currentScrollTop;
-      return;
-    }
-
-    // Accumulate scroll direction
-    if (Math.sign(delta) !== Math.sign(scrollAccRef.current)) {
-      scrollAccRef.current = delta;
-    } else {
-      scrollAccRef.current += delta;
-    }
-
-    // Downward scroll threshold: hide bar
-    if (scrollAccRef.current > 18 && delta > 0) {
-      setIsNavVisible(false);
-    } 
-    // Upward scroll threshold: reveal bar
-    else if (scrollAccRef.current < -14 && delta < 0) {
-      setIsNavVisible(true);
-    }
-
-    lastScrollTopRef.current = currentScrollTop;
+  const handleNavClick = (id: string) => {
+    triggerHaptic('selection', userData.vibrationEnabled);
+    playSound('pop', userData.soundEnabled ?? true);
+    setActiveTab(id);
   };
 
   return (
-    <div 
-      className="h-[100dvh] max-h-[100dvh] bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden flex flex-col"
+    <div
+      className="min-h-screen bg-[#f6f8fc] dark:bg-[#0f172a] text-gray-900 dark:text-gray-100 flex flex-col md:flex-row pt-safe overflow-x-clip transition-colors duration-300"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <main 
-        ref={mainRef}
-        onScroll={handleScroll}
-        className="max-w-md mx-auto px-4 pt-safe pt-8 sm:pt-10 pb-6 flex-1 w-full min-h-0 overflow-y-auto overflow-x-hidden"
-      >
-        {children}
-        {/* Generous bottom clearance spacer so all content scrolls completely above the floating nav */}
-        <div className="h-28 sm:h-32 shrink-0" aria-hidden="true" />
-      </main>
-      
-      {/* Floating Bottom Nav Island (Auto-hides on scroll down, reappears on scroll up) */}
-      <motion.div 
-        className="fixed bottom-4 sm:bottom-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none pb-safe"
-        animate={{
-          y: isNavVisible ? 0 : 96,
-          opacity: isNavVisible ? 1 : 0,
-        }}
-        transition={{
-          y: { type: 'spring', stiffness: 440, damping: 35 },
-          opacity: { duration: 0.16 },
-        }}
-      >
-        <nav 
-          className="relative pointer-events-auto bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl border border-gray-200/80 dark:border-gray-800/80 shadow-2xl shadow-gray-950/15 dark:shadow-black/50 p-1.5 rounded-full flex items-center ring-1 ring-black/5 dark:ring-white/5 select-none text-gray-400 dark:text-gray-500 max-w-[calc(100vw-2rem)] isolate"
-          aria-label="Main Navigation"
-        >
-          {/* Active Sliding Pill: precisely matches the active tab's width and position */}
-          {(() => {
-            const TAB_WIDTHS: Record<string, number> = {
-              home: 84,
-              profile: 94,
-              rewards: 104,
-              settings: 106,
-            };
-            const activeIdx = tabs.findIndex(t => t.id === activeTab);
-            const inactiveWidth = 40;
-            const activeWidth = TAB_WIDTHS[activeTab] || 94;
-            const gap = 4;
-            const leftOffset = activeIdx * (inactiveWidth + gap);
+      {/* Tablet & Wide-Screen Sticky Side Navigation Rail (md+) */}
+      <aside className="hidden md:flex md:flex-col w-60 lg:w-64 shrink-0 sticky top-0 h-screen py-7 px-4 bg-white dark:bg-gray-900 border-r-2 border-gray-200 dark:border-gray-800 z-40">
+        <div className="px-3 mb-7">
+          <div className="text-2xl font-black tracking-tight text-gray-950 dark:text-white leading-none">
+            Dailyz
+          </div>
+          <p className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1.5">
+            One quest a day
+          </p>
+        </div>
 
-            return (
-              <motion.div
-                className="absolute left-1.5 top-1.5 bottom-1.5 rounded-full pointer-events-none -z-0"
-                style={{
-                  backgroundColor: 'var(--accent-color)',
-                  opacity: 0.16,
-                }}
-                initial={false}
-                animate={{
-                  x: leftOffset,
-                  width: activeWidth,
-                }}
-                transition={{
-                  type: 'spring',
-                  stiffness: 540,
-                  damping: 38,
-                  mass: 0.5,
-                }}
-              />
-            );
-          })()}
-
-          <div className="flex items-center gap-1 relative z-10">
-            {tabs.map((tab) => {
-              const TAB_WIDTHS: Record<string, number> = {
-                home: 84,
-                profile: 94,
-                rewards: 104,
-                settings: 106,
-              };
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const targetWidth = isActive ? TAB_WIDTHS[tab.id] || 94 : 40;
-
+        <LayoutGroup id="sideNav">
+          <nav aria-label="Primary Sidebar Navigation" className="flex flex-col gap-2 flex-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
               return (
-                <button
-                  key={tab.id}
+                <motion.button
+                  key={item.id}
                   type="button"
-                  onClick={() => {
-                    if (activeTab !== tab.id) {
-                      triggerHaptic('selection', userData.vibrationEnabled);
-                      playSound('pop', userData.soundEnabled ?? true);
-                    }
-                    setActiveTab(tab.id);
-                  }}
-                  className={`relative flex items-center h-10 rounded-full cursor-pointer select-none [-webkit-tap-highlight-color:transparent] outline-none touch-manipulation transition-[width,color] duration-180 ease-out ${
-                    isActive 
-                      ? 'font-bold text-xs' 
-                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                  onClick={() => handleNavClick(item.id)}
+                  whileTap={{ y: 2, scale: 0.98 }}
+                  transition={{ type: 'spring', stiffness: 550, damping: 32 }}
+                  className={`relative w-full py-3 px-4 rounded-xl flex items-center gap-3 cursor-pointer select-none transition-colors ${
+                    isActive
+                      ? 'text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/70 hover:text-gray-950 dark:hover:text-white'
                   }`}
-                  style={{
-                    width: `${targetWidth}px`,
-                    color: isActive ? 'var(--accent-color)' : undefined,
-                  }}
-                  aria-label={tab.label}
+                  aria-label={item.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  {/* Fixed left-anchored icon: centered when w-10 (10px padding on left for 20px icon in 40px button), perfectly still during button expansion */}
-                  <div className="absolute left-2.5 top-2.5 w-5 h-5 flex items-center justify-center shrink-0 pointer-events-none">
-                    <Icon 
-                      size={20}
-                      className={`shrink-0 transition-colors duration-150 ${
-                        isActive ? '' : 'text-gray-400 dark:text-gray-500'
-                      }`}
-                      style={isActive ? { color: 'var(--accent-color)' } : undefined}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeSideNavTab"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 480,
+                        damping: 34,
+                        mass: 0.75,
+                      }}
+                      className="absolute inset-0 rounded-xl tab-pill-active"
                     />
-                  </div>
-                  
-                  {/* Label: positioned immediately to the right of the icon with balanced padding */}
-                  <AnimatePresence initial={false} mode="wait">
-                    {isActive && (
-                      <motion.span
-                        key={tab.id}
-                        initial={{ opacity: 0, x: 2 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, transition: { duration: 0.04 } }}
-                        transition={{ 
-                          opacity: { duration: 0.12, delay: 0.02 },
-                          x: { duration: 0.12, ease: 'easeOut' },
-                        }}
-                        className="pl-[34px] pr-2.5 font-bold text-xs whitespace-nowrap select-none pointer-events-none"
-                        style={{ color: 'var(--accent-color)' }}
-                      >
-                        {tab.label}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </button>
+                  )}
+                  <Icon
+                    size={19}
+                    strokeWidth={isActive ? 2.6 : 2.1}
+                    className="relative z-10 shrink-0"
+                  />
+                  <span
+                    className={`relative z-10 text-sm tracking-tight ${
+                      isActive ? 'font-black text-white' : 'font-bold'
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </motion.button>
               );
             })}
-          </div>
-        </nav>
-      </motion.div>
+          </nav>
+        </LayoutGroup>
+      </aside>
+
+      {/* Main Scrollable Content */}
+      <main className="flex-1 w-full max-w-md sm:max-w-xl md:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 pt-4 md:pt-8 pb-24 md:pb-12 min-w-0">
+        {children}
+      </main>
+
+      {/* Compact Tactile Floating Bottom Navigation Bar (Phones & Foldables portrait) */}
+      <div
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-safe pointer-events-none transition-all duration-300 ease-out ${
+          navVisible
+            ? 'translate-y-0 opacity-100'
+            : 'translate-y-[120%] opacity-0'
+        }`}
+        style={{
+          marginBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))',
+        }}
+      >
+        <LayoutGroup id="bottomNav">
+          <nav
+            aria-label="Primary Navigation"
+            className="pointer-events-auto max-w-[356px] sm:max-w-[390px] mx-auto bg-white dark:bg-gray-900 border-2 border-b-[5px] border-gray-200 dark:border-gray-700 rounded-2xl p-1.5 shadow-lg flex items-center justify-between gap-1"
+          >
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <motion.button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleNavClick(item.id)}
+                  whileTap={{ y: 2, scale: 0.96 }}
+                  transition={{ type: 'spring', stiffness: 550, damping: 32 }}
+                  className={`relative flex-1 min-h-[48px] py-1.5 px-2 rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-pointer select-none ${
+                    isActive
+                      ? 'text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+                  aria-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavTab"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 480,
+                        damping: 34,
+                        mass: 0.75,
+                      }}
+                      className="absolute inset-0 rounded-xl tab-pill-active"
+                    />
+                  )}
+                  <motion.div
+                    className="relative z-10 flex items-center justify-center"
+                    animate={{
+                      scale: isActive ? 1.08 : 1,
+                      y: isActive ? -1 : 0,
+                    }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+                  >
+                    <Icon
+                      size={18}
+                      strokeWidth={isActive ? 2.6 : 2}
+                      className="shrink-0"
+                    />
+                  </motion.div>
+                  <span
+                    className={`relative z-10 text-[10px] leading-none tracking-tight transition-colors ${
+                      isActive ? 'font-extrabold text-white' : 'font-semibold'
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </nav>
+        </LayoutGroup>
+      </div>
     </div>
   );
 }

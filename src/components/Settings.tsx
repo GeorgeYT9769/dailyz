@@ -3,99 +3,54 @@ import { createPortal } from 'react-dom';
 import { useAppContext } from '../context/AppContext';
 import {
   Moon, Sun, Palette, Download, Upload, Vibrate, Check,
-  Heart, Coffee, Info, ExternalLink, Shield,
+  Heart, Coffee, ExternalLink, Shield,
   Sparkles, Flame, Star, X, ChevronRight, ChevronDown, Award,
-  BookOpen, Compass, LayoutGrid, Bell, Snowflake, Clock, Volume2
+  Compass, LayoutGrid, Bell, Clock, Volume2
 } from 'lucide-react';
 import { triggerHaptic } from '../utils/haptics';
 import { playSound } from '../utils/audioEffects';
 import { motion, AnimatePresence } from 'motion/react';
 import HomescreenWidgetModal from './HomescreenWidgetModal';
 import Toast from './Toast';
+import TactileSwitch from './TactileSwitch';
 import Material3TimePickerModal from './Material3TimePickerModal';
 import { requestNotificationPermission, scheduleDailyReminder, sendInstantNotification, formatTimeDisplay } from '../utils/notificationUtils';
 import { exportBackupFile } from '../utils/nativeFileExport';
 
-interface Material3SwitchProps {
-  checked: boolean;
-  onChange: () => void;
-  ariaLabel: string;
-}
-
-function Material3Switch({ checked, onChange, ariaLabel }: Material3SwitchProps) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={ariaLabel}
-      onClick={onChange}
-      className={`relative inline-flex h-8 w-[52px] shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-95 ${
-        checked
-          ? 'bg-accent'
-          : 'bg-gray-200 dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-500'
-      }`}
-      style={checked ? { backgroundColor: 'var(--accent-color)' } : {}}
-    >
-      <span
-        className={`pointer-events-none flex items-center justify-center rounded-full transition-all duration-200 ease-out shadow-sm ${
-          checked
-            ? 'h-6 w-6 translate-x-[24px] bg-white text-accent'
-            : 'h-4 w-4 translate-x-[4px] bg-gray-500 dark:bg-gray-400'
-        }`}
-        style={checked ? { color: 'var(--accent-color)' } : {}}
-      >
-        {checked && (
-          <Check size={14} strokeWidth={3.5} />
-        )}
-      </span>
-    </button>
-  );
-}
-
-// Authentic SVG icon for Buy Me a Coffee
-function BuyMeACoffeeIcon({ className = "w-5 h-5" }: { className?: string }) {
+function BuyMeACoffeeIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg viewBox="0 0 884 1279" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M791.109 297.518L790.231 297.002L788.201 296.383C789.018 297.072 790.04 297.472 791.109 297.518V297.518Z" fill="#0D0C22"/>
-    <path d="M803.896 388.891L802.916 389.166L803.896 388.891Z" fill="#0D0C22"/>
-    <path d="M791.484 297.377C791.359 297.361 791.237 297.332 791.118 297.29C791.111 297.371 791.111 297.453 791.118 297.534C791.252 297.516 791.379 297.462 791.484 297.377V297.377Z" fill="#0D0C22"/>
-    <path d="M791.113 297.529H791.244V297.447L791.113 297.529Z" fill="#0D0C22"/>
-    <path d="M803.111 388.726L804.591 387.883L805.142 387.573L805.641 387.04C804.702 387.444 803.846 388.016 803.111 388.726V388.726Z" fill="#0D0C22"/>
-    <path d="M793.669 299.515L792.223 298.138L791.243 297.605C791.77 298.535 792.641 299.221 793.669 299.515V299.515Z" fill="#0D0C22"/>
-    <path d="M430.019 1186.18C428.864 1186.68 427.852 1187.46 427.076 1188.45L427.988 1187.87C428.608 1187.3 429.485 1186.63 430.019 1186.18Z" fill="#0D0C22"/>
-    <path d="M641.187 1144.63C641.187 1143.33 640.551 1143.57 640.705 1148.21C640.705 1147.84 640.86 1147.46 640.929 1147.1C641.015 1146.27 641.084 1145.46 641.187 1144.63Z" fill="#0D0C22"/>
-    <path d="M619.284 1186.18C618.129 1186.68 617.118 1187.46 616.342 1188.45L617.254 1187.87C617.873 1187.3 618.751 1186.63 619.284 1186.18Z" fill="#0D0C22"/>
-    <path d="M281.304 1196.06C280.427 1195.3 279.354 1194.8 278.207 1194.61C279.136 1195.06 280.065 1195.51 280.684 1195.85L281.304 1196.06Z" fill="#0D0C22"/>
-    <path d="M247.841 1164.01C247.704 1162.66 247.288 1161.35 246.619 1160.16C247.093 1161.39 247.489 1162.66 247.806 1163.94L247.841 1164.01Z" fill="#0D0C22"/>
-    <path d="M472.623 590.836C426.682 610.503 374.546 632.802 306.976 632.802C278.71 632.746 250.58 628.868 223.353 621.274L270.086 1101.08C271.74 1121.13 280.876 1139.83 295.679 1153.46C310.482 1167.09 329.87 1174.65 349.992 1174.65C349.992 1174.65 416.254 1178.09 438.365 1178.09C462.161 1178.09 533.516 1174.65 533.516 1174.65C553.636 1174.65 573.019 1167.08 587.819 1153.45C602.619 1139.82 611.752 1121.13 613.406 1101.08L663.459 570.876C641.091 563.237 618.516 558.161 593.068 558.161C549.054 558.144 513.591 573.303 472.623 590.836Z" fill="#FFDD00"/>
-    <path d="M78.6885 386.132L79.4799 386.872L79.9962 387.182C79.5987 386.787 79.1603 386.435 78.6885 386.132V386.132Z" fill="#0D0C22"/>
-    <path d="M879.567 341.849L872.53 306.352C866.215 274.503 851.882 244.409 819.19 232.898C808.711 229.215 796.821 227.633 788.786 220.01C780.751 212.388 778.376 200.55 776.518 189.572C773.076 169.423 769.842 149.257 766.314 129.143C763.269 111.85 760.86 92.4243 752.928 76.56C742.604 55.2584 721.182 42.8009 699.88 34.559C688.965 30.4844 677.826 27.0375 666.517 24.2352C613.297 10.1947 557.342 5.03277 502.591 2.09047C436.875 -1.53577 370.983 -0.443234 305.422 5.35968C256.625 9.79894 205.229 15.1674 158.858 32.0469C141.91 38.224 124.445 45.6399 111.558 58.7341C95.7448 74.8221 90.5829 99.7026 102.128 119.765C110.336 134.012 124.239 144.078 138.985 150.737C158.192 159.317 178.251 165.846 198.829 170.215C256.126 182.879 315.471 187.851 374.007 189.968C438.887 192.586 503.87 190.464 568.44 183.618C584.408 181.863 600.347 179.758 616.257 177.304C634.995 174.43 647.022 149.928 641.499 132.859C634.891 112.453 617.134 104.538 597.055 107.618C594.095 108.082 591.153 108.512 588.193 108.942L586.06 109.252C579.257 110.113 572.455 110.915 565.653 111.661C551.601 113.175 537.515 114.414 523.394 115.378C491.768 117.58 460.057 118.595 428.363 118.647C397.219 118.647 366.058 117.769 334.983 115.722C320.805 114.793 306.661 113.611 292.552 112.177C286.134 111.506 279.733 110.801 273.333 110.009L267.241 109.235L265.917 109.046L259.602 108.134C246.697 106.189 233.792 103.953 221.025 101.251C219.737 100.965 218.584 100.249 217.758 99.2193C216.932 98.1901 216.482 96.9099 216.482 95.5903C216.482 94.2706 216.932 92.9904 217.758 91.9612C218.584 90.9319 219.737 90.2152 221.025 89.9293H221.266C232.33 87.5721 243.479 85.5589 254.663 83.8038C258.392 83.2188 262.131 82.6453 265.882 82.0832H265.985C272.988 81.6186 280.026 80.3625 286.994 79.5366C347.624 73.2302 408.614 71.0801 469.538 73.1014C499.115 73.9618 528.676 75.6996 558.116 78.6935C564.448 79.3474 570.746 80.0357 577.043 80.8099C579.452 81.1025 581.878 81.4465 584.305 81.7391L589.191 82.4445C603.438 84.5667 617.61 87.1419 631.708 90.1703C652.597 94.7128 679.422 96.1925 688.713 119.077C691.673 126.338 693.015 134.408 694.649 142.03L696.731 151.752C696.786 151.926 696.826 152.105 696.852 152.285C701.773 175.227 706.7 198.169 711.632 221.111C711.994 222.806 712.002 224.557 711.657 226.255C711.312 227.954 710.621 229.562 709.626 230.982C708.632 232.401 707.355 233.6 705.877 234.504C704.398 235.408 702.75 235.997 701.033 236.236H700.895L697.884 236.649L694.908 237.044C685.478 238.272 676.038 239.419 666.586 240.486C647.968 242.608 629.322 244.443 610.648 245.992C573.539 249.077 536.356 251.102 499.098 252.066C480.114 252.57 461.135 252.806 442.162 252.771C366.643 252.712 291.189 248.322 216.173 239.625C208.051 238.662 199.93 237.629 191.808 236.58C198.106 237.389 187.231 235.96 185.029 235.651C179.867 234.928 174.705 234.177 169.543 233.397C152.216 230.798 134.993 227.598 117.7 224.793C96.7944 221.352 76.8005 223.073 57.8906 233.397C42.3685 241.891 29.8055 254.916 21.8776 270.735C13.7217 287.597 11.2956 305.956 7.64786 324.075C4.00009 342.193 -1.67805 361.688 0.472751 380.288C5.10128 420.431 33.165 453.054 73.5313 460.35C111.506 467.232 149.687 472.807 187.971 477.556C338.361 495.975 490.294 498.178 641.155 484.129C653.44 482.982 665.708 481.732 677.959 480.378C681.786 479.958 685.658 480.398 689.292 481.668C692.926 482.938 696.23 485.005 698.962 487.717C701.694 490.429 703.784 493.718 705.08 497.342C706.377 500.967 706.846 504.836 706.453 508.665L702.633 545.797C694.936 620.828 687.239 695.854 679.542 770.874C671.513 849.657 663.431 928.434 655.298 1007.2C653.004 1029.39 650.71 1051.57 648.416 1073.74C646.213 1095.58 645.904 1118.1 641.757 1139.68C635.218 1173.61 612.248 1194.45 578.73 1202.07C548.022 1209.06 516.652 1212.73 485.161 1213.01C450.249 1213.2 415.355 1211.65 380.443 1211.84C343.173 1212.05 297.525 1208.61 268.756 1180.87C243.479 1156.51 239.986 1118.36 236.545 1085.37C231.957 1041.7 227.409 998.039 222.9 954.381L197.607 711.615L181.244 554.538C180.968 551.94 180.693 549.376 180.435 546.76C178.473 528.023 165.207 509.681 144.301 510.627C126.407 511.418 106.069 526.629 108.168 546.76L120.298 663.214L145.385 904.104C152.532 972.528 159.661 1040.96 166.773 1109.41C168.15 1122.52 169.44 1135.67 170.885 1148.78C178.749 1220.43 233.465 1259.04 301.224 1269.91C340.799 1276.28 381.337 1277.59 421.497 1278.24C472.979 1279.07 524.977 1281.05 575.615 1271.72C650.653 1257.95 706.952 1207.85 714.987 1130.13C717.282 1107.69 719.576 1085.25 721.87 1062.8C729.498 988.559 737.115 914.313 744.72 840.061L769.601 597.451L781.009 486.263C781.577 480.749 783.905 475.565 787.649 471.478C791.392 467.391 796.352 464.617 801.794 463.567C823.25 459.386 843.761 452.245 859.023 435.916C883.318 409.918 888.153 376.021 879.567 341.849ZM72.4301 365.835C72.757 365.68 72.1548 368.484 71.8967 369.792C71.8451 367.813 71.9483 366.058 72.4301 365.835ZM74.5121 381.94C74.6842 381.819 75.2003 382.508 75.7337 383.334C74.925 382.576 74.4089 382.009 74.4949 381.94H74.5121ZM76.5597 384.641C77.2996 385.897 77.6953 386.689 76.5597 384.641V384.641ZM80.672 387.979H80.7752C80.7752 388.1 80.9645 388.22 81.0333 388.341C80.9192 388.208 80.7925 388.087 80.6548 387.979H80.672ZM800.796 382.989C793.088 390.319 781.473 393.726 769.996 395.43C641.292 414.529 510.713 424.199 380.597 419.932C287.476 416.749 195.336 406.407 103.144 393.382C94.1102 392.109 84.3197 390.457 78.1082 383.798C66.4078 371.237 72.1548 345.944 75.2003 330.768C77.9878 316.865 83.3218 298.334 99.8572 296.355C125.667 293.327 155.64 304.218 181.175 308.09C211.917 312.781 242.774 316.538 273.745 319.36C405.925 331.405 540.325 329.529 671.92 311.91C695.905 308.686 719.805 304.941 743.619 300.674C764.835 296.871 788.356 289.731 801.175 311.703C809.967 326.673 811.137 346.701 809.778 363.615C809.359 370.984 806.139 377.915 800.779 382.989H800.796Z" fill="#0D0C22"/>
+      <path d="M472.623 590.836C426.682 610.503 374.546 632.802 306.976 632.802C278.71 632.746 250.58 628.868 223.353 621.274L270.086 1101.08C271.74 1121.13 280.876 1139.83 295.679 1153.46C310.482 1167.09 329.87 1174.65 349.992 1174.65C349.992 1174.65 416.254 1178.09 438.365 1178.09C462.161 1178.09 533.516 1174.65 533.516 1174.65C553.636 1174.65 573.019 1167.08 587.819 1153.45C602.619 1139.82 611.752 1121.13 613.406 1101.08L663.459 570.876C641.091 563.237 618.516 558.161 593.068 558.161C549.054 558.144 513.591 573.303 472.623 590.836Z" fill="#FFDD00"/>
+      <path d="M879.567 341.849L872.53 306.352C866.215 274.503 851.882 244.409 819.19 232.898C808.711 229.215 796.821 227.633 788.786 220.01C780.751 212.388 778.376 200.55 776.518 189.572C773.076 169.423 769.842 149.257 766.314 129.143C763.269 111.85 760.86 92.4243 752.928 76.56C742.604 55.2584 721.182 42.8009 699.88 34.559C688.965 30.4844 677.826 27.0375 666.517 24.2352C613.297 10.1947 557.342 5.03277 502.591 2.09047C436.875 -1.53577 370.983 -0.443234 305.422 5.35968C256.625 9.79894 205.229 15.1674 158.858 32.0469C141.91 38.224 124.445 45.6399 111.558 58.7341C95.7448 74.8221 90.5829 99.7026 102.128 119.765C110.336 134.012 124.239 144.078 138.985 150.737C158.192 159.317 178.251 165.846 198.829 170.215C256.126 182.879 315.471 187.851 374.007 189.968C438.887 192.586 503.87 190.464 568.44 183.618C584.408 181.863 600.347 179.758 616.257 177.304C634.995 174.43 647.022 149.928 641.499 132.859C634.891 112.453 617.134 104.538 597.055 107.618C594.095 108.082 591.153 108.512 588.193 108.942L586.06 109.252C579.257 110.113 572.455 110.915 565.653 111.661C551.601 113.175 537.515 114.414 523.394 115.378C491.768 117.58 460.057 118.595 428.363 118.647C397.219 118.647 366.058 117.769 334.983 115.722C320.805 114.793 306.661 113.611 292.552 112.177C286.134 111.506 279.733 110.801 273.333 110.009L267.241 109.235L265.917 109.046L259.602 108.134C246.697 106.189 233.792 103.953 221.025 101.251C219.737 100.965 218.584 100.249 217.758 99.2193C216.932 98.1901 216.482 96.9099 216.482 95.5903C216.482 94.2706 216.932 92.9904 217.758 91.9612C218.584 90.9319 219.737 90.2152 221.025 89.9293H221.266C232.33 87.5721 243.479 85.5589 254.663 83.8038C258.392 83.2188 262.131 82.6453 265.882 82.0832H265.985C272.988 81.6186 280.026 80.3625 286.994 79.5366C347.624 73.2302 408.614 71.0801 469.538 73.1014C499.115 73.9618 528.676 75.6996 558.116 78.6935C564.448 79.3474 570.746 80.0357 577.043 80.8099C579.452 81.1025 581.878 81.4465 584.305 81.7391L589.191 82.4445C603.438 84.5667 617.61 87.1419 631.708 90.1703C652.597 94.7128 679.422 96.1925 688.713 119.077C691.673 126.338 693.015 134.408 694.649 142.03L696.731 151.752C696.786 151.926 696.826 152.105 696.852 152.285C701.773 175.227 706.7 198.169 711.632 221.111C711.994 222.806 712.002 224.557 711.657 226.255C711.312 227.954 710.621 229.562 709.626 230.982C708.632 232.401 707.355 233.6 705.877 234.504C704.398 235.408 702.75 235.997 701.033 236.236H700.895L697.884 236.649L694.908 237.044C685.478 238.272 676.038 239.419 666.586 240.486C647.968 242.608 629.322 244.443 610.648 245.992C573.539 249.077 536.356 251.102 499.098 252.066C480.114 252.57 461.135 252.806 442.162 252.771C366.643 252.712 291.189 248.322 216.173 239.625C208.051 238.662 199.93 237.629 191.808 236.58C198.106 237.389 187.231 235.96 185.029 235.651C179.867 234.928 174.705 234.177 169.543 233.397C152.216 230.798 134.993 227.598 117.7 224.793C96.7944 221.352 76.8005 223.073 57.8906 233.397C42.3685 241.891 29.8055 254.916 21.8776 270.735C13.7217 287.597 11.2956 305.956 7.64786 324.075C4.00009 342.193 -1.67805 361.688 0.472751 380.288C5.10128 420.431 33.165 453.054 73.5313 460.35C111.506 467.232 149.687 472.807 187.971 477.556C338.361 495.975 490.294 498.178 641.155 484.129C653.44 482.982 665.708 481.732 677.959 480.378C681.786 479.958 685.658 480.398 689.292 481.668C692.926 482.938 696.23 485.005 698.962 487.717C701.694 490.429 703.784 493.718 705.08 497.342C706.377 500.967 706.846 504.836 706.453 508.665L702.633 545.797C694.936 620.828 687.239 695.854 679.542 770.874C671.513 849.657 663.431 928.434 655.298 1007.2C653.004 1029.39 650.71 1051.57 648.416 1073.74C646.213 1095.58 645.904 1118.1 641.757 1139.68C635.218 1173.61 612.248 1194.45 578.73 1202.07C548.022 1209.06 516.652 1212.73 485.161 1213.01C450.249 1213.2 415.355 1211.65 380.443 1211.84C343.173 1212.05 297.525 1208.61 268.756 1180.87C243.479 1156.51 239.986 1118.36 236.545 1085.37C231.957 1041.7 227.409 998.039 222.9 954.381L197.607 711.615L181.244 554.538C180.968 551.94 180.693 549.376 180.435 546.76C178.473 528.023 165.207 509.681 144.301 510.627C126.407 511.418 106.069 526.629 108.168 546.76L120.298 663.214L145.385 904.104C152.532 972.528 159.661 1040.96 166.773 1109.41C168.15 1122.52 169.44 1135.67 170.885 1148.78C178.749 1220.43 233.465 1259.04 301.224 1269.91C340.799 1276.28 381.337 1277.59 421.497 1278.24C472.979 1279.07 524.977 1281.05 575.615 1271.72C650.653 1257.95 706.952 1207.85 714.987 1130.13C717.282 1107.69 719.576 1085.25 721.87 1062.8C729.498 988.559 737.115 914.313 744.72 840.061L769.601 597.451L781.009 486.263C781.577 480.749 783.905 475.565 787.649 471.478C791.392 467.391 796.352 464.617 801.794 463.567C823.25 459.386 843.761 452.245 859.023 435.916C883.318 409.918 888.153 376.021 879.567 341.849ZM800.796 382.989C793.088 390.319 781.473 393.726 769.996 395.43C641.292 414.529 510.713 424.199 380.597 419.932C287.476 416.749 195.336 406.407 103.144 393.382C94.1102 392.109 84.3197 390.457 78.1082 383.798C66.4078 371.237 72.1548 345.944 75.2003 330.768C77.9878 316.865 83.3218 298.334 99.8572 296.355C125.667 293.327 155.64 304.218 181.175 308.09C211.917 312.781 242.774 316.538 273.745 319.36C405.925 331.405 540.325 329.529 671.92 311.91C695.905 308.686 719.805 304.941 743.619 300.674C764.835 296.871 788.356 289.731 801.175 311.703C809.967 326.673 811.137 346.701 809.778 363.615C809.359 370.984 806.139 377.915 800.779 382.989H800.796Z" fill="#0D0C22"/>
     </svg>
   );
 }
 
-// Authentic SVG icon for Ko-fi
-function KofiIcon({ className = "w-5 h-5" }: { className?: string }) {
+function KofiIcon({ className = 'w-5 h-5' }: { className?: string }) {
   return (
     <svg viewBox="0 0 241 194" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <mask id="mask0_1_219" style={{ maskType: 'luminance' }} maskUnits="userSpaceOnUse" x="-1" y="0" width="242" height="194">
-    <path d="M240.469 0.958984H-0.00585938V193.918H240.469V0.958984Z" fill="white"/>
-    </mask>
-    <g mask="url(#mask0_1_219)">
-    <path d="M96.1344 193.911C61.1312 193.911 32.6597 178.256 15.9721 149.829C1.19788 124.912 -0.00585938 97.9229 -0.00585938 67.7662C-0.00585938 49.8876 5.37293 34.3215 15.5413 22.7466C24.8861 12.1157 38.1271 5.22907 52.8317 3.35378C70.2858 1.14271 91.9848 0.958984 114.545 0.958984C151.259 0.958984 161.63 1.4088 176.075 2.85328C195.29 4.76026 211.458 11.932 222.824 23.5955C234.368 35.4428 240.469 51.2624 240.469 69.3627V72.9994C240.469 103.885 219.821 129.733 191.046 136.759C188.898 141.827 186.237 146.871 183.089 151.837L183.006 151.964C172.869 167.632 149.042 193.918 103.401 193.918H96.1281L96.1344 193.911Z" fill="white"/>
-    <path d="M174.568 17.9772C160.927 16.6151 151.38 16.1589 114.552 16.1589C90.908 16.1589 70.9008 16.387 54.7644 18.4334C33.3949 21.164 15.2058 37.5285 15.2058 67.7674C15.2058 98.0066 16.796 121.422 29.0741 142.107C42.9425 165.751 66.1302 178.707 96.1412 178.707H103.414C140.242 178.707 160.25 159.156 170.253 143.698C174.574 136.874 177.754 130.058 179.801 123.234C205.947 120.96 225.27 99.3624 225.27 72.9941V69.3577C225.27 40.9432 206.631 21.164 174.574 17.9772H174.568Z" fill="white"/>
-    <path d="M15.1975 67.7674C15.1975 37.5285 33.3866 21.164 54.7559 18.4334C70.8987 16.387 90.906 16.1589 114.544 16.1589C151.372 16.1589 160.919 16.6151 174.559 17.9772C206.617 21.1576 225.255 40.937 225.255 69.3577V72.9941C225.255 99.3687 205.932 120.966 179.786 123.234C177.74 130.058 174.559 136.874 170.238 143.698C160.235 159.156 140.228 178.707 103.4 178.707H96.1264C66.1155 178.707 42.9277 165.751 29.0595 142.107C16.7814 121.422 15.1912 98.4563 15.1912 67.7674" fill="#202020"/>
-    <path d="M32.2469 67.9899C32.2469 97.3168 34.0654 116.184 43.6127 133.689C54.5225 153.924 74.3018 161.653 96.8117 161.653H103.857C133.411 161.653 147.736 147.329 155.693 134.829C159.558 128.462 162.966 121.417 164.784 112.547L166.147 106.864H174.332C192.521 106.864 208.208 92.09 208.208 73.2166V69.8082C208.208 48.6669 195.024 37.5228 172.058 34.7987C159.102 33.6646 151.372 33.2084 114.538 33.2084C89.7602 33.2084 72.0272 33.4364 58.6152 35.4828C39.7483 38.2134 32.2407 48.8951 32.2407 67.9899" fill="white"/>
-    <path d="M166.158 83.6801C166.158 86.4107 168.204 88.4572 171.841 88.4572C183.435 88.4572 189.802 81.8619 189.802 70.9523C189.802 60.0427 183.435 53.2195 171.841 53.2195C168.204 53.2195 166.158 55.2657 166.158 57.9963V83.6866V83.6801Z" fill="#202020"/>
-    <path d="M54.5321 82.3198C54.5321 95.732 62.0332 107.326 71.5807 116.424C77.9478 122.562 87.9515 128.93 94.7685 133.022C96.8147 134.157 98.8611 134.841 101.136 134.841C103.866 134.841 106.134 134.157 107.959 133.022C114.782 128.93 124.779 122.562 130.919 116.424C140.694 107.332 148.195 95.7383 148.195 82.3198C148.195 67.7673 137.286 54.8115 121.599 54.8115C112.28 54.8115 105.912 59.5882 101.136 66.1772C96.8147 59.582 90.2259 54.8115 80.9001 54.8115C64.9855 54.8115 54.5256 67.7673 54.5256 82.3198" fill="#FF5A16"/>
-    </g>
+      <path d="M96.1344 193.911C61.1312 193.911 32.6597 178.256 15.9721 149.829C1.19788 124.912 -0.00585938 97.9229 -0.00585938 67.7662C-0.00585938 49.8876 5.37293 34.3215 15.5413 22.7466C24.8861 12.1157 38.1271 5.22907 52.8317 3.35378C70.2858 1.14271 91.9848 0.958984 114.545 0.958984C151.259 0.958984 161.63 1.4088 176.075 2.85328C195.29 4.76026 211.458 11.932 222.824 23.5955C234.368 35.4428 240.469 51.2624 240.469 69.3627V72.9994C240.469 103.885 219.821 129.733 191.046 136.759C188.898 141.827 186.237 146.871 183.089 151.837L183.006 151.964C172.869 167.632 149.042 193.918 103.401 193.918H96.1281L96.1344 193.911Z" fill="white"/>
+      <path d="M15.1975 67.7674C15.1975 37.5285 33.3866 21.164 54.7559 18.4334C70.8987 16.387 90.906 16.1589 114.544 16.1589C151.372 16.1589 160.919 16.6151 174.559 17.9772C206.617 21.1576 225.255 40.937 225.255 69.3577V72.9941C225.255 99.3687 205.932 120.966 179.786 123.234C177.74 130.058 174.559 136.874 170.238 143.698C160.235 159.156 140.228 178.707 103.4 178.707H96.1264C66.1155 178.707 42.9277 165.751 29.0595 142.107C16.7814 121.422 15.1912 98.4563 15.1912 67.7674" fill="#202020"/>
+      <path d="M32.2469 67.9899C32.2469 97.3168 34.0654 116.184 43.6127 133.689C54.5225 153.924 74.3018 161.653 96.8117 161.653H103.857C133.411 161.653 147.736 147.329 155.693 134.829C159.558 128.462 162.966 121.417 164.784 112.547L166.147 106.864H174.332C192.521 106.864 208.208 92.09 208.208 73.2166V69.8082C208.208 48.6669 195.024 37.5228 172.058 34.7987C159.102 33.6646 151.372 33.2084 114.538 33.2084C89.7602 33.2084 72.0272 33.4364 58.6152 35.4828C39.7483 38.2134 32.2407 48.8951 32.2407 67.9899" fill="white"/>
+      <path d="M166.158 83.6801C166.158 86.4107 168.204 88.4572 171.841 88.4572C183.435 88.4572 189.802 81.8619 189.802 70.9523C189.802 60.0427 183.435 53.2195 171.841 53.2195C168.204 53.2195 166.158 55.2657 166.158 57.9963V83.6866V83.6801Z" fill="#202020"/>
+      <path d="M54.5321 82.3198C54.5321 95.732 62.0332 107.326 71.5807 116.424C77.9478 122.562 87.9515 128.93 94.7685 133.022C96.8147 134.157 98.8611 134.841 101.136 134.841C103.866 134.841 106.134 134.157 107.959 133.022C114.782 128.93 124.779 122.562 130.919 116.424C140.694 107.332 148.195 95.7383 148.195 82.3198C148.195 67.7673 137.286 54.8115 121.599 54.8115C112.28 54.8115 105.912 59.5882 101.136 66.1772C96.8147 59.582 90.2259 54.8115 80.9001 54.8115C64.9855 54.8115 54.5256 67.7673 54.5256 82.3198" fill="#FF5A16"/>
     </svg>
   );
 }
 
+const ACCENT_PALETTE = [
+  { id: '#067bc2', name: 'Teal Blue', light: '#3b9cd9', dark: '#04598c' },
+  { id: '#ff5d38', name: 'Coral Glow', light: '#ff8568', dark: '#cc3412' },
+  { id: '#ff3b5c', name: 'Vibrant Pink', light: '#ff7088', dark: '#c81438' },
+  { id: '#ecc30b', name: 'Bright Amber', light: '#f5d74b', dark: '#b99603' },
+  { id: '#84bcda', name: 'Sky Blue', light: '#a9d2e7', dark: '#4e91b5' },
+  { id: '#10b981', name: 'Emerald', light: '#34d399', dark: '#047857' },
+  { id: '#8b5cf6', name: 'Purple', light: '#a78bfa', dark: '#6d28d9' },
+  { id: '#3b82f6', name: 'Classic Blue', light: '#60a5fa', dark: '#1d4ed8' },
+];
+
 export default function Settings() {
-  const { userData, updateSettings, importData, openOnboarding, buyStreakFreeze } = useAppContext();
+  const { userData, updateSettings, importData, openOnboarding } = useAppContext();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const BMAC_URL = 'https://buymeacoffee.com/georgeyt9769';
@@ -113,14 +68,9 @@ export default function Settings() {
     setTimeout(() => setSettingsToast(null), 3000);
   };
 
-  const handleSupportClick = (url: string) => {
-    setShowThankYouToast(true);
-    setTimeout(() => setShowThankYouToast(false), 3000);
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
   const handleExport = async () => {
     triggerHaptic('medium', userData.vibrationEnabled);
+    playSound('click', userData.soundEnabled ?? true);
     const result = await exportBackupFile(userData, 'daily_quests_backup.json');
     showToast(result.message);
   };
@@ -134,163 +84,158 @@ export default function Settings() {
         const parsed = JSON.parse(event.target?.result as string);
         if (parsed && typeof parsed.points === 'number' && Array.isArray(parsed.completedDays)) {
           importData(parsed);
-          alert('Data imported successfully!');
+          playSound('success', userData.soundEnabled ?? true);
+          showToast('Backup imported successfully!');
         } else {
-          alert('Invalid data format.');
+          showToast('Invalid backup file format.');
         }
-      } catch (err) {
-        alert('Failed to parse file.');
+      } catch {
+        showToast('Failed to read backup file.');
       }
     };
     reader.readAsText(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const BASIC_COLORS = [
-    { id: '#3b82f6', name: 'Blue', light: '#60a5fa', dark: '#1d4ed8' },
-    { id: '#10b981', name: 'Green', light: '#34d399', dark: '#047857' },
-    { id: '#8b5cf6', name: 'Purple', light: '#a78bfa', dark: '#6d28d9' },
-    { id: '#ef4444', name: 'Red', light: '#f87171', dark: '#b91c1c' },
-    { id: '#f97316', name: 'Orange', light: '#fb923c', dark: '#c2410c' },
-    { id: '#eab308', name: 'Yellow', light: '#fde047', dark: '#a16207' },
-    { id: '#ec4899', name: 'Pink', light: '#f472b6', dark: '#be185d' },
-    { id: '#06b6d4', name: 'Cyan', light: '#22d3ee', dark: '#0e7490' },
-  ];
-
-  const currentColor = BASIC_COLORS.find(
-    c => c.id.toLowerCase() === userData.accentColor?.toLowerCase()
-  ) || BASIC_COLORS[0];
+  const currentColor =
+    ACCENT_PALETTE.find((c) => c.id.toLowerCase() === userData.accentColor?.toLowerCase()) ||
+    ACCENT_PALETTE[0];
 
   return (
-    <div className="pb-16 sm:pb-20">
-      <header className="mb-8 pt-2 sm:pt-3">
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+    <div className="pb-16">
+      <header className="mb-6 pt-1">
+        <h1 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">Settings</h1>
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+          Customize your look, reminders & backup
+        </p>
       </header>
 
-      {/* Thank you toast when tipping */}
       {showThankYouToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-sm font-semibold animate-pop">
-          <Heart size={18} className="fill-white animate-pulse" />
-          <span>Thank you for supporting Dailyz! You rock! ⭐</span>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white px-5 py-3 rounded-full shadow-xl flex items-center gap-2 text-sm font-extrabold animate-pop">
+          <Heart size={17} className="fill-white" />
+          <span>Thank you for supporting Dailyz! ⭐</span>
         </div>
       )}
 
-      <div className="space-y-6">
-        {/* Appearance Section */}
-        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Appearance</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6 items-start">
+        <div className="space-y-5">
+        {/* Appearance & Audio */}
+        <section className="bg-white dark:bg-gray-800 rounded-[1.75rem] p-5 playful-card border-gray-200 dark:border-gray-700">
+          <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+            Appearance & Feedback
+          </h2>
 
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
-                {userData.theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
-              </div>
-              <span className="font-medium">Dark Mode</span>
-            </div>
-            <Material3Switch
-              checked={userData.theme === 'dark'}
-              onChange={() => {
-                triggerHaptic('light', userData.vibrationEnabled);
-                playSound('click', userData.soundEnabled ?? true);
-                updateSettings({ theme: userData.theme === 'dark' ? 'light' : 'dark' });
-              }}
-              ariaLabel="Toggle dark mode"
-            />
-          </div>
-
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
-                <Vibrate size={20} />
-              </div>
-              <span className="font-medium">Vibration</span>
-            </div>
-            <Material3Switch
-              checked={userData.vibrationEnabled}
-              onChange={() => {
-                const nextVal = !userData.vibrationEnabled;
-                if (nextVal) triggerHaptic('medium', true);
-                playSound('pop', userData.soundEnabled ?? true);
-                updateSettings({ vibrationEnabled: nextVal });
-              }}
-              ariaLabel="Toggle vibration"
-            />
-          </div>
-
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
-                <Volume2 size={20} />
-              </div>
-              <div>
-                <span className="font-medium">Playful Sound Effects</span>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Tactile retro audio for quests & rewards</p>
-              </div>
-            </div>
-            <Material3Switch
-              checked={userData.soundEnabled ?? true}
-              onChange={() => {
-                const nextVal = !(userData.soundEnabled ?? true);
-                if (nextVal) playSound('complete', true);
-                updateSettings({ soundEnabled: nextVal });
-              }}
-              ariaLabel="Toggle sound effects"
-            />
-          </div>
-
-          <div className="relative pt-4 border-t border-gray-100 dark:border-gray-700/60">
-            <div className="flex items-center justify-between">
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
-                  <Palette size={20} />
+                <div className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 p-2.5 rounded-xl">
+                  {userData.theme === 'dark' ? <Moon size={19} /> : <Sun size={19} />}
+                </div>
+                <span className="font-bold text-sm text-gray-900 dark:text-white">Dark Mode</span>
+              </div>
+              <TactileSwitch
+                checked={userData.theme === 'dark'}
+                onChange={() => {
+                  triggerHaptic('light', userData.vibrationEnabled);
+                  playSound('click', userData.soundEnabled ?? true);
+                  updateSettings({ theme: userData.theme === 'dark' ? 'light' : 'dark' });
+                }}
+                ariaLabel="Toggle dark mode"
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 p-2.5 rounded-xl">
+                  <Vibrate size={19} />
+                </div>
+                <span className="font-bold text-sm text-gray-900 dark:text-white">Haptic Vibration</span>
+              </div>
+              <TactileSwitch
+                checked={userData.vibrationEnabled}
+                onChange={() => {
+                  const nextVal = !userData.vibrationEnabled;
+                  if (nextVal) triggerHaptic('medium', true);
+                  playSound('pop', userData.soundEnabled ?? true);
+                  updateSettings({ vibrationEnabled: nextVal });
+                }}
+                ariaLabel="Toggle vibration"
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 p-2.5 rounded-xl">
+                  <Volume2 size={19} />
                 </div>
                 <div>
-                  <span className="font-medium">Accent Color</span>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Theme highlights & buttons</p>
+                  <span className="font-bold text-sm text-gray-900 dark:text-white block">
+                    Sound Effects
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Playful chimes for quests & taps
+                  </span>
+                </div>
+              </div>
+              <TactileSwitch
+                checked={userData.soundEnabled ?? true}
+                onChange={() => {
+                  const nextVal = !(userData.soundEnabled ?? true);
+                  if (nextVal) playSound('complete', true);
+                  updateSettings({ soundEnabled: nextVal });
+                }}
+                ariaLabel="Toggle sound effects"
+              />
+            </div>
+          </div>
+
+          <div className="relative pt-4 mt-5 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 p-2.5 rounded-xl">
+                  <Palette size={19} />
+                </div>
+                <div>
+                  <span className="font-bold text-sm text-gray-900 dark:text-white block">
+                    Accent Color
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Nav capsule & highlights
+                  </span>
                 </div>
               </div>
 
-              {/* Dropdown Trigger Button */}
               <button
                 type="button"
                 onClick={() => {
                   triggerHaptic('light', userData.vibrationEnabled);
                   playSound('pop', userData.soundEnabled ?? true);
-                  setIsColorDropdownOpen(prev => !prev);
+                  setIsColorDropdownOpen((prev) => !prev);
                 }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-2xl bg-gray-50 dark:bg-gray-700/60 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-all cursor-pointer active:scale-95"
+                className="btn-tactile btn-tactile-neutral flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 cursor-pointer"
                 aria-expanded={isColorDropdownOpen}
                 aria-haspopup="listbox"
                 aria-label="Select accent color"
               >
-                {/* Designed basic color circle inside trigger */}
                 <div
-                  className="relative w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-xs ring-1 ring-white/50 dark:ring-black/30"
-                  style={{
-                    background: `linear-gradient(135deg, ${currentColor.light} 0%, ${currentColor.id} 60%, ${currentColor.dark} 100%)`,
-                    boxShadow: `0 2px 6px -1px ${currentColor.id}66`,
-                  }}
-                >
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
-                  <div className="absolute top-0.5 left-1 w-1.5 h-0.5 rounded-full bg-white/60 blur-[0.3px] rotate-[-25deg] pointer-events-none" />
-                </div>
-
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  className="w-4 h-4 rounded-full shrink-0 border border-black/15"
+                  style={{ backgroundColor: currentColor.id }}
+                />
+                <span className="text-xs font-extrabold text-gray-800 dark:text-gray-100">
                   {currentColor.name}
                 </span>
-
                 <ChevronDown
-                  size={16}
-                  className={`text-gray-400 transition-transform duration-200 ${isColorDropdownOpen ? 'rotate-180 text-gray-700 dark:text-gray-200' : ''}`}
+                  size={14}
+                  className={`text-gray-400 transition-transform duration-200 ${
+                    isColorDropdownOpen ? 'rotate-180' : ''
+                  }`}
                 />
               </button>
             </div>
 
-            {/* Dropdown Popover */}
             <AnimatePresence>
               {isColorDropdownOpen && (
                 <>
-                  {/* Backdrop for outside click */}
                   <div
                     className="fixed inset-0 z-20"
                     onClick={() => setIsColorDropdownOpen(false)}
@@ -300,12 +245,12 @@ export default function Settings() {
                     initial={{ opacity: 0, y: -6, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                    transition={{ duration: 0.15, ease: 'easeOut' }}
-                    className="absolute right-0 top-full mt-2 w-48 sm:w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-1.5 z-30 max-h-72 overflow-y-auto"
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-700 p-1.5 z-30 max-h-72 overflow-y-auto"
                     role="listbox"
                     aria-label="Accent colors list"
                   >
-                    {BASIC_COLORS.map(color => {
+                    {ACCENT_PALETTE.map((color) => {
                       const isSelected = currentColor.id.toLowerCase() === color.id.toLowerCase();
                       return (
                         <button
@@ -321,28 +266,17 @@ export default function Settings() {
                           }}
                           className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-gray-100 dark:bg-gray-700/80 font-bold text-gray-900 dark:text-white'
-                              : 'hover:bg-gray-50 dark:hover:bg-gray-700/40 text-gray-700 dark:text-gray-300'
+                              ? 'bg-gray-100 dark:bg-gray-700/80 font-extrabold text-gray-950 dark:text-white'
+                              : 'hover:bg-gray-50 dark:hover:bg-gray-700/40 text-gray-700 dark:text-gray-300 font-semibold'
                           }`}
                         >
-                          <div className="flex items-center gap-3">
-                            {/* Designed tactile circle in menu */}
+                          <div className="flex items-center gap-2.5">
                             <div
-                              className="relative w-5 h-5 rounded-full flex items-center justify-center shrink-0 shadow-xs ring-1 ring-white/50 dark:ring-black/30"
-                              style={{
-                                background: `linear-gradient(135deg, ${color.light} 0%, ${color.id} 60%, ${color.dark} 100%)`,
-                                boxShadow: isSelected
-                                  ? `0 2px 8px -1px ${color.id}88`
-                                  : `0 1px 3px -1px ${color.id}44`,
-                              }}
-                            >
-                              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none" />
-                              <div className="absolute top-0.5 left-1 w-1.5 h-0.5 rounded-full bg-white/60 blur-[0.3px] rotate-[-25deg] pointer-events-none" />
-                            </div>
-
-                            <span className="text-sm font-medium">{color.name}</span>
+                              className="w-5 h-5 rounded-full shrink-0 border border-black/15"
+                              style={{ backgroundColor: color.id }}
+                            />
+                            <span className="text-xs">{color.name}</span>
                           </div>
-
                           {isSelected && (
                             <div
                               className="w-4 h-4 rounded-full flex items-center justify-center text-white"
@@ -361,206 +295,33 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* Daily Notifications & Reminders */}
-        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400">
-                <Bell size={22} />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">Daily Notifications</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Get reminded of your daily task.</p>
-              </div>
-            </div>
-            <Material3Switch
-              checked={userData.notificationsEnabled}
-              onChange={async () => {
-                triggerHaptic('selection', userData.vibrationEnabled);
-                if (!userData.notificationsEnabled) {
-                  const granted = await requestNotificationPermission();
-                  if (granted) {
-                    updateSettings({ notificationsEnabled: true });
-                    scheduleDailyReminder(userData.notificationTime || "09:00", true);
-                    showToast(`Daily reminder scheduled for ${formatTimeDisplay(userData.notificationTime || "09:00")}!`);
-                  } else {
-                    showToast("Notification permission not granted.");
-                  }
-                } else {
-                  updateSettings({ notificationsEnabled: false });
-                  scheduleDailyReminder(userData.notificationTime || "09:00", false);
-                  showToast("Daily notifications disabled.");
-                }
-              }}
-              ariaLabel="Toggle daily quest notifications"
-            />
-          </div>
-
-          {userData.notificationsEnabled && (
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-700/60 space-y-4 animate-pop">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wider">
-                    Scheduled Reminder Time: {" "}
-                    <span className="text-xs font-bold text-accent font-mono" style={{ color: 'var(--accent-color)'}}>
-                      {formatTimeDisplay(userData.notificationTime || "08:00")}
-                    </span>
-                  </label>
-                </div>
-
-                {/* Quick Presets */}
-                <div>
-                  {/*<span className="text-[11px] font-semibold text-gray-400 block mb-2">Quick Presets</span>*/}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {[
-                      { time: '07:00', label: '07:00 AM', desc: 'Early Bird' },
-                      { time: '08:00', label: '08:00 AM', desc: 'Morning' },
-                      { time: '13:00', label: '01:00 PM', desc: 'Midday' },
-                      { time: '19:00', label: '07:00 PM', desc: 'Evening' },
-                    ].map(t => (
-                      <button
-                        key={t.time}
-                        type="button"
-                        onClick={() => {
-                          triggerHaptic('selection', userData.vibrationEnabled);
-                          updateSettings({ notificationTime: t.time });
-                          scheduleDailyReminder(t.time, true);
-                          showToast(`Reminder scheduled for ${t.label}!`);
-                        }}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border text-left ${
-                          userData.notificationTime === t.time
-                            ? 'bg-accent text-white border-accent shadow-sm'
-                            : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100'
-                        }`}
-                        style={userData.notificationTime === t.time ? { backgroundColor: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : {}}
-                      >
-                        <div>{t.label}</div>
-                        <div className={`text-[10px] font-normal ${userData.notificationTime === t.time ? 'text-white/80' : 'text-gray-400'}`}>
-                          {t.desc}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  <br />
-                </div>
-
-                {/* Custom Material 3 Time Picker Card */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    triggerHaptic('light', userData.vibrationEnabled);
-                    setShowTimePickerModal(true);
-                  }}
-                  className="w-full p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 mb-3 text-left transition-all cursor-pointer active:scale-[0.99] group shadow-xs"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-xs border border-gray-100 dark:border-gray-700 group-hover:scale-105 transition-transform">
-                      <Clock size={16} className="text-accent" style={{ color: 'var(--accent-color)' }} />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-gray-900 dark:text-white">Custom Reminder Time</div>
-                      <div className="text-[11px] text-gray-500 dark:text-gray-400">Material 3 dial & time picker</div>
-                    </div>
-                  </div>
-
-                  {/* Formatted time pill trigger */}
-                  <div className="flex items-center gap-2">
-                    <div className="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-black bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white shadow-xs group-hover:border-accent transition-colors font-mono">
-                      {formatTimeDisplay(userData.notificationTime || "09:00")}
-                    </div>
-                    <ChevronRight size={16} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-                  </div>
-                </button>
-
-              </div>
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Verify notification banner:
-                </span>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    triggerHaptic('medium', userData.vibrationEnabled);
-                    const sent = await sendInstantNotification(
-                      "Dailyz • Today's Quest 🎯",
-                      "Your daily micro-quest is waiting. Take a moment to complete it!"
-                    );
-                    if (sent) {
-                      showToast("Test notification dispatched!");
-                    } else {
-                      showToast("Please allow notifications in browser/system settings.");
-                    }
-                  }}
-                  className="px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-xs font-bold text-gray-800 dark:text-gray-200 transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
-                >
-                  <Bell size={13} />
-                  <span>Send Test Alert</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Streak Protection & Freezes
-        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400">
-                <Snowflake size={22} className="animate-spin-slow" />
-              </div>
-              <div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">Streak Protection</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {userData.streakFreezes || 0} Streak Freeze{(userData.streakFreezes || 0) === 1 ? '' : 's'} equipped
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                if (userData.points < 25) {
-                  showToast("Need 25 stars to buy a Streak Freeze.");
-                  return;
-                }
-                triggerHaptic('success', userData.vibrationEnabled);
-                buyStreakFreeze(1, 25);
-                showToast("❄️ Streak Freeze equipped!");
-              }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
-                userData.points >= 25
-                  ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-              }`}
-            >
-              <Star size={12} className={userData.points >= 25 ? 'fill-yellow-300 text-yellow-300' : ''} />
-              <span>+1 (25 ⭐)</span>
-            </button>
-          </div>
-        </section> */}
-
-        {/* Data Management Section */}
-        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Data Management</h2>
+        {/* Data Management */}
+        <section className="bg-white dark:bg-gray-800 rounded-[1.75rem] p-5 playful-card border-gray-200 dark:border-gray-700">
+          <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+            Data Management
+          </h2>
 
           <div className="space-y-3">
             <button
+              type="button"
               onClick={handleExport}
-              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer"
+              className="btn-tactile btn-tactile-neutral w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <Download size={20} className="text-gray-500" />
-                <span className="font-medium">Export Backup</span>
+                <Download size={19} className="text-[#067bc2]" />
+                <span className="font-bold text-sm text-gray-900 dark:text-white">Export Backup</span>
               </div>
               <span className="text-xs text-gray-400 font-mono">.json</span>
             </button>
 
             <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer"
+              className="btn-tactile btn-tactile-neutral w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <Upload size={20} className="text-gray-500" />
-                <span className="font-medium">Import Backup</span>
+                <Upload size={19} className="text-gray-600 dark:text-gray-300" />
+                <span className="font-bold text-sm text-gray-900 dark:text-white">Import Backup</span>
               </div>
               <span className="text-xs text-gray-400 font-mono">.json</span>
             </button>
@@ -573,92 +334,226 @@ export default function Settings() {
             />
           </div>
         </section>
+        </div>
 
-        {/* Features & Guides Section */}
-        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+        <div className="space-y-5">
+        {/* Daily Notifications & Reminders */}
+        <section className="bg-white dark:bg-gray-800 rounded-[1.75rem] p-5 playful-card border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                <Bell size={20} />
+              </div>
+              <div>
+                <h2 className="text-sm font-black text-gray-950 dark:text-white">Daily Reminders</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Stay consistent before midnight
+                </p>
+              </div>
+            </div>
+            <TactileSwitch
+              checked={userData.notificationsEnabled}
+              onChange={async () => {
+                triggerHaptic('selection', userData.vibrationEnabled);
+                playSound('pop', userData.soundEnabled ?? true);
+                if (!userData.notificationsEnabled) {
+                  const granted = await requestNotificationPermission();
+                  if (granted) {
+                    updateSettings({ notificationsEnabled: true });
+                    scheduleDailyReminder(userData.notificationTime || '09:00', true);
+                    showToast(
+                      `Daily reminder scheduled for ${formatTimeDisplay(
+                        userData.notificationTime || '09:00'
+                      )}!`
+                    );
+                  } else {
+                    showToast('Notification permission not granted.');
+                  }
+                } else {
+                  updateSettings({ notificationsEnabled: false });
+                  scheduleDailyReminder(userData.notificationTime || '09:00', false);
+                  showToast('Daily notifications disabled.');
+                }
+              }}
+              ariaLabel="Toggle daily quest notifications"
+            />
+          </div>
+
+          {userData.notificationsEnabled && (
+            <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700/70 space-y-4 animate-pop">
+              <div>
+                <label className="text-xs font-bold text-gray-500 dark:text-gray-400 block mb-2.5">
+                  Scheduled Time:{' '}
+                  <span className="font-black text-[#067bc2] dark:text-[#84bcda] font-mono">
+                    {formatTimeDisplay(userData.notificationTime || '09:00')}
+                  </span>
+                </label>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
+                  {[
+                    { time: '07:00', label: '07:00 AM', desc: 'Early Bird' },
+                    { time: '08:00', label: '08:00 AM', desc: 'Morning' },
+                    { time: '13:00', label: '01:00 PM', desc: 'Midday' },
+                    { time: '19:00', label: '07:00 PM', desc: 'Evening' },
+                  ].map((t) => {
+                    const isActive = userData.notificationTime === t.time;
+                    return (
+                      <button
+                        key={t.time}
+                        type="button"
+                        onClick={() => {
+                          triggerHaptic('selection', userData.vibrationEnabled);
+                          playSound('pop', userData.soundEnabled ?? true);
+                          updateSettings({ notificationTime: t.time });
+                          scheduleDailyReminder(t.time, true);
+                          showToast(`Reminder scheduled for ${t.label}!`);
+                        }}
+                        className={`btn-tactile py-2 px-3 rounded-xl text-xs font-extrabold cursor-pointer text-left ${
+                          isActive
+                            ? 'btn-tactile-teal'
+                            : 'btn-tactile-neutral bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200'
+                        }`}
+                      >
+                        <div>{t.label}</div>
+                        <div className={`text-[10px] ${isActive ? 'text-white/85' : 'text-gray-400'}`}>
+                          {t.desc}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic('light', userData.vibrationEnabled);
+                    setShowTimePickerModal(true);
+                  }}
+                  className="btn-tactile btn-tactile-neutral w-full p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 text-left cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                      <Clock size={16} className="text-[#067bc2]" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold text-gray-900 dark:text-white">
+                        Custom Reminder Time
+                      </div>
+                      <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                        Pick exact hour & minute
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="px-3 py-1 rounded-full text-xs font-black bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-mono">
+                      {formatTimeDisplay(userData.notificationTime || '09:00')}
+                    </span>
+                    <ChevronRight size={16} className="text-gray-400" />
+                  </div>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                  Verify alert banner:
+                </span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    triggerHaptic('medium', userData.vibrationEnabled);
+                    playSound('pop', userData.soundEnabled ?? true);
+                    const sent = await sendInstantNotification(
+                      "Dailyz • Today's Quest 🎯",
+                      'Your daily micro-quest is waiting. Take a moment to complete it!'
+                    );
+                    if (sent) {
+                      showToast('Test notification dispatched!');
+                    } else {
+                      showToast('Please allow notifications in browser/system settings.');
+                    }
+                  }}
+                  className="btn-tactile btn-tactile-neutral px-3.5 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-xs font-extrabold text-gray-800 dark:text-gray-100 cursor-pointer flex items-center gap-1.5"
+                >
+                  <Bell size={13} />
+                  <span>Send Test Alert</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Features & Guides */}
+        <section className="bg-white dark:bg-gray-800 rounded-[1.75rem] p-5 playful-card border-gray-200 dark:border-gray-700">
+          <h2 className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
             Features & Guides
           </h2>
 
           <div className="space-y-3">
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic('light', userData.vibrationEnabled);
+                playSound('pop', userData.soundEnabled ?? true);
                 openOnboarding();
               }}
-              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
+              className="btn-tactile btn-tactile-neutral w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-500">
-                  <Compass size={20} />
+                <div className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                  <Compass size={19} />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-gray-900 dark:text-white">App Onboarding Tour</div>
-                  <div className="text-xs text-gray-400">Replay the visual feature showcase</div>
+                  <div className="font-bold text-sm text-gray-900 dark:text-white">
+                    App Onboarding Tour
+                  </div>
+                  <div className="text-xs text-gray-400">Replay the visual welcome tour</div>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight size={18} className="text-gray-400" />
             </button>
 
-            {/*<button
-              onClick={() => {
-                triggerHaptic('light', userData.vibrationEnabled);
-                setShowGuideModal(true);
-              }}
-              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-500">
-                  <Sparkles size={20} />
-                </div>
-                <div className="text-left">
-                  <div className="font-medium text-gray-900 dark:text-white">Adventure Rules & FAQ</div>
-                  <div className="text-xs text-gray-400">Daily quest rules, streaks & stars</div>
-                </div>
-              </div>
-              <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-            </button>*/}
-
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic('light', userData.vibrationEnabled);
+                playSound('pop', userData.soundEnabled ?? true);
                 setShowWidgetModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors cursor-pointer group"
+              className="btn-tactile btn-tactile-neutral w-full flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-500">
-                  <LayoutGrid size={20} />
+                <div className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
+                  <LayoutGrid size={19} />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-gray-900 dark:text-white">Homescreen Widget</div>
-                  <div className="text-xs text-gray-400">Android widget picker preview & setup</div>
+                  <div className="font-bold text-sm text-gray-900 dark:text-white">
+                    Homescreen Widget
+                  </div>
+                  <div className="text-xs text-gray-400">Widget preview & setup</div>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight size={18} className="text-gray-400" />
             </button>
           </div>
         </section>
 
-        {/* Support Section - Moved Under About Dailyz, Raw Links, Non-editable */}
-        <section className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        {/* Support Section */}
+        <section className="bg-white dark:bg-gray-800 rounded-[1.75rem] p-5 playful-card border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="p-2 bg-amber-50 dark:bg-amber-900/30 text-amber-500 rounded-xl">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl">
               <Coffee size={20} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+              <h2 className="text-xs font-black text-gray-950 dark:text-white uppercase tracking-wider">
                 Support the Project
               </h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Fuel development & keep Dailyz free & ad-free
+                Keep Dailyz free & ad-free
               </p>
             </div>
           </div>
 
-          {/* The Support Buttons with Raw Links */}
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-3">
-            {/* Buy Me a Coffee button */}
+          <div className="mt-4 grid grid-cols-1 gap-3">
             <a
               href={BMAC_URL}
               target="_blank"
@@ -667,21 +562,22 @@ export default function Settings() {
                 setShowThankYouToast(true);
                 setTimeout(() => setShowThankYouToast(false), 3000);
               }}
-              className="group relative flex items-center justify-between px-4 py-3.5 rounded-2xl font-bold transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md cursor-pointer border border-[#E8C800] bg-[#FFDD00] text-[#000000] hover:bg-[#F9D600] no-underline"
+              className="btn-tactile btn-tactile-amber flex items-center justify-between px-4 py-3 rounded-2xl font-extrabold cursor-pointer no-underline"
             >
               <div className="flex items-center gap-3">
-                <div className="p-1.5 bg-black/10 rounded-xl group-hover:scale-110 transition-transform">
+                <div className="p-1.5 bg-black/10 rounded-xl">
                   <BuyMeACoffeeIcon className="w-5 h-5 text-black" />
                 </div>
                 <div className="text-left">
-                  <div className="text-sm font-extrabold leading-tight tracking-tight">Buy Me a Coffee</div>
-                  <div className="text-[11px] font-medium opacity-80 leading-none mt-0.5">Tip a warm brew</div>
+                  <div className="text-sm font-black leading-tight">Buy Me a Coffee</div>
+                  <div className="text-[11px] font-bold opacity-75 leading-none mt-0.5">
+                    Tip a warm brew
+                  </div>
                 </div>
               </div>
-              <ExternalLink size={16} className="text-black/60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <ExternalLink size={16} className="text-black/70" />
             </a>
 
-            {/* Ko-fi button */}
             <a
               href={KOFI_URL}
               target="_blank"
@@ -690,127 +586,125 @@ export default function Settings() {
                 setShowThankYouToast(true);
                 setTimeout(() => setShowThankYouToast(false), 3000);
               }}
-              className="group relative flex items-center justify-between px-4 py-3.5 rounded-2xl font-bold transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md cursor-pointer border border-[#E04B48] bg-[#FF5E5B] text-white hover:bg-[#F24E4B] no-underline"
+              className="btn-tactile btn-tactile-pink flex items-center justify-between px-4 py-3 rounded-2xl font-extrabold cursor-pointer no-underline"
             >
               <div className="flex items-center gap-3">
-                <div className="p-1.5 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
+                <div className="p-1.5 bg-white/20 rounded-xl">
                   <KofiIcon className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <div className="text-sm font-extrabold leading-tight tracking-tight">Support on Ko-fi</div>
-                  <div className="text-[11px] font-medium opacity-90 leading-none mt-0.5">0% fee tip jar</div>
+                  <div className="text-sm font-black leading-tight">Support on Ko-fi</div>
+                  <div className="text-[11px] font-bold opacity-90 leading-none mt-0.5">
+                    0% fee tip jar
+                  </div>
                 </div>
               </div>
-              <ExternalLink size={16} className="text-white/80 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <ExternalLink size={16} className="text-white/85" />
             </a>
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-gray-500 dark:text-gray-400">
-            <Heart size={25} className="text-rose-500 fill-rose-500" />
-            <span>Every coffee helps create new quests, features, and rewards!</span>
+            <Heart size={16} className="text-[#ff3b5c] fill-[#ff3b5c] shrink-0" />
+            <span>Every tip fuels new quests & rewards!</span>
           </div>
         </section>
+        </div>
       </div>
 
-      {/* Guide & Rules Modal */}
+      {/* Guide Modal */}
       <AnimatePresence>
-        {showGuideModal && createPortal(
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-hidden"
-            onClick={() => setShowGuideModal(false)}
-          >
+        {showGuideModal &&
+          createPortal(
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 8 }}
-              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              style={{ willChange: 'transform, opacity' }}
-              onClick={e => e.stopPropagation()}
-              className="bg-white dark:bg-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 dark:border-gray-700 max-h-[85vh] overflow-y-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 overflow-hidden"
+              onClick={() => setShowGuideModal(false)}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles size={20} className="text-accent" />
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">Dailyz Adventure Guide</h3>
-                </div>
-                <button
-                  onClick={() => setShowGuideModal(false)}
-                  className="p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="space-y-4 text-xs text-gray-600 dark:text-gray-300">
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <Flame size={14} className="text-orange-500" />
-                    <span>1. Daily Quests & Streaks</span>
-                  </div>
-                  <p>
-                    Every day brings a new habit quest. Tap "Complete Quest" to claim your stars and build your consecutive day streak. Check your streak map at the top bar anytime!
-                  </p>
-                </div>
-
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <Star size={14} className="text-amber-500" />
-                    <span>2. Tomorrow's Mystery Quest</span>
-                  </div>
-                  <p>
-                    Curious about tomorrow? Unlock the next day's quest for 20 stars. It unblurs immediately and saves to become your active quest when the clock strikes tomorrow!
-                  </p>
-                </div>
-
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <Award size={14} className="text-indigo-500" />
-                    <span>3. Rewards & Customization</span>
-                  </div>
-                  <p>
-                    Spend stars in the Rewards Shop on profile frames, elite badges, and cosmetic ranks to elevate your adventurer card.
-                  </p>
-                </div>
-
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
-                  <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <Shield size={14} className="text-emerald-500" />
-                    <span>4. Private & Backup Safe</span>
-                  </div>
-                  <p>
-                    Your progress is saved securely in your browser's local storage. Use the "Export Backup" button anytime to save your data or transfer it to another device.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setShowGuideModal(false)}
-                className="mt-6 w-full py-3 bg-accent text-white font-bold rounded-2xl shadow-sm hover:opacity-95 transition-opacity cursor-pointer"
-                style={{ backgroundColor: 'var(--accent-color)' }}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 8 }}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white dark:bg-gray-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl border-2 border-gray-200 dark:border-gray-700 max-h-[85vh] overflow-y-auto"
               >
-                Got it, let's go!
-              </button>
-            </motion.div>
-          </motion.div>,
-          document.body
-        )}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={20} className="text-[#067bc2]" />
+                    <h3 className="font-black text-lg text-gray-900 dark:text-white">
+                      Dailyz Guide
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowGuideModal(false)}
+                    className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-3 text-xs text-gray-600 dark:text-gray-300">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                    <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <Flame size={14} className="text-[#ff3b5c]" />
+                      <span>1. Daily Quests & XP</span>
+                    </div>
+                    <p>
+                      Complete one quest daily to claim Stars, earn XP toward your next level, and grow your streak.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                    <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <Star size={14} className="text-[#ecc30b]" />
+                      <span>2. Tomorrow's Quest</span>
+                    </div>
+                    <p>
+                      Spend 20 Stars to reveal tomorrow's quest early and save it for midnight!
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                    <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <Award size={14} className="text-[#067bc2]" />
+                      <span>3. Rewards Shop</span>
+                    </div>
+                    <p>
+                      Redeem Stars for Streak Freezes, custom ranks, avatar badges, and frames.
+                    </p>
+                  </div>
+                  <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl space-y-1">
+                    <div className="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                      <Shield size={14} className="text-emerald-500" />
+                      <span>4. Private & Local</span>
+                    </div>
+                    <p>
+                      Your progress stays safely on your device. Export a JSON backup anytime!
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowGuideModal(false)}
+                  className="btn-tactile btn-tactile-teal mt-5 w-full py-3 font-black rounded-2xl cursor-pointer"
+                >
+                  Got it!
+                </button>
+              </motion.div>
+            </motion.div>,
+            document.body
+          )}
       </AnimatePresence>
 
-      {/* Homescreen Widget Setup & Preview Modal */}
-      <HomescreenWidgetModal
-        isOpen={showWidgetModal}
-        onClose={() => setShowWidgetModal(false)}
-      />
+      <HomescreenWidgetModal isOpen={showWidgetModal} onClose={() => setShowWidgetModal(false)} />
 
-      {/* Material 3 Time Picker Modal */}
       <Material3TimePickerModal
         isOpen={showTimePickerModal}
         onClose={() => setShowTimePickerModal(false)}
-        initialTime={userData.notificationTime || "09:00"}
+        initialTime={userData.notificationTime || '09:00'}
         onConfirm={(newTime) => {
           updateSettings({ notificationTime: newTime });
           scheduleDailyReminder(newTime, true);
@@ -819,7 +713,6 @@ export default function Settings() {
         vibrationEnabled={userData.vibrationEnabled}
       />
 
-      {/* Settings Toast Message */}
       <Toast show={!!settingsToast} title={settingsToast ?? ''} icon={<Bell size={20} />} />
     </div>
   );

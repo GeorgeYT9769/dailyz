@@ -174,7 +174,7 @@ export default function Material3TimePickerModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm select-none overflow-hidden"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 select-none overflow-hidden"
         >
           <div 
             className="fixed inset-0"
@@ -494,14 +494,14 @@ export default function Material3TimePickerModal({
                 triggerHaptic('light', vibrationEnabled);
                 onClose();
               }}
-              className="px-4 py-2 rounded-full text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleConfirm}
-              className="px-5 py-2 rounded-full text-xs font-bold text-white shadow-sm hover:opacity-95 transition-all cursor-pointer active:scale-95"
+              className="px-5 py-2 rounded-xl text-xs font-bold text-white shadow-sm hover:opacity-95 transition-all cursor-pointer active:scale-95"
               style={{ backgroundColor: 'var(--accent-color)' }}
             >
               OK
